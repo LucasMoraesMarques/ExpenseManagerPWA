@@ -16,7 +16,7 @@ function App() {
         <Route path="/criar-despesa" element={<ExpenseEdit/>}/>
         <Route path="/criar-referencia" element={<RegardingEdit/>}/>
         <Route path="/adicionar-membro" element={<AddMember/>}/>
-        <Route path="/adicionar-grupo" element={<AddMember/>}/>
+        <Route path="/adicionar-grupo" element={<GroupEdit/>}/>
       </Routes>
       </BrowserRouter>
   );

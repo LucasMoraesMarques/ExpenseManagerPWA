@@ -26,14 +26,38 @@ function Home() {
               id="combo-box-demo"
               options={groups}
               renderInput={(params) => <TextField {...params} label="Movie" />}
+              size="small"
             />
           </div>
           <IconButton ><VisibilityIcon/></IconButton>
         </div>
+        <div className="flex flex-row justify-evenly w-[80%] m-auto">
+          <div className="rounded-xl bg-slate-400 p-3 flex flex-row items-center h-[60px]">
+          <VisibilityIcon/>
+          <div>
+            <p>Title</p>
+            <p>Desc</p>
+          </div>
+          </div>
+          <div className="rounded-xl bg-slate-400 p-3 flex flex-row items-center h-[60px]">
+          <VisibilityIcon/>
+          <div>
+            <p>Title</p>
+            <p>Desc</p>
+          </div>
+          </div>
+          <div className="rounded-xl bg-slate-400 p-3 flex flex-row items-center h-[60px]">
+          <VisibilityIcon/>
+          <div>
+            <p>Title</p>
+            <p>Desc</p>
+          </div>
+          </div>
+        </div>
         <div className="flex flex-row justify-between w-full">
-          <Typography variant="h6" component="h6">
+          <span className="font-bold text-xl">
             Membros
-          </Typography>
+          </span>
           <span className="align-middle">
             <Link to="/">Ver todos</Link>
           </span>
@@ -47,11 +71,11 @@ function Home() {
       <div>
         
       </div>
-      <div>
+      <div className="mb-[50px]">
         <div className="flex flex-row justify-between w-full">
-          <Typography variant="h6" component="h6">
+        <span className="font-bold text-xl">
             Atividades Recentes
-          </Typography>
+          </span>
           <span className="align-middle">
             <Link to="/">Ver todos</Link>
           </span>
@@ -65,6 +89,15 @@ function Home() {
 
           <RecentAction />
 
+          <RecentAction />
+          <RecentAction />
+          <RecentAction />
+          <RecentAction />
+          <RecentAction />
+
+          <RecentAction />
+          <RecentAction />
+          <RecentAction />
           <RecentAction />
         </List>
       </div>

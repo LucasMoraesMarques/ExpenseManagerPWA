@@ -24,7 +24,7 @@ const actions = [
 const screens = [<Home/>,<RegardingList/>,<ExpenseList/>,<Stats/>]
 
 function BaseScreen() {
-  const [screen, setScreen] = useState("Início");
+  const [screen, setScreen] = useState(0);
   const navigate = useNavigate();
 
   return (
