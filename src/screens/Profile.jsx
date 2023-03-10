@@ -21,11 +21,7 @@ import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import Grid from "@mui/material/Grid";
-import DashItem from "../components/DashItem";
-import LineChart from "../components/LineChart";
-import PieChart from "../components/PieChart";
-import ExpenseList from "./ExpenseList";
+import NotificationItem from "../components/NotificationItem";
 const modalStyle = {
   position: "absolute",
   top: "50%",
@@ -59,7 +55,7 @@ function TabPanel(props) {
 }
 
 
-function RegardingDetail() {
+function Profile() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
@@ -92,7 +88,7 @@ function RegardingDetail() {
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Detalhes da Referência
+            Perfil
           </Typography>
           {true && (
             <div>
@@ -128,67 +124,8 @@ function RegardingDetail() {
           )}
         </Toolbar>
       </AppBar>
-      <div >
-        <AppBar position="static">
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            className="bg-[#e2e2e2] text-[#000]"
-            textColor="inherit"
-            indicatorColor="primary"
-            variant="fullWidth"
-            aria-label="full width tabs example"
-          >
-            <Tab label="Geral"/>
-            <Tab label="Despesas"  />
-          </Tabs>
-          <TabPanel value={value} index={0} className="text-black">
-          <h5 className="font-bold">Nome</h5>
-              <span className="ml-[10px] text-sm">Ref name</span> 
-              <h5 className="font-bold">Descrição</h5>
-              <span className="ml-[10px] text-sm">Ref desc</span>  
-              <h5 className="font-bold">Intervalo de duração</h5>
-              <span className="ml-[10px] text-sm"> 01/03/2023 - 31-03-2023</span>  
-              <h5 className="font-bold">Status</h5>
-              <span className="ml-[10px] text-sm">Aberto</span>  
-              <h5 className="font-bold">Grupo</h5>
-              <span className="ml-[10px] text-sm">nome do grupo</span>  
-          
-          <h5>Totais e Saldo</h5>
-          <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-          <Grid item xs={5}>
-            <DashItem title="Total Geral" />
-          </Grid>
-          <Grid item xs={5}>
-            <DashItem title="Total Compartilhado" />
-          </Grid>
-          <Grid item xs={5}>
-            <DashItem title="Total Pessoal" />
-          </Grid>
-          <Grid item xs={5}>
-            <DashItem title="Saldo Compartilhado" />
-          </Grid>
-          <Box className="w-[95%] mx-auto my-3">
-        <h5>Detalhes de Pagamento</h5>
-        <Box className="w-[75%] mx-auto my-3">
-          <PieChart/>
-        </Box>
-      </Box>
-      <Box className="w-[95%] mx-auto my-3">
-        <h5>Compras por dia</h5>
-        <Box className="w-[75%] mx-auto my-3">
-        <LineChart/>
-        </Box>
-      </Box>
-        </Grid>
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        <ExpenseList/>
-      </TabPanel>
-        </AppBar>
-      </div>
     </div>
   );
 }
 
-export default RegardingDetail;
+export default Profile;

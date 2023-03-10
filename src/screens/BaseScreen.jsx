@@ -15,7 +15,7 @@ import GroupsIcon from '@mui/icons-material/Groups';
 
 
 const actions = [
-  { icon: <GroupsIcon />, name: 'Grupo', route: "/adicionar-grupo"},
+  { icon: <GroupsIcon />, name: 'Grupo', route: "/criar-grupo"},
   { icon: <PersonAddAltIcon />, name: 'Membro', route: "/adicionar-membro" },
   { icon: <CalendarMonthIcon />, name: 'Referência', route: "/criar-referencia" },
   { icon: <AttachMoneyIcon />, name: 'Despesa', route: "/criar-despesa" },
@@ -30,7 +30,7 @@ function BaseScreen() {
   return (
     <div className="text-gray-60 h-full">
       <Header />
-      <div>
+      <div className='w-[95%] mx-auto'>
           {screens[screen]}
       </div>
      

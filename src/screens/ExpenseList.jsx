@@ -31,7 +31,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 
 function ExpenseList() {
   return (
-    <div className="w-[95vw] mx-auto">
+    <div className="">
       <div className='flex flex-row justify-between'>
       <TextField
           id="outlined-basic"

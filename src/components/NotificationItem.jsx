@@ -6,7 +6,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import Person2Icon from '@mui/icons-material/Person2';
 
-function Item({key}) {
+function NotificationItem({key}) {
   return (
     <ListItem
     key={key}
@@ -22,4 +22,4 @@ function Item({key}) {
   )
 }
 
-export default Item
+export default NotificationItem
