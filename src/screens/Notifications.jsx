@@ -18,20 +18,11 @@ import { Link, useNavigate, Location } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import NotificationItem from "../components/NotificationItem";
-const modalStyle = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "90%",
-  bgcolor: "background.paper",
-  boxShadow: 24,
-  p: 3,
-};
+import ValidationItem from "../components/ValidationItem";
+import CustomModal from "../components/CustomModal";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -45,15 +36,10 @@ function TabPanel(props) {
       {...other}
       className="bg-white text-black min-h-[calc(100vh-110px)]"
     >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
 }
-
 
 function Notifications() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -71,10 +57,10 @@ function Notifications() {
 
   const editRegarding = () => {
     setAnchorEl(null);
-    navigate("/editar-referencia/5")
+    navigate("/editar-referencia/5");
   };
   return (
-    <div >
+    <div>
       <AppBar position="sticky">
         <Toolbar>
           <IconButton
@@ -117,14 +103,18 @@ function Notifications() {
                 open={Boolean(anchorEl)}
                 onClose={() => setAnchorEl(null)}
               >
-                <MenuItem onClick={editRegarding}>Editar</MenuItem>
-                <MenuItem onClick={() => {}}>Deletar</MenuItem>
+                <MenuItem onClick={() => {}}>Deletar todas</MenuItem>
+                {value == 0 ? (
+                  <MenuItem onClick={() => {}}>Marcar todas como lidas</MenuItem>
+                ) : (
+                  <MenuItem onClick={() => {}}>Validar todas</MenuItem>
+                )}
               </Menu>
             </div>
           )}
         </Toolbar>
       </AppBar>
-      <div >
+      <div>
         <AppBar position="static">
           <Tabs
             value={value}
@@ -135,29 +125,23 @@ function Notifications() {
             variant="fullWidth"
             aria-label="full width tabs example"
           >
-            <Tab label="Geral"/>
-            <Tab label="Validações"  />
+            <Tab label="Geral" />
+            <Tab label="Validações" />
           </Tabs>
           <TabPanel value={value} index={0} className="text-black">
-         <List>
-         <NotificationItem/>
-         <NotificationItem/>
-         <NotificationItem/>
-
-
-         </List>
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-      <List>
-         <NotificationItem/>
-         <NotificationItem/>
-         <NotificationItem/>
-
-
-         </List>
-      </TabPanel>
-      
-
+            <List>
+              <NotificationItem />
+              <NotificationItem />
+              <NotificationItem />
+            </List>
+          </TabPanel>
+          <TabPanel value={value} index={1}>
+            <List>
+              <ValidationItem />
+              <ValidationItem />
+              <ValidationItem />
+            </List>
+          </TabPanel>
         </AppBar>
       </div>
     </div>

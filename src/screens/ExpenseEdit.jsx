@@ -16,28 +16,18 @@ import FormControl from "@mui/material/FormControl";
 import List from "@mui/material/List";
 import Item from "../components/Item";
 import { Link, useNavigate, Location } from "react-router-dom";
-import AddIcon from '@mui/icons-material/Add';
+import AddIcon from "@mui/icons-material/Add";
 import Button from "@mui/material/Button";
-import Box from '@mui/material/Box';
-import Modal from '@mui/material/Modal';const groups = [
+import Box from "@mui/material/Box";
+import CustomModal from "../components/CustomModal";
+const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },
 ];
 
-const modalStyle = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: "90%",
-  bgcolor: 'background.paper',
-  boxShadow: 24,
-  p: 3,
-};
-
 function ExpenseEdit() {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [openModal, setOpenModal] = useState(false)
+  const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
 
   const handleMenu = (event) => {
@@ -57,7 +47,7 @@ function ExpenseEdit() {
             color="inherit"
             aria-label="menu"
             sx={{ mr: 2 }}
-            onClick={() => navigate('/')}
+            onClick={() => navigate("/")}
           >
             <ArrowBackIcon />
           </IconButton>
@@ -105,7 +95,7 @@ function ExpenseEdit() {
           variant="outlined"
           size="medium"
           fullWidth
-          sx={{margin: '10px 0px'}}
+          sx={{ margin: "10px 0px" }}
         />
         <TextField
           id="outlined-basic"
@@ -115,7 +105,7 @@ function ExpenseEdit() {
           rows={3}
           size="medium"
           fullWidth
-          sx={{margin: '10px 0px'}}
+          sx={{ margin: "10px 0px" }}
         />
         <Autocomplete
           disablePortal
@@ -123,7 +113,7 @@ function ExpenseEdit() {
           options={groups}
           renderInput={(params) => <TextField {...params} label="Referência" />}
           size="medium"
-          sx={{margin: '10px 0px'}}
+          sx={{ margin: "10px 0px" }}
         />
         <TextField
           id="outlined-basic"
@@ -131,7 +121,7 @@ function ExpenseEdit() {
           variant="outlined"
           size="medium"
           fullWidth
-          sx={{margin: '10px 0px'}}
+          sx={{ margin: "10px 0px" }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">R$</InputAdornment>
@@ -142,7 +132,7 @@ function ExpenseEdit() {
           color="primary"
           aria-label="upload picture"
           component="label"
-          sx={{margin: '10px 0px'}}
+          sx={{ margin: "10px 0px" }}
           className="w-full"
         >
           <input hidden accept="image/*" type="file" />
@@ -152,79 +142,80 @@ function ExpenseEdit() {
           </Typography>
         </IconButton>
         <div className="flex flex-row justify-between w-full items-center">
-        <span className="font-bold text-xl">
-            Items
-          </span>
+          <span className="font-bold text-xl">Items</span>
           <span className="rounded-[50%] bg-slate-300 align-middle">
-              <IconButton onClick={() => setOpenModal(true)}>
-                <AddIcon/>
-              </IconButton>
+            <IconButton onClick={() => setOpenModal(true)}>
+              <AddIcon />
+            </IconButton>
           </span>
         </div>
-        <Modal
-  open={openModal}
-  onClose={() => setOpenModal(false)}
-  aria-labelledby="modal-modal-title"
-  aria-describedby="modal-modal-description"
->
-<Box sx={modalStyle}>
-          <Typography id="modal-modal-title" variant="h6" component="h2" sx={{fontWeight: 'bold'}}>
-            Adicionar Item
-          </Typography>
+        <CustomModal
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+          children={
+            <>
+              <Typography
+                id="modal-modal-title"
+                variant="h6"
+                component="h2"
+                sx={{ fontWeight: "bold" }}
+              >
+                Adicionar Item
+              </Typography>
 
-          <TextField
-          id="outlined-basic"
-          label="Nome"
-          variant="outlined"
-          size="medium"
-          fullWidth
-          sx={{margin: '10px 0px'}}
+              <TextField
+                id="outlined-basic"
+                label="Nome"
+                variant="outlined"
+                size="medium"
+                fullWidth
+                sx={{ margin: "10px 0px" }}
+              />
+              <TextField
+                id="outlined-basic"
+                label="Preço"
+                variant="outlined"
+                size="medium"
+                fullWidth
+                sx={{ margin: "10px 0px" }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">R$</InputAdornment>
+                  ),
+                }}
+              />
+              <Autocomplete
+                multiple
+                id="tags-standard"
+                options={groups}
+                filterSelectedOptions
+                getOptionLabel={(option) => option.label}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Multiple values"
+                    placeholder="Favorites"
+                    variant="outlined"
+                  />
+                )}
+              />
+              <Box className="flex flex-row justify-between mt-[10px]">
+                <Button variant="outlined" onClick={() => setOpenModal(false)}>
+                  Cancelar
+                </Button>
+                <Button variant="contained">Adicionar</Button>
+              </Box>
+            </>
+          }
         />
-        <TextField
-          id="outlined-basic"
-          label="Preço"
-          variant="outlined"
-          size="medium"
-          fullWidth
-          sx={{margin: '10px 0px'}}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">R$</InputAdornment>
-            ),
-          }}
-        />
-        <Autocomplete
-        multiple
-        id="tags-standard"
-        options={groups}
-        filterSelectedOptions
-        getOptionLabel={(option) => option.label}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Multiple values"
-            placeholder="Favorites"
-            variant="outlined"
-          />
-        )}
-      />
-      <Box className="flex flex-row justify-between mt-[10px]"
->
-      <Button variant="outlined" onClick={() => setOpenModal(false)}>Cancelar</Button>
-<Button variant="contained">Adicionar</Button>
-      </Box>
 
-
-        </Box>
-</Modal>
         <List>
-          <Item/>
-          <Item/>
-          <Item/>
-          <Item/>
-          <Item/>
-          <Item/>
-
+          <Item />
+          <Item />
+          <Item />
+          <Item />
+          <Item />
+          <Item />
         </List>
       </div>
     </div>

@@ -18,23 +18,12 @@ import { Link, useNavigate, Location } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
 import Member from "../components/Member";
+import CustomModal from "../components/CustomModal";
 const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },
 ];
-
-const modalStyle = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "90%",
-  bgcolor: "background.paper",
-  boxShadow: 24,
-  p: 3,
-};
 
 function GroupEdit() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -148,46 +137,45 @@ function GroupEdit() {
             </IconButton>
           </span>
         </div>
-        <Modal
+        <CustomModal
           open={openModal}
           onClose={() => setOpenModal(false)}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={modalStyle}>
-            <Typography
-              id="modal-modal-title"
-              variant="h6"
-              component="h2"
-              sx={{ fontWeight: "bold" }}
-            >
-              Adicionar Membro(s)
-            </Typography>
-            <Autocomplete
-              multiple
-              id="tags-standard"
-              options={groups}
-              filterSelectedOptions
-              getOptionLabel={(option) => option.label}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Multiple values"
-                  placeholder="Favorites"
-                  variant="outlined"
-                />
-              )}
-            />
-            <Box className="flex flex-row justify-between mt-[10px]">
-              <Button variant="outlined" onClick={() => setOpenModal(false)}>
-                Cancelar
-              </Button>
-              <Button variant="contained">Adicionar</Button>
-            </Box>
-          </Box>
-        </Modal>
+          children={
+            <>
+              <Typography
+                id="modal-modal-title"
+                variant="h6"
+                component="h2"
+                sx={{ fontWeight: "bold" }}
+              >
+                Adicionar Membro(s)
+              </Typography>
+              <Autocomplete
+                multiple
+                id="tags-standard"
+                options={groups}
+                filterSelectedOptions
+                getOptionLabel={(option) => option.label}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Multiple values"
+                    placeholder="Favorites"
+                    variant="outlined"
+                  />
+                )}
+              />
+              <Box className="flex flex-row justify-between mt-[10px]">
+                <Button variant="outlined" onClick={() => setOpenModal(false)}>
+                  Cancelar
+                </Button>
+                <Button variant="contained">Adicionar</Button>
+              </Box>
+            </>
+          }
+        />
         <List>
-          <Member variant="full"/>
+          <Member variant="full" />
         </List>
       </div>
     </div>
