@@ -103,7 +103,7 @@ function Account() {
       <div className="w-[95%] mx-auto">
         <List>
           <ListItem>
-              <ListItemButton sx={{ borderBottom: "1px solid #94a3b8" }} onClick={() => navigate("/metodos-de-pagamento")}>
+              <ListItemButton sx={{ borderBottom: "1px solid #94a3b8" }} onClick={() => navigate("/perfil")}>
                 <ListItemIcon>
                   <PermIdentityOutlinedIcon sx={{ width: 35, height: 35 }} />
                 </ListItemIcon>
