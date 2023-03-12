@@ -21,7 +21,12 @@ import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import NotificationItem from "../components/NotificationItem";
+import PaymentItem from "../components/PaymentItem";
+import Item from "../components/Item";
+import FilterListIcon from '@mui/icons-material/FilterList';
+import SearchIcon from "@mui/icons-material/Search";
+import Member from "../components/Member"
+
 const modalStyle = {
   position: "absolute",
   top: "50%",
@@ -43,19 +48,14 @@ function TabPanel(props) {
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       {...other}
-      className="bg-white text-black min-h-[calc(100vh-110px)]"
+      className="bg-white text-black min-h-[calc(100vh-105px)]"
     >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
 }
 
-
-function Profile() {
+function GroupDetail() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
@@ -69,12 +69,12 @@ function Profile() {
     setAnchorEl(event.currentTarget);
   };
 
-  const editRegarding = () => {
+  const editGroup = () => {
     setAnchorEl(null);
-    navigate("/editar-referencia/5")
+    navigate("/editar-grupo/5")
   };
   return (
-    <div >
+    <div>
       <AppBar position="sticky">
         <Toolbar>
           <IconButton
@@ -88,7 +88,7 @@ function Profile() {
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Perfil
+            Detalhes do grupo
           </Typography>
           {true && (
             <div>
@@ -117,15 +117,38 @@ function Profile() {
                 open={Boolean(anchorEl)}
                 onClose={() => setAnchorEl(null)}
               >
-                <MenuItem onClick={editRegarding}>Editar</MenuItem>
+                <MenuItem onClick={editGroup}>Editar</MenuItem>
                 <MenuItem onClick={() => {}}>Deletar</MenuItem>
               </Menu>
             </div>
           )}
         </Toolbar>
       </AppBar>
+      <div className="w-[95%] mx-auto mt-3">
+      <h5 className="font-bold">Nome</h5>
+            <span className="ml-[10px] text-sm">Ref name</span>
+            <h5 className="font-bold">Descrição</h5>
+            <span className="ml-[10px] text-sm">Ref desc</span>
+            <h5 className="font-bold">Data de Criação</h5>
+            <span className="ml-[10px] text-sm"> 01/03/2023</span>
+            <h5 className="font-bold">Número de Referências</h5>
+            <span className="ml-[10px] text-sm"> 10</span>
+            <h5 className="font-bold">Número de Despesas</h5>
+            <span className="ml-[10px] text-sm"> 10</span>
+            <h5 className="font-bold">Ativo ?</h5>
+            <span className="ml-[10px] text-sm"> Sim</span>
+            <h5 className="font-bold">Membros</h5>
+            <List>
+              <Member variant="full"/>
+              <Member variant="full"/>
+              <Member variant="full" />
+              <Member variant="full" />
+
+            </List>
+        
+      </div>
     </div>
   );
 }
 
-export default Profile;
+export default GroupDetail;

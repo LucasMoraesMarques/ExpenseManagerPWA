@@ -6,11 +6,11 @@ import { Link } from 'react-router-dom';
 function Header() {
   return (
     <AppBar position="sticky">
-  <Toolbar variant="dense" className='flex justify-between'>
+  <Toolbar className='flex justify-between'>
   <div className='flex flex-row justify-center items-center'>
-  <Link to="/perfil">
+  <Link to="/conta">
   <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
-      <AccountCircleOutlinedIcon />
+      <AccountCircleOutlinedIcon sx={{height: '30px', width: '30px'}}/>
     </IconButton>
     </Link>
 
@@ -18,7 +18,7 @@ function Header() {
   </div>
   <Link to="/notificacoes">
   <IconButton edge="end" color="inherit" aria-label="menu" >
-      <NotificationsNoneIcon />
+      <NotificationsNoneIcon sx={{height: '30px', width: '30px'}}/>
     </IconButton>
   </Link>
     

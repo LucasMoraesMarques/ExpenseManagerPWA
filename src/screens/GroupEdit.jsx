@@ -56,34 +56,17 @@ function GroupEdit() {
           </Typography>
           {true && (
             <div>
-              <IconButton
+              <Button
                 size="large"
                 aria-label="account of current user"
                 aria-controls="menu-appbar"
                 aria-haspopup="true"
-                onClick={handleMenu}
                 color="inherit"
+                variant="outlined"
               >
-                <MoreVertIcon />
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-              >
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
-              </Menu>
+                Salvar
+              </Button>
+              
             </div>
           )}
         </Toolbar>
@@ -175,7 +158,10 @@ function GroupEdit() {
           }
         />
         <List>
-          <Member variant="full" />
+          <Member variant="full" edit={true}/>
+          <Member variant="full" edit={true}/>
+          <Member variant="full" edit={true}/>
+
         </List>
       </div>
     </div>

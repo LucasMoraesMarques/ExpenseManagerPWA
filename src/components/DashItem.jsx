@@ -1,13 +1,14 @@
 import React from "react";
+import Paper from '@mui/material/Paper';
 
 function DashItem({title}) {
   return (
-    <div className="rounded-xl bg-slate-400 p-3 flex flex-row items-center h-[60px]">
+    <Paper className="rounded-xl p-3 flex flex-row items-center h-[60px]" variant="outlined">
       <div>
         <p>{title}</p>
         <p>Desc</p>
       </div>
-    </div>
+    </Paper>
   );
 }
 

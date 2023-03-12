@@ -22,7 +22,7 @@ function Home() {
   return (
     <div>
       <div className="mt-3">
-      <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+      <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }} justifyContent="center">
           <Grid item xs={5}>
             <DashItem title="Grupos" />
           </Grid>
@@ -41,7 +41,7 @@ function Home() {
             Grupos
           </span>
           <span className="align-middle">
-            <Link to="/">Ver todos</Link>
+            <Link to="/grupos">Ver todos</Link>
           </span>
         </div>
 

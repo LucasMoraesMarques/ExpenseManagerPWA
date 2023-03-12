@@ -20,14 +20,15 @@ import AddIcon from "@mui/icons-material/Add";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import CustomModal from "../components/CustomModal";
-const groups = [
-  { label: "Group 1", id: 1 },
-  { label: "Group 2", id: 2 },
-];
+import PaymentMethodItem from "../components/PaymentMethodItem";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
-function ExpenseEdit() {
+const PAYMENT_METHOD_TYPES = ["Cartão de Crédito", "Cartão de Débito", "Dinheiro"]
+
+function PaymentMethodList() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [paymentType, setPaymentType] = useState("Dinheiro");
   const navigate = useNavigate();
 
   const handleMenu = (event) => {
@@ -52,80 +53,13 @@ function ExpenseEdit() {
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Adicionar Despesa
+            Métodos de Pagamento
           </Typography>
-          {true && (
-            <div>
-              <Button
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                color="inherit"
-                variant="outlined"
-              >
-                Salvar
-              </Button>
-              
-            </div>
-          )}
         </Toolbar>
       </AppBar>
-      <div className="w-[90vw] mx-auto">
-        <TextField
-          id="outlined-basic"
-          label="Nome"
-          variant="outlined"
-          size="medium"
-          fullWidth
-          sx={{ margin: "10px 0px" }}
-        />
-        <TextField
-          id="outlined-basic"
-          label="Descrição"
-          variant="outlined"
-          multiline
-          rows={3}
-          size="medium"
-          fullWidth
-          sx={{ margin: "10px 0px" }}
-        />
-        <Autocomplete
-          disablePortal
-          id="combo-box-demo"
-          options={groups}
-          renderInput={(params) => <TextField {...params} label="Referência" />}
-          size="medium"
-          sx={{ margin: "10px 0px" }}
-        />
-        <TextField
-          id="outlined-basic"
-          label="Valor"
-          variant="outlined"
-          size="medium"
-          fullWidth
-          sx={{ margin: "10px 0px" }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">R$</InputAdornment>
-            ),
-          }}
-        />
-        <IconButton
-          color="primary"
-          aria-label="upload picture"
-          component="label"
-          sx={{ margin: "10px 0px" }}
-          className="w-full"
-        >
-          <input hidden accept="image/*" type="file" />
-          <AttachmentIcon className="-rotate-45" />
-          <Typography variant="p" component="span">
-            Adicionar Arquivos
-          </Typography>
-        </IconButton>
+      <div className="w-[90vw] mx-auto mt-3">
         <div className="flex flex-row justify-between w-full items-center">
-          <span className="font-bold text-xl">Items</span>
+          <span className="font-bold text-xl">Métodos</span>
           <span className="rounded-[50%] bg-slate-300 align-middle">
             <IconButton onClick={() => setOpenModal(true)}>
               <AddIcon />
@@ -143,7 +77,7 @@ function ExpenseEdit() {
                 component="h2"
                 sx={{ fontWeight: "bold" }}
               >
-                Adicionar Item
+                Adicionar Método
               </Typography>
 
               <TextField
@@ -154,34 +88,42 @@ function ExpenseEdit() {
                 fullWidth
                 sx={{ margin: "10px 0px" }}
               />
-              <TextField
-                id="outlined-basic"
-                label="Preço"
-                variant="outlined"
-                size="medium"
-                fullWidth
-                sx={{ margin: "10px 0px" }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">R$</InputAdornment>
-                  ),
-                }}
-              />
               <Autocomplete
-                multiple
                 id="tags-standard"
-                options={groups}
+                options={PAYMENT_METHOD_TYPES}
                 filterSelectedOptions
-                getOptionLabel={(option) => option.label}
+                value={paymentType}
+                onChange={(event, value) => setPaymentType(value)}
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Multiple values"
+                    label="Tipo"
                     placeholder="Favorites"
                     variant="outlined"
+                    
                   />
                 )}
               />
+              {paymentType == "Cartão de Crédito" && (
+                <>
+                  <TextField
+                    id="outlined-basic"
+                    label="Limite"
+                    placeholder="Digite o limite do Cartão"
+                    variant="outlined"
+                    size="medium"
+                    fullWidth
+                    sx={{ margin: "10px 0px" }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">R$</InputAdornment>
+                      ),
+                    }}
+                  />
+                  <DatePicker className="w-full" label="Data de compensação" />
+                </>
+              )}
+
               <Box className="flex flex-row justify-between mt-[10px]">
                 <Button variant="outlined" onClick={() => setOpenModal(false)}>
                   Cancelar
@@ -193,16 +135,13 @@ function ExpenseEdit() {
         />
 
         <List>
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
+          <PaymentMethodItem />
+          <PaymentMethodItem />
+          <PaymentMethodItem />
         </List>
       </div>
     </div>
   );
 }
 
-export default ExpenseEdit;
+export default PaymentMethodList;
