@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
@@ -23,7 +23,9 @@ import CustomModal from "../components/CustomModal";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import {ReactComponent as LoginSVG} from '../assets/img/login.svg';
-
+import { signInWithGoogle } from '../services/firebase';
+import { useSelector, useDispatch } from "react-redux";
+import { setUser } from "../redux/slices/userSlice";
 const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },
@@ -38,6 +40,32 @@ function Login() {
     event.preventDefault();
   };
   const navigate = useNavigate();
+  const dispatch = useDispatch()
+  const user = useSelector(state => state.user)
+
+
+  const handleSignInWithGoogle = async () => {
+    try {
+      const result = await signInWithGoogle()
+      console.log(result)
+      const userInfo = result.additionalUserInfo.profile
+      let data = {
+        email: userInfo.email,
+        password: '',
+        picture: userInfo.picture,
+        google_id: userInfo.id
+
+      }
+      dispatch(setUser(data))
+    } catch(error) {
+      console.log(error)
+
+    }
+  }
+
+  useEffect(()=> {
+    console.log("effect", user)
+  }, [user])
 
 
   return (
@@ -96,7 +124,7 @@ function Login() {
           Entrar
         </Button>
         <span className="my-3">Ou</span>
-        <Button variant="contained" className="w-full" color="success">
+        <Button variant="contained" className="w-full" color="success" onClick={handleSignInWithGoogle}>
           Entrar com google
         </Button>  
         <span className="my-3">Ainda não tem uma conta? <Link to='/registrar' className="text-blue-600">Registre-se aqui</Link> </span>

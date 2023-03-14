@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import List from "@mui/material/List";
 import RecentAction from "../components/RecentAction";
 import Typography from "@mui/material/Typography";
@@ -13,15 +13,34 @@ import GroupItem from "../components/GroupItem";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import DashItem from "../components/DashItem";
+import { setGroups, setGroupID } from "../redux/slices/groupSlice";
+import { useSelector, useDispatch } from "react-redux";
+import { setRegardingID, setRegardings } from "../redux/slices/regardingSlice";
+import { setExpenseID, setExpenses } from "../redux/slices/expenseSlice";
+import { setValidationID, setValidations } from "../redux/slices/validationSlice";
+import { createGroup, deleteGroup, editGroup, loadGroupById, loadGroups } from "../services/groups";
+import { createExpense, editExpense } from "../services/expenses";
+
 
 const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },
 ];
 function Home() {
+  const dispatch = useDispatch()
+  const validations = useSelector(state => state.validation)
+
+
+  const changeState = async () => {
+    createExpense('', {name:'Teste', regarding:1, cost: 1, validated_by:[1]}).then((data) => {
+      console.log(data)
+    })
+  }
+
   return (
     <div>
       <div className="mt-3">
+        <button onClick={changeState}>click</button>
       <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }} justifyContent="center">
           <Grid item xs={5}>
             <DashItem title="Grupos" />
