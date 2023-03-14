@@ -1,6 +1,29 @@
+export const loadUsers = async (apiToken) => {
+  try {
+    const response = await fetch(process.env.REACT_APP_API_ROOT_URL + 'users/', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${apiToken}`,
+      },
+    });
+    const json = await response.json();
+    if (response.status != 200) {
+      return []
+    }
+    return json.results
+  } catch (error) {
+    console.log(error)
+    //Sentry.captureException(error);
+    //ToastAlert("Desculpe, tivemos um problema ao carregar os favoritos. Tente novamente!")
+    return []
+  } finally {
+  }
+};
 export const loadUserById = async (apiToken, id) => {
   try {
-    const response = await fetch(API_ROOT_URL + `users/${id}`,{
+    const response = await fetch(process.env.REACT_APP_API_ROOT_URL + `users/${id}`,{
       method: 'GET',
       headers: {
         'Accept': 'application/json',

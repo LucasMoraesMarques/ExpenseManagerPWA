@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 
 export const groupSlice = createSlice({
   name: 'group',
-  initialState: {userGroups: {}, groupID: ''},
+  initialState: {userGroups: [], groupID: ''},
   reducers: {
     setGroups: (state, action) => {
       // Redux Toolkit allows us to write "mutating" logic in reducers. It

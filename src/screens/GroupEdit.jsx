@@ -3,7 +3,6 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { useState } from "react";
 import MenuItem from "@mui/material/MenuItem";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Menu from "@mui/material/Menu";
@@ -20,16 +19,26 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Member from "../components/Member";
 import CustomModal from "../components/CustomModal";
-const groups = [
-  { label: "Group 1", id: 1 },
-  { label: "Group 2", id: 2 },
-];
+import SearchIcon from "@mui/icons-material/Search";
+
+import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { loadUsers } from "../services/user";
+import { createGroup, editGroup } from "../services/groups";
+
 
 function GroupEdit() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
-
+  let { id=null } = useParams();
+  const groupState = useSelector((state) => state.group);
+  const [group, setGroup] = useState({});
+  const [inputStates, setInputStates] = useState({name: '', description: '', members: []})
+  const [users, setUsers] = useState([])
+  const [filteredUsers, setFilteredUsers] = useState([])
+  const [memberSearch, setMemberSearch] = useState('')
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -37,6 +46,80 @@ function GroupEdit() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const handleChangeName = (e)=> {
+    setInputStates({...inputStates, name: e.target.value})
+  }
+
+  const handleChangeDescription = (e)=> {
+    setInputStates({...inputStates, description: e.target.value})
+  }
+
+  const handleAddMember = (user)=> {
+    console.log("members", user)
+    let members = [...inputStates.members]
+    let index = members.findIndex((item) => item.id == user.id)
+    if(index == -1){
+      members.push(user)
+    }
+    setFilteredUsers(filteredUsers.filter((item) => item.id != user.id))
+
+    setInputStates({...inputStates, members: [...members]})
+  }
+  const handleRemoveMember = (user)=> {
+    console.log("members", user)
+    let members = [...inputStates.members.filter((item) => item.id != user.id)]
+    setInputStates({...inputStates, members: [...members]})
+  }
+
+  const handleSaveGroup = () => {
+    let data = {...inputStates, members:inputStates.members.map(item=>item.id)}
+    console.log(data)
+    if(id){
+      editGroup('', id, data).then((json) => console.log("Ok edit", json))
+    }else{
+      createGroup('', data).then((json) => console.log("Ok create", json))
+    }
+  }
+
+  const handleChangeMemberSearch = (e) => {
+    let value = e.target.value
+    setMemberSearch(value)
+    if(value.trim() == ''){
+      setFilteredUsers([])
+    }
+    else{
+      let upperValue = value ? value.toUpperCase() : ''
+      let words = upperValue.split(" ")
+      let newUsers = users.filter((item) => {
+        let condition1 = inputStates.members.filter((user)=>user.id == item.id).length == 0
+        for(let word of words){
+          word = word.trim()
+          let condition2 = (item.first_name.toUpperCase().includes(word) 
+          || item.last_name.toUpperCase().includes(upperValue) || item.email.toUpperCase().includes(upperValue))
+          if(condition1 && condition2){
+            return true
+          }
+        }
+        })
+      setFilteredUsers([...newUsers])
+    }
+    
+  }
+
+  useEffect(() => {
+    let index = groupState.userGroups.findIndex((item) => item.id == id);
+    console.log(id, index);
+    if (index != -1) {
+      let data = groupState.userGroups[index]
+      setGroup({ ... data});
+      setInputStates({name: data.name, description: data.description, regardingType: '', members: data.members})
+    }
+    loadUsers('').then((json) => {
+      setUsers([...json])
+      setFilteredUsers([...json])
+    })
+  }, []);
   return (
     <div>
       <AppBar position="sticky">
@@ -52,7 +135,7 @@ function GroupEdit() {
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Criar Grupo
+            {id ? 'Editar Grupo': 'Criar Grupo'}
           </Typography>
           {true && (
             <div>
@@ -63,6 +146,7 @@ function GroupEdit() {
                 aria-haspopup="true"
                 color="inherit"
                 variant="outlined"
+                onClick={handleSaveGroup}
               >
                 Salvar
               </Button>
@@ -78,6 +162,8 @@ function GroupEdit() {
           variant="outlined"
           size="medium"
           fullWidth
+          value={inputStates.name}
+          onChange={handleChangeName}
           sx={{ margin: "10px 0px" }}
         />
         <TextField
@@ -88,28 +174,9 @@ function GroupEdit() {
           rows={3}
           size="medium"
           fullWidth
+          value={inputStates.description}
+          onChange={handleChangeDescription}
           sx={{ margin: "10px 0px" }}
-        />
-        <Autocomplete
-          disablePortal
-          id="combo-box-demo"
-          options={groups}
-          renderInput={(params) => <TextField {...params} label="Referência" />}
-          size="medium"
-          sx={{ margin: "10px 0px" }}
-        />
-        <TextField
-          id="outlined-basic"
-          label="Valor"
-          variant="outlined"
-          size="medium"
-          fullWidth
-          sx={{ margin: "10px 0px" }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">R$</InputAdornment>
-            ),
-          }}
         />
 
         <div className="flex flex-row justify-between w-full items-center">
@@ -133,34 +200,45 @@ function GroupEdit() {
               >
                 Adicionar Membro(s)
               </Typography>
-              <Autocomplete
-                multiple
-                id="tags-standard"
-                options={groups}
-                filterSelectedOptions
-                getOptionLabel={(option) => option.label}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Multiple values"
-                    placeholder="Favorites"
-                    variant="outlined"
-                  />
-                )}
-              />
-              <Box className="flex flex-row justify-between mt-[10px]">
+              <div className="w-[90%] mx-auto">
+        <TextField
+          id="outlined-basic"
+          label="Valor"
+          variant="outlined"
+          size="medium"
+          value={memberSearch}
+          onChange={handleChangeMemberSearch}
+          fullWidth
+          sx={{ margin: "10px 0px" }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+        <span className="font-bold text-lg">Resultados de "{memberSearch}"</span>
+        <List>
+        { 
+              filteredUsers.map((item) => {
+                return <Member variant="full" key={item.id} member={item} add={true} onAdd={() => handleAddMember(item)}/>;
+              })}
+        </List>
+      </div>
+              <Box className="flex flex-row justify-end mt-[10px]">
                 <Button variant="outlined" onClick={() => setOpenModal(false)}>
-                  Cancelar
+                  Fechar
                 </Button>
-                <Button variant="contained">Adicionar</Button>
               </Box>
             </>
           }
         />
         <List>
-          <Member variant="full" edit={true}/>
-          <Member variant="full" edit={true}/>
-          <Member variant="full" edit={true}/>
+        { 
+              inputStates.members.map((item) => {
+                return <Member variant="full" key={item.id} member={item} edit={true} onEdit={()=>handleRemoveMember(item)}/>;
+              })}
 
         </List>
       </div>

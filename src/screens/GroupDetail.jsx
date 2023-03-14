@@ -3,7 +3,6 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { useState } from "react";
 import MenuItem from "@mui/material/MenuItem";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Menu from "@mui/material/Menu";
@@ -23,9 +22,12 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import PaymentItem from "../components/PaymentItem";
 import Item from "../components/Item";
-import FilterListIcon from '@mui/icons-material/FilterList';
+import FilterListIcon from "@mui/icons-material/FilterList";
 import SearchIcon from "@mui/icons-material/Search";
-import Member from "../components/Member"
+import Member from "../components/Member";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const modalStyle = {
   position: "absolute",
@@ -60,6 +62,9 @@ function GroupDetail() {
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
   const [value, setValue] = useState(0);
+  let { id } = useParams();
+  const groupState = useSelector((state) => state.group);
+  const [group, setGroup] = useState({});
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -71,8 +76,20 @@ function GroupDetail() {
 
   const editGroup = () => {
     setAnchorEl(null);
-    navigate("/editar-grupo/5")
+    navigate(`/editar-grupo/${id}`);
   };
+
+  useEffect(() => {
+    let index = groupState.userGroups.findIndex((item) => item.id == id);
+    console.log(id, index);
+    if (index != -1) {
+      setGroup({ ...groupState.userGroups[index] });
+    }
+  }, []);
+
+  useEffect(()=>{
+    console.log(Object.keys(group))
+  }, [group])
   return (
     <div>
       <AppBar position="sticky">
@@ -124,29 +141,35 @@ function GroupDetail() {
           )}
         </Toolbar>
       </AppBar>
-      <div className="w-[95%] mx-auto mt-3">
-      <h5 className="font-bold">Nome</h5>
-            <span className="ml-[10px] text-sm">Ref name</span>
-            <h5 className="font-bold">Descrição</h5>
-            <span className="ml-[10px] text-sm">Ref desc</span>
-            <h5 className="font-bold">Data de Criação</h5>
-            <span className="ml-[10px] text-sm"> 01/03/2023</span>
-            <h5 className="font-bold">Número de Referências</h5>
-            <span className="ml-[10px] text-sm"> 10</span>
-            <h5 className="font-bold">Número de Despesas</h5>
-            <span className="ml-[10px] text-sm"> 10</span>
-            <h5 className="font-bold">Ativo ?</h5>
-            <span className="ml-[10px] text-sm"> Sim</span>
-            <h5 className="font-bold">Membros</h5>
-            <List>
-              <Member variant="full"/>
-              <Member variant="full"/>
-              <Member variant="full" />
-              <Member variant="full" />
 
-            </List>
-        
-      </div>
+      {Object.keys(group).length > 0 ? (
+        <div className="w-[95%] mx-auto mt-3">
+          <h5 className="font-bold">Nome</h5>
+          <span className="ml-[10px] text-sm">{group.name}</span>
+          <h5 className="font-bold">Descrição</h5>
+          <span className="ml-[10px] text-sm">{group.description}</span>
+          <h5 className="font-bold">Data de Criação</h5>
+          <span className="ml-[10px] text-sm"> {group.created_at}</span>
+          <h5 className="font-bold">Número de Referências</h5>
+          <span className="ml-[10px] text-sm">{group.number_of_regardings}</span>
+          <h5 className="font-bold">Número de Despesas</h5>
+          <span className="ml-[10px] text-sm"> {group.number_of_expenses}</span>
+          <h5 className="font-bold">Ativo ?</h5>
+          <span className="ml-[10px] text-sm">
+            {" "}
+            {group.is_active ? "Sim" : "Não"}
+          </span>
+          <h5 className="font-bold">Membros</h5>
+          <List>
+            { 
+              "members" in group && group.members.map((item) => {
+                return <Member variant="full" key={item.id} member={item} />;
+              })}
+          </List>
+        </div>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

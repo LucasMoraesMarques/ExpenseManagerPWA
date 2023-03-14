@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState } from "react";
@@ -28,8 +28,9 @@ import CustomModal from "../components/CustomModal";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import GroupItem from "../components/GroupItem";
-import TagIcon from '@mui/icons-material/Tag';
-import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
+import TagIcon from "@mui/icons-material/Tag";
+import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
+import { useSelector } from "react-redux";
 const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },
@@ -42,6 +43,8 @@ function GroupList() {
   const [openModal, setOpenModal] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
+  const groupState = useSelector((state) => state.group);
+  const [filteredGroups, setFilteredGroups] = useState([]);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -50,6 +53,11 @@ function GroupList() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  useEffect(() => {
+    setFilteredGroups([...groupState.userGroups]);
+    console.log(groupState.userGroups)
+  }, []);
   return (
     <div className="">
       <AppBar position="sticky">
@@ -118,32 +126,35 @@ function GroupList() {
               ),
             }}
           />
-
         </div>
 
         <span className="font-bold text-lg">Resultados de "pesquisa"</span>
         <List>
-          <GroupItem variant="full"/>
+          {filteredGroups.length > 0 && filteredGroups.map((item) => {
+            return <GroupItem variant="full" key={item.id} group={item} />;
+          })}
         </List>
       </div>
-      <AppBar position="fixed" color="transparent" sx={{ top: 'auto', bottom: 0 }}>
+      <AppBar
+        position="fixed"
+        color="transparent"
+        sx={{ top: "auto", bottom: 0 }}
+      >
         <Toolbar>
           <IconButton color="inherit" aria-label="open drawer">
             <TagIcon />
           </IconButton>
           <TextField
-          id="outlined-basic"
-          label="Entre em um grupo pelo código"
-          size="medium"
-          fullWidth
-          sx={{margin: '10px 0px'}}
-          placeholder="Digite o código do grupo"
-          
-        />
-        <IconButton color="inherit" aria-label="open drawer">
+            id="outlined-basic"
+            label="Entre em um grupo pelo código"
+            size="medium"
+            fullWidth
+            sx={{ margin: "10px 0px" }}
+            placeholder="Digite o código do grupo"
+          />
+          <IconButton color="inherit" aria-label="open drawer">
             <LoginOutlinedIcon />
           </IconButton>
-          
         </Toolbar>
       </AppBar>
     </div>
