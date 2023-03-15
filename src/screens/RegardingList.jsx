@@ -1,7 +1,7 @@
 import React from 'react'
 import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MenuItem from "@mui/material/MenuItem";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Menu from "@mui/material/Menu";
@@ -25,7 +25,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import CloseIcon from "@mui/icons-material/Close";
 import CustomModal from "../components/CustomModal";
-
+import { useDispatch, useSelector } from 'react-redux';
 const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },
@@ -36,14 +36,46 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 
 function RegardingList() {
   const [openModal, setOpenModal] = useState(false);
+  const dispatch = useDispatch()
+  const regardingState = useSelector(state => state.regarding)
+  const [filteredRegardings, setFilteredRegardings] = useState([]);
+  const [search, setSearch] = useState("");
+
+  const handleChangeSearch = (e) => {
+    let value = e.target.value;
+    setSearch(value);
+    let upperValue = value ? value.toUpperCase() : "";
+    let words = upperValue.split(" ");
+    let newRegardings = regardingState.userRegardings.filter((item) => {
+      for (let word of words) {
+        word = word.trim();
+        let condition =
+          item.name.toUpperCase().includes(word) ||
+          item.description.toUpperCase().includes(upperValue) ||
+          item.group_name.toUpperCase().includes(upperValue);
+        if (condition) {
+          return true;
+        }
+      }
+    });
+    setFilteredRegardings([...newRegardings]);
+  };
+
+  useEffect(() => {
+    setFilteredRegardings([...regardingState.userRegardings]);
+    console.log(regardingState.userRegardings)
+  }, []);
 
   return (
     <div className="w-[95vw] mx-auto">
       <div className='flex flex-row justify-between'>
       <TextField
           id="outlined-basic"
-          label="Valor"
+          label="Pesquisa"
+          placeholder="Filtre as referências por nome"
           variant="outlined"
+          value={search}
+          onChange={handleChangeSearch}
           size="medium"
           fullWidth
           sx={{ margin: "10px 0px" }}
@@ -55,7 +87,7 @@ function RegardingList() {
             ),
           }}
         />
-        <IconButton onClick={() => setOpenModal(true)}><FilterListIcon/></IconButton>
+        {/*<IconButton onClick={() => setOpenModal(true)}><FilterListIcon/></IconButton>*/}
         <CustomModal
           open={openModal}
           onClose={() => setOpenModal(false)}
@@ -129,10 +161,9 @@ function RegardingList() {
         
         <span className="font-bold text-lg">Resultados de "pesquisa"</span>
         <List>
-          <RegardingItem/>
-          <RegardingItem/>
-          <RegardingItem/>
-          <RegardingItem/>
+        {filteredRegardings.length > 0 && filteredRegardings.map((item) => {
+            return <RegardingItem key={item.id} regarding={item} />;
+          })}
         </List>
       </div>
   )

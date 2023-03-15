@@ -3,7 +3,7 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MenuItem from "@mui/material/MenuItem";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Menu from "@mui/material/Menu";
@@ -23,6 +23,7 @@ import Tab from "@mui/material/Tab";
 import NotificationItem from "../components/NotificationItem";
 import ValidationItem from "../components/ValidationItem";
 import CustomModal from "../components/CustomModal";
+import { useSelector } from "react-redux";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -46,6 +47,8 @@ function Notifications() {
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
   const [value, setValue] = useState(0);
+  const notificationState = useSelector((state) => state.notification);
+  const validationState = useSelector((state) => state.validation);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -59,6 +62,7 @@ function Notifications() {
     setAnchorEl(null);
     navigate("/editar-referencia/5");
   };
+
   return (
     <div>
       <AppBar position="sticky">
@@ -130,16 +134,16 @@ function Notifications() {
           </Tabs>
           <TabPanel value={value} index={0} className="text-black">
             <List>
-              <NotificationItem />
-              <NotificationItem />
-              <NotificationItem />
+            {notificationState.userNotifications.length > 0 && notificationState.userNotifications.map((item) => {
+            return <NotificationItem key={item.id} notification={item} />;
+          })}
             </List>
           </TabPanel>
           <TabPanel value={value} index={1}>
             <List>
-              <ValidationItem />
-              <ValidationItem />
-              <ValidationItem />
+            {validationState.userValidations.length > 0 && validationState.userValidations.map((item) => {
+            return <ValidationItem key={item.id} validation={item} />;
+          })}
             </List>
           </TabPanel>
         </AppBar>

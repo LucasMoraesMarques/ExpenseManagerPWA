@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import List from "@mui/material/List";
 import RecentAction from "../components/RecentAction";
 import Typography from "@mui/material/Typography";
@@ -28,31 +28,39 @@ const groups = [
 ];
 function Home() {
   const dispatch = useDispatch()
-  const validations = useSelector(state => state.validation)
+  const groupState = useSelector((state) => state.group);
+  const regardingState = useSelector((state) => state.regarding);
+  const expenseState = useSelector((state) => state.expense);
+  const [numberOfItems, setNumberOfItems] = useState(0)
+
+  useEffect(() => {
+    let count = 0
+    if(expenseState.userExpenses.length > 0){
+      for(let expense of expenseState.userExpenses){
+        count += expense.items.length
+      }
+      setNumberOfItems(count)
+    }
+    
+  }, [expenseState.userExpenses])
 
 
-  const changeState = async () => {
-    createExpense('', {name:'Teste', regarding:1, cost: 1, validated_by:[1]}).then((data) => {
-      console.log(data)
-    })
-  }
 
   return (
     <div>
       <div className="mt-3">
-        <button onClick={changeState}>click</button>
       <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }} justifyContent="center">
           <Grid item xs={5}>
-            <DashItem title="Grupos" />
+            <DashItem title="Grupos" value={groupState.userGroups.length}/>
           </Grid>
           <Grid item xs={5}>
-            <DashItem title="Referências" />
+            <DashItem title="Referências" value={regardingState.userRegardings.length}/>
           </Grid>
           <Grid item xs={5}>
-            <DashItem title="Despesas" />
+            <DashItem title="Despesas"  value={expenseState.userExpenses.length}/>
           </Grid>
           <Grid item xs={5}>
-            <DashItem title="Items" />
+            <DashItem title="Items" value={numberOfItems}/>
           </Grid>
         </Grid>
         <div className="flex flex-row justify-between w-full">
@@ -65,8 +73,9 @@ function Home() {
         </div>
 
         <List component={Stack} direction="row" className="overflow-y-scroll">
-          <GroupItem />
-          <GroupItem />
+        {groupState.userGroups.length > 0 && groupState.userGroups.map((item) => {
+            return <GroupItem variant="rounded" key={item.id} group={item} />;
+          })}
         </List>
       </div>
       <div>

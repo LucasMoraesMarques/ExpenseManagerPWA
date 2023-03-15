@@ -10,19 +10,22 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Chip from '@mui/material/Chip';
 import { Link, useNavigate, Location } from "react-router-dom";
 
-
-function ExpenseItem({key}) {
+function ExpenseItem({key, expense}) {
   const navigate = useNavigate();
 
   return (
     <ListItem
     key={key}
     disableGutters
-    onClick={() => navigate("/despesa/5")}
+    onClick={() => navigate(`/despesa/${expense.id}`)}
     >
       <ListItemButton className="flex flex-row justify-center items-start">
-        <ListItemText primary="Work - Ref 1" secondary="R$ 25,50" />
-        <Chip label="Pago" color="success" />
+        <span className="absolute top-[35px] left-[100px]">
+</span>
+        <ListItemText primary={`${expense.name} - ${expense.regarding_name}`} secondary={expense.date +  (expense.is_validated ? ' - Validada' : ' - Em validação')} />
+        {/*<Chip label="Pago" color="success" />*/}
+        <span>R$ {expense.cost}</span>
+        
 
       </ListItemButton>
         

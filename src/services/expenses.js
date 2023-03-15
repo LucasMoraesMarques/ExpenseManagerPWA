@@ -13,7 +13,7 @@ export const loadExpenses = async (apiToken) => {
     if (response.status != 200) {
       return []
     }
-    return json.results
+    return json
   } catch (error) {
     console.log(error)
     //Sentry.captureException(error);

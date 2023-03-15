@@ -12,7 +12,7 @@ import CustomModal from "../components/CustomModal";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 
-function ValidationItem({key}) {
+function ValidationItem({key, validation}) {
   const [openModal, setOpenModal] = useState(false);
 
   return (
@@ -28,8 +28,7 @@ function ValidationItem({key}) {
     >
       <ListItemButton className="flex flex-row justify-center items-start">
       
-        <ListItemText primary="Work" secondary="Lucas, Baiano" />
-        <p>R$ 2,50</p>
+        <ListItemText primary={validation.title} secondary={validation.description} />
       </ListItemButton>
       <CustomModal
           open={openModal}

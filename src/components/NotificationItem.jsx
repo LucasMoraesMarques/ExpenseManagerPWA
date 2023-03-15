@@ -6,7 +6,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import Person2Icon from '@mui/icons-material/Person2';
 
-function NotificationItem({key}) {
+function NotificationItem({key, notification}) {
   return (
     <ListItem
     key={key}
@@ -14,8 +14,7 @@ function NotificationItem({key}) {
     >
       <ListItemButton className="flex flex-row justify-center items-start">
       
-        <ListItemText primary="Work" secondary="Lucas, Baiano" />
-        <p>R$ 2,50</p>
+        <ListItemText primary={notification.title} secondary={notification.message} />
       </ListItemButton>
         
       </ListItem>

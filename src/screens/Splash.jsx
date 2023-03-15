@@ -40,7 +40,7 @@ function Splash() {
 
 
   const redirect = () => {
-    setTimeout(() => navigate("/editar-grupo/4"), 3000)
+    setTimeout(() => navigate("/inicio"), 3000)
   }
 
   useEffect(()=> {

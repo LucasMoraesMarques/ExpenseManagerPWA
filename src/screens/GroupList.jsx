@@ -45,6 +45,7 @@ function GroupList() {
   const navigate = useNavigate();
   const groupState = useSelector((state) => state.group);
   const [filteredGroups, setFilteredGroups] = useState([]);
+  const [search, setSearch] = useState("");
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -52,6 +53,23 @@ function GroupList() {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleChangeSearch = (e) => {
+    let value = e.target.value;
+    setSearch(value);
+    let upperValue = value ? value.toUpperCase() : "";
+    let words = upperValue.split(" ");
+    let newGroups = groupState.userGroups.filter((item) => {
+      for (let word of words) {
+        word = word.trim();
+        let condition = item.name.toUpperCase().includes(word);
+        if (condition) {
+          return true;
+        }
+      }
+    });
+    setFilteredGroups([...newGroups]);
   };
 
   useEffect(() => {
@@ -113,8 +131,11 @@ function GroupList() {
         <div className="flex flex-row justify-between">
           <TextField
             id="outlined-basic"
-            label="Valor"
+            label="Pesquisa"
+            placeholder="Filtre os grupos por nome"
             variant="outlined"
+            value={search}
+            onChange={handleChangeSearch}
             size="medium"
             fullWidth
             sx={{ margin: "10px 0px" }}

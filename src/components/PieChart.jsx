@@ -14,19 +14,6 @@ import {
 import { Pie } from "react-chartjs-2";
 
 
-export const data = {
-  labels: ["EM VALIDAÇÃO", "AGUARDANDO", "PAGO", "VENCIDO"],
-  datasets: [
-    {
-      label: "# of Votes",
-      data: [20, 10, 60, 10],
-      backgroundColor: ["#fb923c", "#facc15", "#65a30d", "#ef4444"],
-      borderColor: ["#fb923c", "#facc15", "#365314", "#b91c1c"],
-      borderWidth: 1,
-    },
-  ],
-};
-
 export const options = {
 
   scales: {
@@ -84,7 +71,7 @@ ChartJS.register(
   Tooltip,
   Legend,
 );
-function Stats() {
+function Stats({data}) {
   return (
     <Pie data={data} /> 
   );

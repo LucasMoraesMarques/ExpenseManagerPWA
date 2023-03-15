@@ -6,7 +6,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import Person2Icon from '@mui/icons-material/Person2';
 
-function Item({key}) {
+function Item({key, item}) {
   return (
     <ListItem
     key={key}
@@ -14,8 +14,8 @@ function Item({key}) {
     >
       <ListItemButton className="flex flex-row justify-center items-start">
       
-        <ListItemText primary="Work" secondary="Lucas, Baiano" />
-        <p>R$ 2,50</p>
+        <ListItemText primary={item.name} secondary={item.consumers_names} />
+        <p>R$ {item.price}</p>
       </ListItemButton>
         
       </ListItem>

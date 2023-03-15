@@ -1,7 +1,7 @@
 import React from "react";
 import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MenuItem from "@mui/material/MenuItem";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Menu from "@mui/material/Menu";
@@ -27,6 +27,7 @@ import ExpenseItem from "../components/ExpenseItem";
 import CustomModal from "../components/CustomModal";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import CloseIcon from "@mui/icons-material/Close";
+import { useDispatch, useSelector } from "react-redux";
 const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },
@@ -35,16 +36,51 @@ const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-function ExpenseList() {
+function ExpenseList({ regarding = null }) {
   const [openModal, setOpenModal] = useState(false);
+  const dispatch = useDispatch();
+  const expenseState = useSelector((state) => state.expense);
+  const [filteredExpenses, setFilteredExpenses] = useState([]);
+  const [search, setSearch] = useState("");
+
+  const handleChangeSearch = (e) => {
+    let value = e.target.value;
+    setSearch(value);
+    let upperValue = value ? value.toUpperCase() : "";
+    let words = upperValue.split(" ");
+    let newExpenses = expenseState.userExpenses.filter((item) => {
+      let condition1 = true
+      if(regarding){
+        condition1 = item.regarding == regarding;
+      }
+      for (let word of words) {
+        word = word.trim();
+        let condition2 =
+          item.name.toUpperCase().includes(word) ||
+          item.description.toUpperCase().includes(upperValue) ||
+          item.regarding_name.toUpperCase().includes(upperValue);
+        if (condition1 && condition2) {
+          return true;
+        }
+      }
+    });
+    setFilteredExpenses([...newExpenses]);
+  };
+
+  useEffect(() => {
+    setFilteredExpenses(expenseState.userExpenses)
+  }, []);
 
   return (
     <div className="">
       <div className="flex flex-row justify-between">
         <TextField
           id="outlined-basic"
-          label="Valor"
+          label="Pesquisa"
+          placeholder="Filtre as despesas por nome"
           variant="outlined"
+          value={search}
+          onChange={handleChangeSearch}
           size="medium"
           fullWidth
           sx={{ margin: "10px 0px" }}
@@ -56,9 +92,14 @@ function ExpenseList() {
             ),
           }}
         />
-        <IconButton onClick={() => setOpenModal(true)}>
-          <FilterListIcon />
-        </IconButton>
+        {true ? (
+          <></>
+        ) : (
+          <IconButton onClick={() => setOpenModal(true)}>
+            <FilterListIcon />
+          </IconButton>
+        )}
+
         <CustomModal
           open={openModal}
           onClose={() => setOpenModal(false)}
@@ -194,12 +235,20 @@ function ExpenseList() {
         />
       </div>
 
-      <span className="font-bold text-lg">Resultados de "pesquisa"</span>
+      <span className="font-bold text-lg">
+        {search ? `Resultados de "${search}"` : ""}
+      </span>
+      <br />
+      <span className="text-sm">
+        Mostrando {filteredExpenses.length} despesas
+      </span>
       <List>
-        <ExpenseItem />
-        <ExpenseItem />
-        <ExpenseItem />
+        {filteredExpenses.length > 0 &&
+          filteredExpenses.map((item) => {
+            return <ExpenseItem key={item.id} expense={item} />;
+          })}
       </List>
+      <div className="mt-[50px]"></div>
     </div>
   );
 }

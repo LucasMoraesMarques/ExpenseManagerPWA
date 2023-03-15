@@ -156,7 +156,6 @@ function GroupDetail() {
           <span className="ml-[10px] text-sm"> {group.number_of_expenses}</span>
           <h5 className="font-bold">Ativo ?</h5>
           <span className="ml-[10px] text-sm">
-            {" "}
             {group.is_active ? "Sim" : "Não"}
           </span>
           <h5 className="font-bold">Membros</h5>

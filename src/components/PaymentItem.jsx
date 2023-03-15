@@ -8,18 +8,27 @@ import ListItemText from "@mui/material/ListItemText";
 import AddIcon from "@mui/icons-material/Add";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 
-function PaymentItem({ key }) {
+const STATUS ={
+  VALIDATION: "EM VALIDAÇÃO",
+  AWAITING:"AGUARDANDO",
+  PAID: "PAGO",
+  OVERDUE: "VENCIDO"
+}
+
+function PaymentItem({ key, payment }) {
   return (
     <ListItem key={key} disableGutters className="w-full p-0" disablePadding>
       <ListItemButton >
-        <ListItemAvatar >
-          <Avatar >
-            <Person2Icon />
+        <ListItemAvatar>
+          <Avatar sx={{bgcolor: "blue"}}>
+          {payment.payment_method.type == 'CREDIT' ? <CreditCardIcon sx={{fontSize: '30px'}}/> : <LocalAtmIcon sx={{fontSize: '30px'}}/>}
           </Avatar>
         </ListItemAvatar>
-        <ListItemText primary="Lucas" secondary="Dinheiro" sx={{ lineHeight: 1, margin: 0 }}/>
-        <span>R$ 25,00</span>
+        <ListItemText primary={`${payment.payer_name} pagou`} secondary={`${payment.payment_method.description} - ${STATUS[payment.payment_status]}`} sx={{ lineHeight: 1, margin: 0 }}/>
+        <span>R$ {payment.value}</span>
 
       </ListItemButton>
       
