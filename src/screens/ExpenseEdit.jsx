@@ -20,6 +20,7 @@ import AddIcon from "@mui/icons-material/Add";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import CustomModal from "../components/CustomModal";
+import BackButton from "../components/BackButton";
 const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },
@@ -41,16 +42,7 @@ function ExpenseEdit() {
     <div>
       <AppBar position="sticky">
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-            onClick={() => navigate("/")}
-          >
-            <ArrowBackIcon />
-          </IconButton>
+          <BackButton/>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Adicionar Despesa
           </Typography>

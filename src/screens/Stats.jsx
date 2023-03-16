@@ -53,6 +53,7 @@ function Stats() {
           </Grid>
         </Grid>
       </Box>
+      {/*
       <Box className="w-[95%] mx-auto my-3">
         <h5>Detalhes de Pagamento</h5>
         <Box className="w-[75%] mx-auto my-3">
@@ -65,6 +66,7 @@ function Stats() {
         <LineChart/>
         </Box>
       </Box>
+  */}
       <CustomModal
           open={openModal}
           onClose={() => setOpenModal(false)}

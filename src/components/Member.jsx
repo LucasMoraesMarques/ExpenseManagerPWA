@@ -73,7 +73,7 @@ function Member({ key, member, variant = "rounded", add = false, edit = false, o
           <Avatar {...stringAvatar(fullName)}/>
         </ListItemAvatar>
         <ListItemText primary={fullName} secondary={"Desde " + "Jan 7, 2014"} />
-        {!(add || edit) ? <Chip label="Admin" color="primary"/> : <></>}
+        {!(true) ? <Chip label="Admin" color="primary"/> : <></>}
       </ListItemButton>
       { add && 
       <span className="rounded-[50%] bg-slate-300 align-middle">
@@ -84,7 +84,7 @@ function Member({ key, member, variant = "rounded", add = false, edit = false, o
 
       }
       { edit && <>
-        <Autocomplete
+        {/*<Autocomplete
                 id="tags-standard"
                 options={groups}
                 filterSelectedOptions
@@ -98,7 +98,7 @@ function Member({ key, member, variant = "rounded", add = false, edit = false, o
                     variant="outlined"
                   />
                 )}
-              />
+              />*/}
         <IconButton onClick={onEdit}><DisabledByDefaultIcon sx={{ color: "red" }}/></IconButton>
         <CustomModal
           open={openModal}

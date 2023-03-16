@@ -26,6 +26,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import CloseIcon from "@mui/icons-material/Close";
 import CustomModal from "../components/CustomModal";
 import { useDispatch, useSelector } from 'react-redux';
+import NoData from '../components/NoData';
 const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },
@@ -158,13 +159,25 @@ function RegardingList() {
           }
         />
       </div>
-        
-        <span className="font-bold text-lg">Resultados de "pesquisa"</span>
-        <List>
-        {filteredRegardings.length > 0 && filteredRegardings.map((item) => {
+      
+        <span className="font-bold text-lg">
+        {search ? `Resultados de "${search}"` : ""}
+      </span>
+      <div className="flex flew-row justify-between items-center">
+        <span className="text-sm">
+          Mostrando {filteredRegardings.length} referências
+        </span>
+      </div>
+
+      <List>
+        {filteredRegardings.length > 0 ? (
+          filteredRegardings.map((item) => {
             return <RegardingItem key={item.id} regarding={item} />;
-          })}
-        </List>
+          })
+        ) : (
+          <NoData message="Nenhuma referência encontrada" />
+        )}
+      </List>
       </div>
   )
 }

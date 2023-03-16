@@ -27,6 +27,7 @@ import LineChart from "../components/LineChart";
 import PieChart from "../components/PieChart";
 import ExpenseList from "./ExpenseList";
 import { useSelector } from "react-redux";
+import BackButton from "../components/BackButton";
 const modalStyle = {
   position: "absolute",
   top: "50%",
@@ -74,7 +75,7 @@ function RegardingDetail() {
 
   const editRegarding = () => {
     setAnchorEl(null);
-    navigate("/editar-referencia/5");
+    navigate(`/editar-referencia/${id}`);
   };
 
   useEffect(() => {
@@ -91,16 +92,7 @@ function RegardingDetail() {
     <div>
       <AppBar position="sticky">
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-            onClick={() => navigate("/")}
-          >
-            <ArrowBackIcon />
-          </IconButton>
+          <BackButton/>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Detalhes da Referência
           </Typography>

@@ -26,6 +26,8 @@ import Item from "../components/Item";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import SearchIcon from "@mui/icons-material/Search";
 import { useSelector } from "react-redux";
+import BackButton from "../components/BackButton";
+
 const modalStyle = {
   position: "absolute",
   top: "50%",
@@ -108,16 +110,7 @@ function ExpenseDetail() {
     <div>
       <AppBar position="sticky">
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-            onClick={() => navigate("/")}
-          >
-            <ArrowBackIcon />
-          </IconButton>
+          <BackButton/>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Detalhes da Despesa
           </Typography>

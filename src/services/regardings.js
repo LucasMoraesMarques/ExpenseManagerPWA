@@ -37,14 +37,14 @@ export const editRegarding = async (apiToken, id, data) => {
     )
     const json = await response.json();
     if (response.status != 200) {
-      return []
+      return {flag:false, data:json}
     }
-    return json
+    return {flag:true, data:json}
   } catch (error) {
     console.log(error)
     //Sentry.captureException(error);
     //ToastAlert("Desculpe, tivemos um problema ao carregar os favoritos. Tente novamente!")
-    return []
+    return {flag:false, data:[]}
   } finally {
   }
 };

@@ -27,14 +27,19 @@ import ExpenseItem from "../components/ExpenseItem";
 import CustomModal from "../components/CustomModal";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import CloseIcon from "@mui/icons-material/Close";
+import NoData from "../components/NoData";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from "react-redux";
+import { deleteExpenses } from "../services/expenses";
+import { setExpenses } from "../redux/slices/expenseSlice";
+import { loadRegardings } from "../services/regardings";
+import { setRegardings } from "../redux/slices/regardingSlice";
+import AlertToast from "../components/AlertToast";
 const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },
 ];
-const Alert = React.forwardRef(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
+
 
 function ExpenseList({ regarding = null }) {
   const [openModal, setOpenModal] = useState(false);
@@ -42,6 +47,57 @@ function ExpenseList({ regarding = null }) {
   const expenseState = useSelector((state) => state.expense);
   const [filteredExpenses, setFilteredExpenses] = useState([]);
   const [search, setSearch] = useState("");
+  const [edit, setEdit] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [deleteIds, setDeleteIds] = useState([]);
+  const [message, setMessage] = useState({});
+
+
+  const handleCheckbox = (id) => {
+    let index = deleteIds.indexOf(id)
+    console.log(id, index, deleteIds)
+    if(index != -1){
+      setDeleteIds(deleteIds.filter((item) => item != id))
+    }
+    else{
+      let newIds = [...deleteIds]
+      newIds.push(id)
+      setDeleteIds([...newIds])
+    }
+  }
+
+
+  const handleRemoveSelected = async () => {
+    console.log(deleteIds)
+    deleteExpenses('', deleteIds).then((flag) => {
+      if(flag){
+        let newExpenses = expenseState.userExpenses.filter((item) => !deleteIds.includes(item.id))
+        setDeleteIds([])
+        setEdit(false)
+        dispatch(setExpenses([...newExpenses]))
+        loadRegardings('').then((data) => dispatch(setRegardings([...data])))
+        setMessage({
+          severity: "success",
+          title: "Sucesso!",
+          body: "Despesas removidas com sucesso!",
+        });
+
+      }
+      else{
+        setMessage({
+          severity: "error",
+          title: "Erro!",
+          body: "Tivemos problemas ao deletar as despesas. Tente novamente!",
+        });
+      }
+      setOpen(true)
+    })
+  }
+
+  useEffect(() => {
+    console.log(deleteIds)
+
+  }, [deleteIds])
 
   const handleChangeSearch = (e) => {
     let value = e.target.value;
@@ -49,8 +105,8 @@ function ExpenseList({ regarding = null }) {
     let upperValue = value ? value.toUpperCase() : "";
     let words = upperValue.split(" ");
     let newExpenses = expenseState.userExpenses.filter((item) => {
-      let condition1 = true
-      if(regarding){
+      let condition1 = true;
+      if (regarding) {
         condition1 = item.regarding == regarding;
       }
       for (let word of words) {
@@ -68,8 +124,8 @@ function ExpenseList({ regarding = null }) {
   };
 
   useEffect(() => {
-    setFilteredExpenses(expenseState.userExpenses)
-  }, []);
+    setFilteredExpenses(expenseState.userExpenses);
+  }, [expenseState]);
 
   return (
     <div className="">
@@ -238,17 +294,44 @@ function ExpenseList({ regarding = null }) {
       <span className="font-bold text-lg">
         {search ? `Resultados de "${search}"` : ""}
       </span>
-      <br />
-      <span className="text-sm">
-        Mostrando {filteredExpenses.length} despesas
-      </span>
+      <div className="flex flew-row justify-between items-center">
+        <span className="text-sm">
+          Mostrando {filteredExpenses.length} despesas
+        </span>
+        {edit ? (
+          <div>
+            <Button onClick={() => {setEdit(false);setDeleteIds([])}}>Cancelar</Button>
+            <Button onClick={handleRemoveSelected}>Remover</Button>
+          </div>
+        ) : (
+          <IconButton onClick={() => setEdit(true)}>
+            <DeleteIcon sx={{ color: "red" }} />
+          </IconButton>
+        )}
+      </div>
+
       <List>
-        {filteredExpenses.length > 0 &&
+        {filteredExpenses.length > 0 ? (
           filteredExpenses.map((item) => {
-            return <ExpenseItem key={item.id} expense={item} />;
-          })}
+            return <ExpenseItem key={item.id} expense={item} edit={edit} onCheck={() => handleCheckbox(item.id)}/>;
+          })
+        ) : (
+          <NoData message="Nenhuma despesa encontrada" />
+        )}
       </List>
       <div className="mt-[50px]"></div>
+      {Object.keys(message) && (
+        <AlertToast
+          severity={message.severity}
+          title={message.title}
+          message={message.body}
+          open={open}
+          onClose={() => {
+            setOpen(false);
+            setMessage({});
+          }}
+        />
+      )}
     </div>
   );
 }
