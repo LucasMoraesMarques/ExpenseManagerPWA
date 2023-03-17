@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
@@ -14,7 +14,7 @@ import AttachmentIcon from "@mui/icons-material/Attachment";
 import InputAdornment from "@mui/material/InputAdornment";
 import FormControl from "@mui/material/FormControl";
 import List from "@mui/material/List";
-import { Link, useNavigate, Location } from "react-router-dom";
+import { Link, useNavigate, Location, useParams } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
@@ -26,6 +26,10 @@ import ShareIcon from '@mui/icons-material/Share';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { loadUsers } from "../services/user";
+import { createGroup, editGroup, loadGroups } from "../services/groups";
+import { setGroups } from "../redux/slices/groupSlice";
+import { useSelector } from "react-redux";
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -51,7 +55,12 @@ function AddMember() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
+  let { id = null } = useParams();
   const [openToast, setOpenToast] = useState(false);
+  const groupState = useSelector((state) => state.group);
+  const [group, setGroup] = useState({});
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   
   const copyGroupCode = (code) => {
     navigator.clipboard.writeText(code);
@@ -66,6 +75,18 @@ function AddMember() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  useEffect(() => {
+    let index = groupState.userGroups.findIndex((item) => item.id == id);
+    console.log(id, index);
+    if (index != -1) {
+      let data = groupState.userGroups[index];
+      setGroup({ ...data });
+    }
+    loadUsers("").then((json) => {
+      setUsers([...json]);
+    });
+  }, [])
   return (
     <div>
       <AppBar position="sticky">
@@ -119,10 +140,10 @@ function AddMember() {
           fullWidth
           sx={{margin: '10px 0px'}}
           disabled
-          defaultValue="das45fs54d5f4"
+          defaultValue={group.hash_id}
           
         />
-          <IconButton color="inherit" onClick={() => copyGroupCode("fdgdf")}>
+          <IconButton color="inherit" onClick={() => copyGroupCode(group.hash_id)}>
             <ContentCopyIcon />
           </IconButton>
         </Toolbar>

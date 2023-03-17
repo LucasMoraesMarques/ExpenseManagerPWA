@@ -96,7 +96,7 @@ function GroupEdit() {
           let index = groupState.userGroups.findIndex((item) => item.id == id);
           let newGroups = [...groupState.userGroups];
           console.log(newGroups);
-          newGroups[index] = data;
+          newGroups[index] = {...newGroups[index], ...inputStates};
           dispatch(setGroups(newGroups));
           setMessage({
             severity: "success",

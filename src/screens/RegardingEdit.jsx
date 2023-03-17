@@ -24,7 +24,7 @@ import BackButton from "../components/BackButton";
 import { useSelector, useDispatch } from "react-redux";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
-import { createRegarding, editRegarding } from "../services/regardings";
+import { createRegarding, editRegarding, loadRegardings } from "../services/regardings";
 import { setRegardings } from "../redux/slices/regardingSlice";
 import AlertToast from "../components/AlertToast";
 
@@ -34,11 +34,10 @@ const REGARDING_STATES = [
 ];
 
 function RegardingEdit() {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
   let { id = null } = useParams();
   const regardingState = useSelector((state) => state.regarding);
+  const groupState = useSelector((state) => state.group);
   const [regarding, setRegarding] = useState({});
   const [inputStates, setInputStates] = useState({
     name: "",
@@ -46,6 +45,7 @@ function RegardingEdit() {
     start_date: "",
     end_date: "",
     is_closed: REGARDING_STATES[0],
+    expense_group: ""
   });
   const [users, setUsers] = useState([]);
   const [memberSearch, setMemberSearch] = useState("");
@@ -75,6 +75,11 @@ function RegardingEdit() {
     setInputStates({ ...inputStates, is_closed: value });
   };
 
+  const handleChangeExpenseGroup = (e, value) => {
+    setInputStates({ ...inputStates, expense_group: value });
+
+  }
+
   const handleSaveRegarding = () => {
     let data = {
       ...inputStates,
@@ -89,6 +94,7 @@ function RegardingEdit() {
       end_date: `${inputStates.end_date.$y}-${(inputStates.end_date.$M + 1)
         .toString()
         .padStart(2, 0)}-${inputStates.end_date.$D.toString().padStart(2, 0)}`,
+        expense_group: inputStates.expense_group.id
     };
     console.log(data);
     if (id) {
@@ -132,7 +138,26 @@ function RegardingEdit() {
         }
       });
     } else {
-      createRegarding("", data).then((json) => console.log("Ok create", json));
+      createRegarding("", data).then(({flag, data}) => {
+        if (flag) {
+          setRegarding({ ...inputStates, is_closed: false });
+          loadRegardings('').then((newRegardings)=>dispatch(setRegardings(newRegardings)))
+          ;
+          setMessage({
+            severity: "success",
+            title: "Sucesso!",
+            body: "Referência adicionada com sucesso!",
+          });
+          setOpen(true);
+        } else {
+          setMessage({
+            severity: "error",
+            title: "Erro!",
+            body: "Tivemos problemas ao criar a referência. Tente novamente!",
+          });
+          setOpen(true);
+        }
+      });
     }
   };
 
@@ -160,6 +185,7 @@ function RegardingEdit() {
           )}-${data.end_date.slice(6, 10)}`
         ),
         is_closed: data.is_closed ? REGARDING_STATES[1] : REGARDING_STATES[0],
+        expense_group: {id: data.expense_group.id, label: data.expense_group.name}
       });
     }
   }, []);
@@ -226,14 +252,17 @@ function RegardingEdit() {
           fullWidth
           sx={{ margin: "10px 0px" }}
         />
-        {/*<Autocomplete
+        {!id && <Autocomplete
           disablePortal
           id="combo-box-demo"
-          options={groups}
-          renderInput={(params) => <TextField {...params} label="Tipo de Referência" />}
+          options={groupState.userGroups.map((item) => ({id: item.id, label: item.name}))}
+          renderInput={(params) => <TextField {...params} label="Grupo" />}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
           size="medium"
+          value={inputStates.expense_group}
+          onChange={handleChangeExpenseGroup}
           sx={{margin: '10px 0px'}}
-          />*/}
+          />}
         <div className="my-3 flex flex-row justify-between">
           <DatePicker
             className="w-[45%]"
@@ -248,8 +277,7 @@ function RegardingEdit() {
             onChange={(value) => handleChangeDate(value, "end")}
           />
         </div>
-
-        <Autocomplete
+        {id && <Autocomplete
           disablePortal
           id="combo-box-demo"
           options={REGARDING_STATES}
@@ -258,7 +286,8 @@ function RegardingEdit() {
           onChange={handleChangeIsClosed}
           size="medium"
           sx={{ margin: "10px 0px" }}
-        />
+        />}
+        
       </div>
       {Object.keys(message) && (
         <AlertToast

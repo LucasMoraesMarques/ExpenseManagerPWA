@@ -30,15 +30,15 @@ import Toolbar from "@mui/material/Toolbar";
 import GroupItem from "../components/GroupItem";
 import TagIcon from "@mui/icons-material/Tag";
 import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import BackButton from "../components/BackButton";
+import NoData from "../components/NoData";
+import { createGroup, joinGroup, loadGroups } from "../services/groups";
+import { setGroups } from "../redux/slices/groupSlice";
+import AlertToast from "../components/AlertToast";
 const groups = [
   { label: "Group 1", id: 1 },
-  { label: "Group 2", id: 2 },
-];
-const Alert = React.forwardRef(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
-
+  { label: "Group 2", id: 2 },]
 function GroupList() {
   const [openModal, setOpenModal] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -46,6 +46,10 @@ function GroupList() {
   const groupState = useSelector((state) => state.group);
   const [filteredGroups, setFilteredGroups] = useState([]);
   const [search, setSearch] = useState("");
+  const [hashId, setHashId] = useState("")
+  const [message, setMessage] = useState({});
+  const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -55,6 +59,27 @@ function GroupList() {
     setAnchorEl(null);
   };
 
+  const handleJoinGroup = async () => {
+    joinGroup('', hashId).then((flag) => {
+      if (flag) {
+        loadGroups('').then((newGroups)=>dispatch(setGroups(newGroups)))
+        setMessage({
+          severity: "success",
+          title: "Sucesso!",
+          body: "Você entrou no grupo!",
+        });
+        setOpen(true);
+      } else {
+        setMessage({
+          severity: "error",
+          title: "Erro!",
+          body: "Tivemos problemas ao adicioná-lo ao grupo. Tente novamente!",
+        });
+        setOpen(true);
+      }
+    })
+  }
+
   const handleChangeSearch = (e) => {
     let value = e.target.value;
     setSearch(value);
@@ -63,7 +88,7 @@ function GroupList() {
     let newGroups = groupState.userGroups.filter((item) => {
       for (let word of words) {
         word = word.trim();
-        let condition = item.name.toUpperCase().includes(word);
+        let condition = item.name.toUpperCase().includes(word) || item.description.toUpperCase().includes(word);
         if (condition) {
           return true;
         }
@@ -80,16 +105,7 @@ function GroupList() {
     <div className="">
       <AppBar position="sticky">
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-            onClick={() => navigate("/")}
-          >
-            <ArrowBackIcon />
-          </IconButton>
+          <BackButton/>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Grupos
           </Typography>
@@ -127,7 +143,7 @@ function GroupList() {
           )}
         </Toolbar>
       </AppBar>
-      <div className=" w-[95%] mx-auto">
+      <div className=" w-[95%] mx-auto h-[calc(100vh-150px)]">
         <div className="flex flex-row justify-between">
           <TextField
             id="outlined-basic"
@@ -148,13 +164,24 @@ function GroupList() {
             }}
           />
         </div>
+        <span className="font-bold text-lg">
+        {search ? `Resultados de "${search}"` : ""}
+      </span>
+      <div className="flex flew-row justify-between items-center">
+        <span className="text-sm">
+          Mostrando {filteredGroups.length} grupos
+        </span>
+      </div>
 
-        <span className="font-bold text-lg">Resultados de "pesquisa"</span>
-        <List>
-          {filteredGroups.length > 0 && filteredGroups.map((item) => {
+      <List sx={{maxHeight: '90%', overflow: 'auto'}}>
+        {filteredGroups.length > 0 ? (
+          filteredGroups.map((item) => {
             return <GroupItem variant="full" key={item.id} group={item} />;
-          })}
-        </List>
+          })
+        ) : (
+          <NoData message="Nenhum grupo encontrado" />
+        )}
+      </List>
       </div>
       <AppBar
         position="fixed"
@@ -172,12 +199,25 @@ function GroupList() {
             fullWidth
             sx={{ margin: "10px 0px" }}
             placeholder="Digite o código do grupo"
+            value={hashId}
+            onChange={(e) => setHashId(e.target.value)}
           />
-          <IconButton color="inherit" aria-label="open drawer">
-            <LoginOutlinedIcon />
+          <IconButton color="inherit" aria-label="open drawer" disabled={hashId && hashId.trim().length > 0 ? false : true}>
+            <LoginOutlinedIcon onClick={handleJoinGroup}/>
           </IconButton>
         </Toolbar>
       </AppBar>
+      {Object.keys(message) && (
+        <AlertToast
+          severity={message.severity}
+          title={message.title}
+          message={message.body}
+          open={open}
+          onClose={() => {
+            setOpen(false);
+            setMessage({});
+          }}/>)
+        }
     </div>
   );
 }

@@ -124,7 +124,11 @@ function ExpenseList({ regarding = null }) {
   };
 
   useEffect(() => {
-    setFilteredExpenses(expenseState.userExpenses);
+    let expenses = expenseState.userExpenses
+    if(regarding){
+      expenses = expenses.filter((item) => item.regarding == regarding)
+    }
+    setFilteredExpenses(expenses);
   }, [expenseState]);
 
   return (

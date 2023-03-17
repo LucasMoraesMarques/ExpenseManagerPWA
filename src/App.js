@@ -35,9 +35,9 @@ function App() {
         <Route path="/criar-referencia" element={<RegardingEdit/>}/>
         <Route path="/editar-referencia/:id" element={<RegardingEdit/>}/>
         <Route path="/referencia/:id" element={<RegardingDetail/>}/>
-        <Route path="/adicionar-membro" element={<AddMember/>}/>
         <Route path="/criar-grupo" element={<GroupEdit/>}/>
         <Route path="/editar-grupo/:id" element={<GroupEdit/>}/>
+        <Route path="/grupo/:id/adicionar-membro" element={<AddMember/>}/>
         <Route path="/grupos" element={<GroupList/>}/>
         <Route path="/grupo/:id" element={<GroupDetail/>}/>
         <Route path="/notificacoes" element={<Notifications/>}/>

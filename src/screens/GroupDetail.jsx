@@ -16,7 +16,10 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import NoData from "../components/NoData";
 import BackButton from "../components/BackButton";
-
+import TagIcon from '@mui/icons-material/Tag';
+import TextField from "@mui/material/TextField";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import AlertToast from "../components/AlertToast";
 
 function GroupDetail() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -24,6 +27,8 @@ function GroupDetail() {
   let { id } = useParams();
   const groupState = useSelector((state) => state.group);
   const [group, setGroup] = useState({});
+  const [message, setMessage] = useState({});
+  const [open, setOpen] = useState(false);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -34,6 +39,17 @@ function GroupDetail() {
     navigate(`/editar-grupo/${id}`);
   };
 
+  const copyGroupCode = (code) => {
+    navigator.clipboard.writeText(code);
+    setOpen(true)
+    setMessage({
+      severity:"success",
+      title: '',
+      body: "Código do grupo copiado com sucesso!"
+    })
+
+  }
+
   useEffect(() => {
     let index = groupState.userGroups.findIndex((item) => item.id == id);
     console.log(id, index);
@@ -43,7 +59,7 @@ function GroupDetail() {
   }, []);
 
   useEffect(() => {
-    console.log(Object.keys(group));
+    console.log(Object.keys(group), group.hash_id);
   }, [group]);
   return (
     <div>
@@ -117,6 +133,39 @@ function GroupDetail() {
         </div>
       ) : (
         <></>
+      )}
+      <AppBar position="fixed" color="transparent" sx={{ top: 'auto', bottom: 0 }}>
+        <Toolbar>
+          <IconButton color="inherit" aria-label="open drawer">
+            <TagIcon />
+          </IconButton>
+          <TextField
+          id="outlined-basic"
+          label="Código do Grupo"
+          size="medium"
+          fullWidth
+          sx={{margin: '10px 0px'}}
+          disabled
+          value={group.hash_id}
+          InputLabelProps={{ shrink: true }}
+          
+        />
+          <IconButton color="inherit" onClick={() => copyGroupCode(group.hash_id)}>
+            <ContentCopyIcon />
+          </IconButton>
+        </Toolbar>
+      </AppBar>
+      {Object.keys(message) && (
+        <AlertToast
+          severity={message.severity}
+          title={message.title}
+          message={message.body}
+          open={open}
+          onClose={() => {
+            setOpen(false);
+            setMessage({});
+          }}
+        />
       )}
     </div>
   );

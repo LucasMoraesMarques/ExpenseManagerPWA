@@ -16,7 +16,6 @@ import GroupsIcon from '@mui/icons-material/Groups';
 
 const actions = [
   { icon: <GroupsIcon />, name: 'Grupo', route: "/criar-grupo"},
-  { icon: <PersonAddAltIcon />, name: 'Membro', route: "/adicionar-membro" },
   { icon: <CalendarMonthIcon />, name: 'Referência', route: "/criar-referencia" },
   { icon: <AttachMoneyIcon />, name: 'Despesa', route: "/criar-despesa" },
 ];

@@ -37,14 +37,14 @@ export const editGroup = async (apiToken, id, data) => {
     )
     const json = await response.json();
     if (response.status != 200) {
-      return {flag:false, data:[]}
+      return {flag:false, data:{}}
     }
     return {flag:true, data:json}
   } catch (error) {
     console.log(error)
     //Sentry.captureException(error);
     //ToastAlert("Desculpe, tivemos um problema ao carregar os favoritos. Tente novamente!")
-    return {flag:false, data:[]}
+    return {flag:false, data:{}}
   } finally {
   }
 };
@@ -121,6 +121,32 @@ export const loadGroupById = async (apiToken, id) => {
     console.log(error)
     //ToastAlert("Desculpe, tivemos um problema ao carregar os produtos. Tente novamente!")
     return { flag: false, product: {} }
+  } finally {
+  }
+};
+
+
+export const joinGroup = async (apiToken, hashId) => {
+  try {
+    const response = await fetch(process.env.REACT_APP_API_ROOT_URL + `join-group/${hashId}`,{
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${apiToken}`,
+      },
+    });
+    if (response.status == 200) {
+      return true
+    }
+    else {
+      throw new Error(response.text)
+    }
+  } catch (error) {
+    //Sentry.captureException(error);
+    console.log(error)
+    //ToastAlert("Desculpe, tivemos um problema ao carregar os produtos. Tente novamente!")
+    return false
   } finally {
   }
 };

@@ -37,14 +37,14 @@ export const editRegarding = async (apiToken, id, data) => {
     )
     const json = await response.json();
     if (response.status != 200) {
-      return {flag:false, data:json}
+      return {flag:false, data:{}}
     }
     return {flag:true, data:json}
   } catch (error) {
     console.log(error)
     //Sentry.captureException(error);
     //ToastAlert("Desculpe, tivemos um problema ao carregar os favoritos. Tente novamente!")
-    return {flag:false, data:[]}
+    return {flag:false, data:{}}
   } finally {
   }
 };
@@ -63,14 +63,14 @@ export const createRegarding = async (apiToken, data) => {
     )
     const json = await response.json();
     if (response.status != 201) {
-      return []
+      return {flag:false, data:{}}
     }
-    return json
+    return {flag:true, data:json}
   } catch (error) {
     console.log(error)
     //Sentry.captureException(error);
     //ToastAlert("Desculpe, tivemos um problema ao carregar os favoritos. Tente novamente!")
-    return []
+    return {flag:false, data:{}}
   } finally {
   }
 };
