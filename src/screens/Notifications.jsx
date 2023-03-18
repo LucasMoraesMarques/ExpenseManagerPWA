@@ -24,7 +24,7 @@ import NotificationItem from "../components/NotificationItem";
 import ValidationItem from "../components/ValidationItem";
 import CustomModal from "../components/CustomModal";
 import { useSelector } from "react-redux";
-
+import BackButton from "../components/BackButton"
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -67,16 +67,7 @@ function Notifications() {
     <div>
       <AppBar position="sticky">
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-            onClick={() => navigate("/")}
-          >
-            <ArrowBackIcon />
-          </IconButton>
+          <BackButton/>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Notificações
           </Typography>

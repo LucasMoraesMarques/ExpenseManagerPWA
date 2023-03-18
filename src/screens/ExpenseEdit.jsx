@@ -29,10 +29,30 @@ import { loadRegardings } from "../services/regardings";
 import { setExpenses } from "../redux/slices/expenseSlice";
 import { setRegardings } from "../redux/slices/regardingSlice";
 import AlertToast from "../components/AlertToast";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+
 const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },
 ];
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+      className="bg-white text-black min-h-[calc(100vh-110px)]"
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+}
 
 function ExpenseEdit() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -49,14 +69,26 @@ function ExpenseEdit() {
     date: "",
     cost: "",
     regarding: "",
-    items: []
+    items: [],
   });
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
   const [message, setMessage] = useState({});
-  const [userOptions, setUserOptions] = useState([])
+  const [userOptions, setUserOptions] = useState([]);
   const [fieldsValid, setFieldsValid] = useState(false);
-  const [item, setItem] = useState({name: '', price: '', expense: '', consumers: []})
+  const [item, setItem] = useState({
+    name: "",
+    price: "",
+    expense: "",
+    consumers: [],
+  });
+  const [payment, setPayment] = useState({
+    payer: "",
+    payment_method: "",
+    value: "",
+    expense: "",
+  });
   const dispatch = useDispatch();
+  const [value, setValue] = useState(0);
 
   const handleChangeName = (e) => {
     setInputStates({ ...inputStates, name: e.target.value });
@@ -75,47 +107,58 @@ function ExpenseEdit() {
     setInputStates({ ...inputStates, cost: value });
   };
 
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
 
   const handleChangeRegarding = (e, value) => {
-    if(Object.keys(value).length > 0){
-      let regardingID = value.id
-      let selectedRegarding = regardingState.userRegardings.find((item) => item.id == regardingID)
-      console.log(selectedRegarding)
-      if(selectedRegarding && Object.keys(selectedRegarding).length > 0){
-        let groupId = selectedRegarding.expense_group
-        console.log(selectedRegarding)
-        let selectedGroup = groupState.userGroups.find((item) => item.id == groupId)
-        if(selectedGroup && Object.keys(selectedGroup).length > 0){
-          console.log(selectedGroup)
-          setUserOptions(selectedGroup.members.map((item) => ({id:item.id, name:item.first_name + ' ' + item.last_name})))
+    if (Object.keys(value).length > 0) {
+      let regardingID = value.id;
+      let selectedRegarding = regardingState.userRegardings.find(
+        (item) => item.id == regardingID
+      );
+      console.log(selectedRegarding);
+      if (selectedRegarding && Object.keys(selectedRegarding).length > 0) {
+        let groupId = selectedRegarding.expense_group;
+        console.log(selectedRegarding);
+        let selectedGroup = groupState.userGroups.find(
+          (item) => item.id == groupId
+        );
+        if (selectedGroup && Object.keys(selectedGroup).length > 0) {
+          console.log(selectedGroup);
+          setUserOptions(
+            selectedGroup.members.map((item) => ({
+              id: item.id,
+              name: item.first_name + " " + item.last_name,
+            }))
+          );
         }
-
       }
     }
     setInputStates({ ...inputStates, regarding: value });
   };
 
   const handleAddItem = () => {
-    setInputStates({...inputStates, items: [...inputStates.items, item]})
-    setOpenModal(false)
-    setItem({name: '', price: '', expense: '', consumers: []})
-  }
+    setInputStates({ ...inputStates, items: [...inputStates.items, item] });
+    setOpenModal(false);
+    setItem({ name: "", price: "", expense: "", consumers: [] });
+  };
 
   const handleDeleteItem = (instance) => {
-    let newItems = [...inputStates.items]
-    newItems = newItems.filter((item) => !(instance.id == item.id))
-    setInputStates({...inputStates, items:newItems})
-  }
+    let newItems = [...inputStates.items];
+    newItems = newItems.filter((item) => !(instance.id == item.id));
+    setInputStates({ ...inputStates, items: newItems });
+  };
 
   const handleChangeConsumers = (e, value) => {
-    console.log(value)
-    let newConsumers = []
-    if(value.length > 0){
-      value.map((item) => newConsumers.push(item.id))
+    console.log(value);
+    let newConsumers = [];
+    if (value.length > 0) {
+      value.map((item) => newConsumers.push(item.id));
     }
-    console.log(newConsumers)
-    setItem({...item, consumers: value, id:inputStates.items.length})
-  }
+    console.log(newConsumers);
+    setItem({ ...item, consumers: value, id: inputStates.items.length });
+  };
 
   const handleSaveExpense = () => {
     let data = {
@@ -239,71 +282,76 @@ function ExpenseEdit() {
           )}
         </Toolbar>
       </AppBar>
-      <div className="w-[90vw] mx-auto">
-        <TextField
-          id="outlined-basic"
-          label="Nome"
-          variant="outlined"
-          size="medium"
-          error={inputStates.name.trim() == "" ? true : false}
-          helperText={inputStates.name.trim() == "" ? "Não pode ser vazio" : ""}
-          value={inputStates.name}
-          onChange={handleChangeName}
-          fullWidth
-          sx={{ margin: "10px 0px" }}
-        />
-        <TextField
-          id="outlined-basic"
-          label="Descrição"
-          variant="outlined"
-          multiline
-          rows={3}
-          error={inputStates.description.trim() == "" ? true : false}
-          helperText={
-            inputStates.description.trim() == "" ? "Não pode ser vazio" : ""
-          }
-          value={inputStates.description}
-          onChange={handleChangeDescription}
-          size="medium"
-          fullWidth
-          sx={{ margin: "10px 0px" }}
-        />
-        <DatePicker
-          className="w-full"
-          label="Data"
-          value={inputStates.date}
-          onChange={(value) => handleChangeDate(value)}
-        />
-        <TextField
-          id="outlined-basic"
-          label="Valor"
-          variant="outlined"
-          size="medium"
-          fullWidth
-          value={inputStates.cost}
-          onChange={handleChangeCost}
-          sx={{ margin: "10px 0px" }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">R$</InputAdornment>
-            ),
-          }}
-        />
-        <Autocomplete
-          disablePortal
-          id="combo-box-demo"
-          options={regardingState.userRegardings.map((item) => ({
-            id: item.id,
-            label: item.name,
-          }))}
-          renderInput={(params) => <TextField {...params} label="Referência" />}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          size="medium"
-          value={inputStates.regarding}
-          onChange={handleChangeRegarding}
-          sx={{ margin: "10px 0px" }}
-        />
-        {/*<IconButton
+      <div className="w-screen">
+        <div className="inputs w-[90%] mx-auto my-2">
+          <TextField
+            id="outlined-basic"
+            label="Nome"
+            variant="outlined"
+            size="medium"
+            error={inputStates.name.trim() == "" ? true : false}
+            helperText={
+              inputStates.name.trim() == "" ? "Não pode ser vazio" : ""
+            }
+            value={inputStates.name}
+            onChange={handleChangeName}
+            fullWidth
+            sx={{ margin: "10px 0px" }}
+          />
+          <TextField
+            id="outlined-basic"
+            label="Descrição"
+            variant="outlined"
+            multiline
+            rows={3}
+            error={inputStates.description.trim() == "" ? true : false}
+            helperText={
+              inputStates.description.trim() == "" ? "Não pode ser vazio" : ""
+            }
+            value={inputStates.description}
+            onChange={handleChangeDescription}
+            size="medium"
+            fullWidth
+            sx={{ margin: "10px 0px" }}
+          />
+          <DatePicker
+            className="w-full"
+            label="Data"
+            value={inputStates.date}
+            onChange={(value) => handleChangeDate(value)}
+          />
+          <TextField
+            id="outlined-basic"
+            label="Valor"
+            variant="outlined"
+            size="medium"
+            fullWidth
+            value={inputStates.cost}
+            onChange={handleChangeCost}
+            sx={{ margin: "10px 0px" }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">R$</InputAdornment>
+              ),
+            }}
+          />
+          <Autocomplete
+            disablePortal
+            id="combo-box-demo"
+            options={regardingState.userRegardings.map((item) => ({
+              id: item.id,
+              label: item.name,
+            }))}
+            renderInput={(params) => (
+              <TextField {...params} label="Referência" />
+            )}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            size="medium"
+            value={inputStates.regarding}
+            onChange={handleChangeRegarding}
+            sx={{ margin: "10px 0px" }}
+          />
+          {/*<IconButton
           color="primary"
           aria-label="upload picture"
           component="label"
@@ -316,83 +364,240 @@ function ExpenseEdit() {
             Adicionar Arquivos
           </Typography>
         </IconButton>*/}
-        <div className="flex flex-row justify-between w-full items-center">
-          <span className="font-bold text-xl">Items</span>
-          <span className="rounded-[50%] bg-slate-300 align-middle">
-            <IconButton onClick={() => setOpenModal(true)}>
-              <AddIcon />
-            </IconButton>
-          </span>
         </div>
-        <CustomModal
-          open={openModal}
-          onClose={() => setOpenModal(false)}
-          children={
-            <>
-              <Typography
-                id="modal-modal-title"
-                variant="h6"
-                component="h2"
-                sx={{ fontWeight: "bold" }}
-              >
-                Adicionar Item
-              </Typography>
 
-              <TextField
-                id="outlined-basic"
-                label="Nome"
-                variant="outlined"
-                size="medium"
-                value={item.name}
-                onChange={(e) => setItem({...item, name:e.target.value})}
-                fullWidth
-                sx={{ margin: "10px 0px" }}
-              />
-              <TextField
-                id="outlined-basic"
-                label="Preço"
-                value={item.price}
-                onChange={(e) => setItem({...item, price:e.target.value})}
-                variant="outlined"
-                size="medium"
-                fullWidth
-                sx={{ margin: "10px 0px" }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">R$</InputAdornment>
-                  ),
-                }}
-              />
-              <Autocomplete
-                multiple
-                id="tags-standard"
-                options={userOptions.map((item) => ({id:item.id, label:item.name}))}
-                value={item.consumers}
-                onChange={handleChangeConsumers}
-                getOptionLabel={(option) => option.label}
-                renderInput={(params) => (
+        <AppBar position="static">
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            className="bg-[#e2e2e2] text-[#000]"
+            textColor="inherit"
+            indicatorColor="primary"
+            variant="fullWidth"
+            aria-label="full width tabs example"
+          >
+            <Tab label="Items" />
+            <Tab label="Pagamentos" />
+          </Tabs>
+          <TabPanel value={value} index={0} className="text-black">
+            <div className="flex flex-row justify-between w-full items-center">
+              <span className="font-bold text-xl">Lista de Items</span>
+              <span className="rounded-[50%] bg-slate-300 align-middle">
+                <IconButton onClick={() => setOpenModal(true)}>
+                  <AddIcon />
+                </IconButton>
+              </span>
+            </div>
+            <CustomModal
+              open={openModal}
+              onClose={() => setOpenModal(false)}
+              children={
+                <>
+                  <Typography
+                    id="modal-modal-title"
+                    variant="h6"
+                    component="h2"
+                    sx={{ fontWeight: "bold" }}
+                  >
+                    Adicionar Item
+                  </Typography>
+
                   <TextField
-                    {...params}
-                    label="Multiple values"
-                    placeholder="Favorites"
+                    id="outlined-basic"
+                    label="Nome"
                     variant="outlined"
+                    size="medium"
+                    value={item.name}
+                    onChange={(e) => setItem({ ...item, name: e.target.value })}
+                    fullWidth
+                    sx={{ margin: "10px 0px" }}
                   />
-                )}
-              />
-              <Box className="flex flex-row justify-between mt-[10px]">
-                <Button variant="outlined" onClick={() => setOpenModal(false)}>
-                  Cancelar
-                </Button>
-                <Button variant="contained" onClick={handleAddItem} disabled={(item.name && item.price && item.consumers.length > 0) ? false : true}>Adicionar</Button>
-              </Box>
-            </>
-          }
-        />
+                  <TextField
+                    id="outlined-basic"
+                    label="Preço"
+                    value={item.price}
+                    onChange={(e) =>
+                      setItem({ ...item, price: e.target.value })
+                    }
+                    variant="outlined"
+                    size="medium"
+                    fullWidth
+                    sx={{ margin: "10px 0px" }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">R$</InputAdornment>
+                      ),
+                    }}
+                  />
+                  <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={userOptions.map((item) => ({
+                      id: item.id,
+                      label: item.name,
+                    }))}
+                    value={item.consumers}
+                    onChange={handleChangeConsumers}
+                    getOptionLabel={(option) => option.label}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Multiple values"
+                        placeholder="Favorites"
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                  <Box className="flex flex-row justify-between mt-[10px]">
+                    <Button
+                      variant="outlined"
+                      onClick={() => setOpenModal(false)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={handleAddItem}
+                      disabled={
+                        item.name && item.price && item.consumers.length > 0
+                          ? false
+                          : true
+                      }
+                    >
+                      Adicionar
+                    </Button>
+                  </Box>
+                </>
+              }
+            />
 
-        <List>
-          {"items" in inputStates &&
-            inputStates.items.map((item) => <Item key={item.id} item={item} edit={true} onDelete={handleDeleteItem}/>)}
-        </List>
+            <List>
+              {"items" in inputStates &&
+                inputStates.items.map((item) => (
+                  <Item
+                    key={item.id}
+                    item={item}
+                    edit={true}
+                    onDelete={handleDeleteItem}
+                  />
+                ))}
+            </List>
+          </TabPanel>
+          <TabPanel value={value} index={1}>
+            <div className="flex flex-row justify-between w-full items-center">
+              <span className="font-bold text-xl">Lista de Pagamentos</span>
+              <span className="rounded-[50%] bg-slate-300 align-middle">
+                <IconButton onClick={() => setOpenModal(true)}>
+                  <AddIcon />
+                </IconButton>
+              </span>
+            </div>
+            <CustomModal
+              open={openModal}
+              onClose={() => setOpenModal(false)}
+              children={
+                <>
+                  <Typography
+                    id="modal-modal-title"
+                    variant="h6"
+                    component="h2"
+                    sx={{ fontWeight: "bold" }}
+                  >
+                    Adicionar Pagamento
+                  </Typography>
+                  <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={userOptions.map((item) => ({
+                      id: item.id,
+                      label: item.name,
+                    }))}
+                    value={payment.consumers}
+                    onChange={handleChangeConsumers}
+                    getOptionLabel={(option) => option.label}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Multiple values"
+                        placeholder="Favorites"
+                        variant="outlined"
+                      />
+                    )}
+                  />
+
+                  <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={userOptions.map((item) => ({
+                      id: item.id,
+                      label: item.name,
+                    }))}
+                    value={item.consumers}
+                    onChange={handleChangeConsumers}
+                    getOptionLabel={(option) => option.label}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Multiple values"
+                        placeholder="Favorites"
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                  <TextField
+                    id="outlined-basic"
+                    label="Preço"
+                    value={payment.value}
+                    onChange={(e) =>
+                      setPayment({ ...item, value: e.target.value })
+                    }
+                    variant="outlined"
+                    size="medium"
+                    fullWidth
+                    sx={{ margin: "10px 0px" }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">R$</InputAdornment>
+                      ),
+                    }}
+                  />
+                  
+                  <Box className="flex flex-row justify-between mt-[10px]">
+                    <Button
+                      variant="outlined"
+                      onClick={() => setOpenModal(false)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={handleAddItem}
+                      disabled={
+                        item.name && item.price && item.consumers.length > 0
+                          ? false
+                          : true
+                      }
+                    >
+                      Adicionar
+                    </Button>
+                  </Box>
+                </>
+              }
+            />
+
+            <List>
+              {"items" in inputStates &&
+                inputStates.items.map((item) => (
+                  <Item
+                    key={item.id}
+                    item={item}
+                    edit={true}
+                    onDelete={handleDeleteItem}
+                  />
+                ))}
+            </List>
+          </TabPanel>
+        </AppBar>
       </div>
       {Object.keys(message) && (
         <AlertToast

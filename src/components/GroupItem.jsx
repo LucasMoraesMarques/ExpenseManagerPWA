@@ -13,14 +13,15 @@ import { Link } from "react-router-dom";
 function GroupItem({ key, variant = "rounded", group}) {
     return (<Link to={`/grupo/${group.id}`}>
     {variant == "rounded" ? (
-      <ListItem key={key} disableGutters sx={{ width: "80px" }}>
+      <ListItem key={key} disableGutters sx={{ width: "125px" }}>
         <ListItemButton>
-          <ListItemAvatar>
-            <Avatar>
+          <div className="flex flex-col justify-center items-center">
+          <Avatar>
               <Person2Icon />
             </Avatar>
-            <span>{group.name}</span>
-          </ListItemAvatar>
+            <span className="">{group.name.length >= 10 ? group.name.slice(0, 7) + '...': group.name}</span>
+          </div>
+            
         </ListItemButton>
       </ListItem>
     ) : (
