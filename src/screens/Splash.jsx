@@ -10,9 +10,11 @@ import { loadRegardings } from '../services/regardings';
 import { loadExpenses } from '../services/expenses';
 import { loadNotifications } from '../services/notifications';
 import { loadValidations } from '../services/validations';
+import { loadUsers } from '../services/user';
 import { setExpenses } from '../redux/slices/expenseSlice';
 import { setValidations } from '../redux/slices/validationSlice';
 import { setNotifications } from '../redux/slices/notificationSlice';
+import { setUsers, setWallet } from '../redux/slices/userSlice';
 
 
 function Splash() {
@@ -34,6 +36,9 @@ function Splash() {
     })
     loadValidations('').then((json) => {
       dispatch(setValidations(json))
+    })
+    loadUsers('').then((json) => {
+      dispatch(setUsers(json))
     })
     redirect()
   }

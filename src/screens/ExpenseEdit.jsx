@@ -31,6 +31,7 @@ import { setRegardings } from "../redux/slices/regardingSlice";
 import AlertToast from "../components/AlertToast";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
+import PaymentItem from "../components/PaymentItem";
 
 const groups = [
   { label: "Group 1", id: 1 },
@@ -62,6 +63,7 @@ function ExpenseEdit() {
   const expenseState = useSelector((state) => state.expense);
   const regardingState = useSelector((state) => state.regarding);
   const groupState = useSelector((state) => state.group);
+  const userState = useSelector((state) => state.user);
   const [expense, setExpense] = useState({});
   const [inputStates, setInputStates] = useState({
     name: "",
@@ -70,10 +72,12 @@ function ExpenseEdit() {
     cost: "",
     regarding: "",
     items: [],
+    payments: []
   });
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState({});
   const [userOptions, setUserOptions] = useState([]);
+  const [paymentMethodOptions, setPaymentMethodOptions] = useState([]);
   const [fieldsValid, setFieldsValid] = useState(false);
   const [item, setItem] = useState({
     name: "",
@@ -150,6 +154,29 @@ function ExpenseEdit() {
     setInputStates({ ...inputStates, items: newItems });
   };
 
+  const handleAddPayment = () => {
+    let lastId = 0
+    for(let {id} of inputStates.payments){
+      if(id > lastId){
+        lastId = id
+      }
+    }
+    setInputStates({ ...inputStates, payments: [...inputStates.payments, {'id': id, ...payment,  payment_status:"EM VALIDAÇÃO", payment_method: paymentMethodOptions[payment.payment_method.id]}] });
+    setOpenModal(false);
+    setPayment({
+      payer: "",
+      payment_method: "",
+      value: "",
+      expense: "",
+    });
+  };
+
+  const handleDeletePayment = (instance) => {
+    let newPayments = [...inputStates.payments];
+    newPayments = newPayments.filter((item) => !(instance.id == item.id));
+    setInputStates({ ...inputStates, payments: newPayments });
+  };
+
   const handleChangeConsumers = (e, value) => {
     console.log(value);
     let newConsumers = [];
@@ -159,6 +186,28 @@ function ExpenseEdit() {
     console.log(newConsumers);
     setItem({ ...item, consumers: value, id: inputStates.items.length });
   };
+
+  const handleChangePayer = (e, value) => {
+    console.log(value)
+    let newPayments = []
+    if (value){
+      let payer = userState.users.find((item) => item.id == value.id)
+      console.log(payer)
+      setPayment({...payment, payer:value})
+      if(payer.wallet){
+        setPaymentMethodOptions( payer.wallet.payment_methods.map((item) => ({
+          name: item.type + " " + item.description, ...item
+        })))
+      }else {
+        setPaymentMethodOptions([])
+      }
+      
+    }
+  }
+
+  const handleChangePaymentMethod = (e, value) => {
+    setPayment({...payment, payment_method: value})
+  }
 
   const handleSaveExpense = () => {
     let data = {
@@ -258,6 +307,11 @@ function ExpenseEdit() {
       setFieldsValid(true);
     }
   }, [inputStates]);
+
+  useEffect(() => {
+    console.log(payment);
+
+  }, [payment]);
   return (
     <div>
       <AppBar position="sticky">
@@ -401,6 +455,7 @@ function ExpenseEdit() {
                   >
                     Adicionar Item
                   </Typography>
+                  <span className="text-sm">Selecione a referência para ver as opções</span>
 
                   <TextField
                     id="outlined-basic"
@@ -442,8 +497,8 @@ function ExpenseEdit() {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Multiple values"
-                        placeholder="Favorites"
+                        label="Consumidores"
+                        placeholder="Selecione os consumidores do item"
                         variant="outlined"
                       />
                     )}
@@ -505,41 +560,40 @@ function ExpenseEdit() {
                   >
                     Adicionar Pagamento
                   </Typography>
+                  <span className="text-sm">Selecione a referência para ver as opções</span>
                   <Autocomplete
-                    multiple
                     id="tags-standard"
                     options={userOptions.map((item) => ({
                       id: item.id,
                       label: item.name,
                     }))}
-                    value={payment.consumers}
-                    onChange={handleChangeConsumers}
-                    getOptionLabel={(option) => option.label}
+                    value={payment.payer}
+                    onChange={handleChangePayer}
+                    sx={{ margin: "10px 0px" }}
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Multiple values"
-                        placeholder="Favorites"
+                        label="Pagador"
+                        placeholder="Selecione o pagador dessa despesa"
                         variant="outlined"
                       />
                     )}
                   />
 
                   <Autocomplete
-                    multiple
                     id="tags-standard"
-                    options={userOptions.map((item) => ({
+                    options={paymentMethodOptions.map((item) => ({
                       id: item.id,
                       label: item.name,
                     }))}
-                    value={item.consumers}
-                    onChange={handleChangeConsumers}
-                    getOptionLabel={(option) => option.label}
+                    value={payment.payment_method}
+                    onChange={handleChangePaymentMethod}
+                    sx={{ margin: "10px 0px" }}
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Multiple values"
-                        placeholder="Favorites"
+                        label="Método de Pagamento"
+                        placeholder="Selecione o método de pagamento"
                         variant="outlined"
                       />
                     )}
@@ -549,7 +603,7 @@ function ExpenseEdit() {
                     label="Preço"
                     value={payment.value}
                     onChange={(e) =>
-                      setPayment({ ...item, value: e.target.value })
+                      setPayment({ ...payment, value: e.target.value })
                     }
                     variant="outlined"
                     size="medium"
@@ -571,9 +625,9 @@ function ExpenseEdit() {
                     </Button>
                     <Button
                       variant="contained"
-                      onClick={handleAddItem}
+                      onClick={handleAddPayment}
                       disabled={
-                        item.name && item.price && item.consumers.length > 0
+                        payment.payer && payment.payment_method && payment.value
                           ? false
                           : true
                       }
@@ -587,12 +641,12 @@ function ExpenseEdit() {
 
             <List>
               {"items" in inputStates &&
-                inputStates.items.map((item) => (
-                  <Item
+                inputStates.payments.map((item) => (
+                  <PaymentItem
                     key={item.id}
-                    item={item}
+                    payment={item}
                     edit={true}
-                    onDelete={handleDeleteItem}
+                    onDelete={handleDeletePayment}
                   />
                 ))}
             </List>
