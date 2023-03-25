@@ -11,25 +11,25 @@ import TextField from "@mui/material/TextField";
 import CustomModal from "../components/CustomModal";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
+import { Link, useNavigate, Location } from "react-router-dom";
 
 function ValidationItem({key, validation}) {
   const [openModal, setOpenModal] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <ListItem
     key={key}
     disableGutters
-    secondaryAction={
-      <div>
+    >
+      <ListItemButton className="flex flex-row justify-center items-start" onClick={() => navigate(`/despesa/${validation.expense.id}`)}>
+      
+        <ListItemText primary={`${validation.requested_by} solicitou sua validação na despesa ${validation.expense.name}`} secondary={`Solicitada em ${validation.created_at}`} />
+      </ListItemButton>
+      <div className='flex flex-row justify-center items-start'>
         <IconButton><CheckBoxIcon color='success'/></IconButton>
         <IconButton onClick={() => setOpenModal(true)}><DisabledByDefaultIcon sx={{ color: "red" }}/></IconButton>
       </div>
-    }
-    >
-      <ListItemButton className="flex flex-row justify-center items-start">
-      
-        <ListItemText primary={validation.title} secondary={validation.description} />
-      </ListItemButton>
       <CustomModal
           open={openModal}
           onClose={() => setOpenModal(false)}

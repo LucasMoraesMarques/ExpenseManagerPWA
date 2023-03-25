@@ -25,7 +25,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import {ReactComponent as LoginSVG} from '../assets/img/login.svg';
 import { signInWithGoogle } from '../services/firebase';
 import { useSelector, useDispatch } from "react-redux";
-import { setUser } from "../redux/slices/userSlice";
+import { setCurrentUser, setUser } from "../redux/slices/userSlice";
 const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },
@@ -56,7 +56,7 @@ function Login() {
         google_id: userInfo.id
 
       }
-      dispatch(setUser(data))
+      dispatch(setCurrentUser(data))
     } catch(error) {
       console.log(error)
 

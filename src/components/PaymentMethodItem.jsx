@@ -1,9 +1,9 @@
-import React from 'react'
+import React from "react";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import DisabledByDefaultIcon from "@mui/icons-material/DisabledByDefault";
 import IconButton from "@mui/material/IconButton";
 import { useState } from "react";
 import Typography from "@mui/material/Typography";
@@ -11,66 +11,55 @@ import TextField from "@mui/material/TextField";
 import CustomModal from "../components/CustomModal";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
+import ConfirmationModal from "../components/ConfirmationModal";
 
-const METHODS ={
+
+const METHODS = {
   DEBIT: "CARTÃO DE DÉBITO",
   CREDIT: "CARTÃO DE CRÉDITO",
   CASH: "DINHEIRO",
-}
+};
 
-function PaymentMethodItem({key, method}) {
+function PaymentMethodItem({ key, method, onDelete = () => {} }) {
   const [openModal, setOpenModal] = useState(false);
 
   return (
     <ListItem
-    key={key}
-    disableGutters
-    secondaryAction={
-      <div>
-        <IconButton onClick={() => setOpenModal(true)}><DisabledByDefaultIcon sx={{ color: "red" }}/></IconButton>
-      </div>
-    }
+      key={key}
+      disableGutters
+      secondaryAction={
+        <div>
+          <IconButton onClick={() => setOpenModal(true)}>
+            <DisabledByDefaultIcon sx={{ color: "red" }} />
+          </IconButton>
+        </div>
+      }
     >
       <ListItemButton className="flex flex-row justify-center items-start">
-        <ListItemText primary={`${METHODS[method.type]} - ${method.description}`} secondary={method.type == 'CREDIT' ? `R$ ${method.limit} - Dia ${method.compensation_day}` : ''} />
-      </ListItemButton>
-      <CustomModal
-          open={openModal}
-          onClose={() => setOpenModal(false)}
-          children={
-            <>
-              <Typography
-                id="modal-modal-title"
-                variant="h6"
-                component="h2"
-                sx={{ fontWeight: "bold" }}
-              >
-                Explique o que está errado!
-              </Typography>
-
-              <TextField
-                id="outlined-basic"
-                placeholder="Descreva aqui o motivo dessa despesa não ser válida."
-                variant="outlined"
-                size="medium"
-                fullWidth
-                multiline
-                sx={{ margin: "10px 0px" }}
-                
-              />
-            
-              <Box className="flex flex-row justify-between mt-[10px]">
-                <Button variant="outlined" onClick={() => setOpenModal(false)}>
-                  Cancelar
-                </Button>
-                <Button variant="contained">Adicionar</Button>
-              </Box>
-            </>
+        <ListItemText
+          primary={`${METHODS[method.type]} - ${method.description}`}
+          secondary={
+            method.type == "CREDIT"
+              ? `R$ ${method.limit} - Dia ${method.compensation_day}`
+              : ""
           }
         />
-        
-      </ListItem>
-  )
+      </ListItemButton>
+      <CustomModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        children={
+          <>
+            <ConfirmationModal
+              message={`Você realmente deseja deletar o método de pagamento ${method.description}?`}
+              onCancel={() => setOpenModal(false)}
+              onConfirm={() => onDelete(method.id)}
+            />
+          </>
+        }
+      />
+    </ListItem>
+  );
 }
 
-export default PaymentMethodItem
+export default PaymentMethodItem;

@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 
 export const userSlice = createSlice({
   name: 'user',
-  initialState: {users: {}},
+  initialState: {users: [], currentUser: {}},
   reducers: {
     setUsers: (state, action) => {
       // Redux Toolkit allows us to write "mutating" logic in reducers. It
@@ -11,12 +11,12 @@ export const userSlice = createSlice({
       // immutable state based off those changes
       state.users = action.payload
     },
-    setUser: (state, action) => {
+    setCurrentUser: (state, action) => {
       // Redux Toolkit allows us to write "mutating" logic in reducers. It
       // doesn't actually mutate the state because it uses the Immer library,
       // which detects changes to a "draft state" and produces a brand new
       // immutable state based off those changes
-      state.user = action.payload
+      state.currentUser = action.payload
     },
     setWallet: (state, action) => {
       // Redux Toolkit allows us to write "mutating" logic in reducers. It
@@ -29,6 +29,6 @@ export const userSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { setUsers, setUser } = userSlice.actions
+export const { setUsers, setCurrentUser, setWallet } = userSlice.actions
 
 export default userSlice.reducer

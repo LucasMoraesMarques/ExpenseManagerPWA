@@ -25,6 +25,8 @@ import ValidationItem from "../components/ValidationItem";
 import CustomModal from "../components/CustomModal";
 import { useSelector } from "react-redux";
 import BackButton from "../components/BackButton"
+import Badge from '@mui/material/Badge';
+
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -124,13 +126,19 @@ function Notifications() {
             <Tab label="Validações" />
           </Tabs>
           <TabPanel value={value} index={0} className="text-black">
+
+          <Badge badgeContent={notificationState.userNotifications.filter((item) => item.is_active).length} color="primary" className="absolute top-[-60px] left-[calc((100vw/2)-50px)]">
+    </Badge>
             <List>
             {notificationState.userNotifications.length > 0 && notificationState.userNotifications.map((item) => {
             return <NotificationItem key={item.id} notification={item} />;
           })}
             </List>
           </TabPanel>
+       
           <TabPanel value={value} index={1}>
+          <Badge badgeContent={validationState.userValidations.length} color="primary" className="absolute top-[-60px] left-[calc(100vw-50px)]">
+    </Badge>
             <List>
             {validationState.userValidations.length > 0 && validationState.userValidations.map((item) => {
             return <ValidationItem key={item.id} validation={item} />;

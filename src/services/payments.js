@@ -49,6 +49,31 @@ export const loadExpenses = async (apiToken) => {
     }
   };
   
+  
+  export const deleteExpenses = async (apiToken, ids) => {
+    try {
+      const response = await fetch(process.env.REACT_APP_API_ROOT_URL + `expenses/1/?ids=${ids.join(',')}`, {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${apiToken}`,
+        },
+      })
+      if (response.status != 204) {
+        return false
+      }
+      return true
+    } catch (error) {
+      console.log(error)
+      //Sentry.captureException(error);
+      //ToastAlert("Desculpe, tivemos um problema ao carregar os favoritos. Tente novamente!")
+      return false
+    } finally {
+    }
+  };
+  
+
   export const createPaymentMethod = async (apiToken, data) => {
     try {
       const response = await fetch(process.env.REACT_APP_API_ROOT_URL + 'payments-methods/', {
@@ -74,30 +99,31 @@ export const loadExpenses = async (apiToken) => {
     } finally {
     }
   };
-  
-  export const deleteExpenses = async (apiToken, ids) => {
+
+  export const deletePaymentMethod = async (apiToken, id) => {
     try {
-      const response = await fetch(process.env.REACT_APP_API_ROOT_URL + `expenses/1/?ids=${ids.join(',')}`, {
+      const response = await fetch(process.env.REACT_APP_API_ROOT_URL + `payments-methods/${id}/`, {
         method: 'DELETE',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
           'Authorization': `Token ${apiToken}`,
         },
-      })
-      if (response.status != 204) {
-        return false
       }
-      return true
+      )
+      const json = await response.json();
+      if (response.status != 204) {
+        return  false
+      }
+      return  true
     } catch (error) {
       console.log(error)
       //Sentry.captureException(error);
       //ToastAlert("Desculpe, tivemos um problema ao carregar os favoritos. Tente novamente!")
-      return false
+      return true
     } finally {
     }
   };
-  
   
   
   

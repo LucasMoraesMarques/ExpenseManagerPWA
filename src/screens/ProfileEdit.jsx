@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
@@ -20,19 +20,86 @@ import AddIcon from "@mui/icons-material/Add";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import BackButton from "../components/BackButton";
+import { useSelector, useDispatch } from "react-redux";
+import { editUser } from "../services/user";
+import { setCurrentUser } from "../redux/slices/userSlice";
+import AlertToast from "../components/AlertToast";
 
 function ProfileEdit() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState({});
+  const userState = useSelector((state) => state.user);
 
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
+  const [inputStates, setInputStates] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+  });
+
+  const dispatch = useDispatch();
+
+
+  const handleChangeFirstName = (e) => {
+    setInputStates({ ...inputStates, first_name: e.target.value });
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
+  const handleChangeLastName = (e) => {
+    setInputStates({ ...inputStates, last_name: e.target.value });
   };
+
+  const handleChangeEmail = (e) => {
+    setInputStates({ ...inputStates, email: e.target.value });
+  };
+
+  const handleChangePhone = (e) => {
+    setInputStates({ ...inputStates, phone: e.target.value });
+  };
+
+  const handleSaveUser = () => {
+    console.log(inputStates)
+    editUser("", userState.currentUser.id, inputStates).then(({ flag, data }) => {
+      console.log(flag, data);
+      if (flag) {
+        let newUser = {
+          ...data,
+        };
+        dispatch(
+          setCurrentUser(newUser)
+        );
+
+        setMessage({
+          severity: "success",
+          title: "Sucesso!",
+          body: "Dados pessoais atualizados com sucesso!",
+        });
+        setOpen(true);
+        setOpenModal(false);
+      } else {
+        setMessage({
+          severity: "error",
+          title: "Erro!",
+          body: "Tivemos problemas ao atualizar seus dados. Tente novamente!",
+        });
+        setOpen(true);
+        setOpenModal(false);
+      }
+    });
+  }
+
+  useEffect(() => {
+    let user = userState.currentUser
+    console.log(user)
+    setInputStates({
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      phone: user.phone
+    })
+  }, [])
   return (
     <div>
       <AppBar position="sticky">
@@ -50,6 +117,7 @@ function ProfileEdit() {
                 aria-haspopup="true"
                 color="inherit"
                 variant="outlined"
+                onClick={handleSaveUser}
               >
                 Salvar
               </Button>
@@ -62,6 +130,8 @@ function ProfileEdit() {
         <TextField
           id="outlined-basic"
           label="Nome"
+          value={inputStates.first_name}
+          onChange={handleChangeFirstName}
           variant="outlined"
           size="medium"
           fullWidth
@@ -70,6 +140,8 @@ function ProfileEdit() {
         <TextField
           id="outlined-basic"
           label="Sobrenome"
+          value={inputStates.last_name}
+          onChange={handleChangeLastName}
           variant="outlined"
           size="medium"
           fullWidth
@@ -79,6 +151,9 @@ function ProfileEdit() {
           id="outlined-basic"
           label="Email"
           variant="outlined"
+          value={inputStates.email}
+          onChange={handleChangeEmail}
+          type="email"
           rows={3}
           size="medium"
           fullWidth
@@ -88,6 +163,8 @@ function ProfileEdit() {
           id="outlined-basic"
           label="Telefone"
           variant="outlined"
+          value={inputStates.phone}
+          onChange={handleChangePhone}
           rows={3}
           size="medium"
           fullWidth
@@ -95,6 +172,18 @@ function ProfileEdit() {
         />
        
       </div>
+      {Object.keys(message) && (
+        <AlertToast
+          severity={message.severity}
+          title={message.title}
+          message={message.body}
+          open={open}
+          onClose={() => {
+            setOpen(false);
+            setMessage({});
+          }}
+        />
+      )}
     </div>
   );
 }

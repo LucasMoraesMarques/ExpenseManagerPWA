@@ -24,27 +24,35 @@ import PaymentMethodItem from "../components/PaymentMethodItem";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import BackButton from "../components/BackButton";
 import dayjs, { Dayjs } from "dayjs";
-import { createPaymentMethod } from "../services/payments";
+import { createPaymentMethod, deletePaymentMethod } from "../services/payments";
 import { useSelector, useDispatch } from "react-redux";
+import AlertToast from "../components/AlertToast";
+import { setWallet } from "../redux/slices/userSlice";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 const PAYMENT_METHOD_TYPES = [
-  "Cartão de Crédito",
-  "Cartão de Débito",
-  "Dinheiro",
+  { id: "DEBIT", label: "Cartão de Débito" },
+  { id: "CREDIT", label: "Cartão de Crédito" },
+  { id: "CASH", label: "Dinheiro" },
 ];
 
-function PaymentMethodList() {
+function PaymentMethodList() { /*TODO update users with currentUser wallet*/
   const [anchorEl, setAnchorEl] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
   const userState = useSelector((state) => state.user);
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState({});
+  const dispatch = useDispatch();
+
   const [inputStates, setInputStates] = useState({
     type: "",
     description: "",
-    wallet: "",
+    wallet: 1,
     limit: "",
     compensation_day: "",
   });
+
   const handleChangeType = (e, value) => {
     setInputStates({ ...inputStates, type: value });
   };
@@ -53,9 +61,8 @@ function PaymentMethodList() {
     setInputStates({ ...inputStates, description: e.target.value });
   };
 
-  const handleChangeCompensationDay = (value) => {
-    console.log(value);
-    setInputStates({ ...inputStates, compensation_day: dayjs(value.$d) });
+  const handleChangeCompensationDay = (e) => {
+    setInputStates({ ...inputStates, compensation_day: e.target.value });
   };
 
   const handleChangeLimit = (e) => {
@@ -64,47 +71,88 @@ function PaymentMethodList() {
 
   const handleAddPaymentMethod = () => {
     console.log(inputStates);
-    let data = {
-      ...inputStates,
-      date: `${inputStates.compensation_day.$y}-${(
-        inputStates.compensation_day.$M + 1
-      )
-        .toString()
-        .padStart(2, 0)}-${inputStates.compensation_day.$D
-        .toString()
-        .padStart(2, 0)}`,
+    let paymentMethod = {
+      type: inputStates.type.id,
+      description: inputStates.description,
+      wallet: inputStates.wallet,
     };
-    console.log(data);
-    createPaymentMethod("", data).then(({ flag, data }) => {
+    if (paymentMethod.type == "CREDIT") {
+      paymentMethod.compensation_day = inputStates.compensation_day;
+      paymentMethod.limit = inputStates.limit;
+    }
+
+    console.log(paymentMethod);
+    createPaymentMethod("", paymentMethod).then(({ flag, data }) => {
       console.log(flag, data);
       if (flag) {
         let newPaymentMethod = {
           ...data,
-          date: `${data.compensation_day.slice(
-            8,
-            10
-          )}-${data.compensation_day.slice(5, 7)}-${data.compensation_day.slice(
-            0,
-            4
-          )}`,
         };
+        dispatch(
+          setWallet({
+            ...userState.wallet,
+            payment_methods: [
+              ...userState.wallet.payment_methods,
+              newPaymentMethod,
+            ],
+          })
+        );
 
-        /*setMessage({
+        setMessage({
           severity: "success",
           title: "Sucesso!",
-          body: "Despesa editada com sucesso!",
+          body: "Método de pagamento adicionado com sucesso!",
         });
-        setOpen(true);*/
+        setOpen(true);
+        setOpenModal(false);
       } else {
-        /*setMessage({
+        setMessage({
           severity: "error",
           title: "Erro!",
-          body: "Tivemos problemas ao atualizar os dados. Tente novamente!",
+          body: "Tivemos problemas ao criar o método. Tente novamente!",
         });
-        setOpen(true);*/
+        setOpen(true);
+        setOpenModal(false);
       }
     });
   };
+  const handleDeletePaymentMethod = (id) => {
+    let index = userState.wallet.payment_methods.findIndex(
+      (item) => item.id == id
+    );
+    if (index != -1) {
+      deletePaymentMethod("", id).then((flag) => {
+        console.log(flag);
+        if (flag) {
+          let newPaymentsMethods = [
+            ...userState.wallet.payment_methods.filter((item) => item.id != id),
+          ];
+          dispatch(
+            setWallet({
+              ...userState.wallet,
+              payment_methods: [...newPaymentsMethods],
+            })
+          );
+          setMessage({
+            severity: "success",
+            title: "Sucesso!",
+            body: "Método de pagamento deletado com sucesso!",
+          });
+          setOpen(true);
+          setOpenModal(false);
+        } else {
+          setMessage({
+            severity: "error",
+            title: "Erro!",
+            body: "Tivemos problemas ao deletar o método. Tente novamente!",
+          });
+          setOpen(true);
+          setOpenModal(false);
+        }
+      });
+    }
+  };
+
   return (
     <div>
       <AppBar position="sticky">
@@ -165,7 +213,7 @@ function PaymentMethodList() {
                   />
                 )}
               />
-              {inputStates.type == "Cartão de Crédito" && (
+              {inputStates.type.id == "CREDIT" && (
                 <>
                   <TextField
                     id="outlined-basic"
@@ -183,11 +231,16 @@ function PaymentMethodList() {
                       ),
                     }}
                   />
-                  <DatePicker
-                    className="w-full"
-                    label="Data de compensação"
+                  <TextField
+                    id="outlined-basic"
+                    label="Dia"
+                    placeholder="Dia de compensação"
+                    variant="outlined"
                     value={inputStates.compensation_day}
                     onChange={handleChangeCompensationDay}
+                    size="medium"
+                    fullWidth
+                    sx={{ margin: "10px 0px" }}
                   />
                 </>
               )}
@@ -205,11 +258,27 @@ function PaymentMethodList() {
         />
 
         <List>
-          {userState.users[0].wallet.payment_methods.map((method) => (
-            <PaymentMethodItem method={method}/>
+          {userState.wallet.payment_methods.map((method) => (
+            <PaymentMethodItem
+              key={method.id}
+              method={method}
+              onDelete={handleDeletePaymentMethod}
+            />
           ))}
         </List>
       </div>
+      {Object.keys(message) && (
+        <AlertToast
+          severity={message.severity}
+          title={message.title}
+          message={message.body}
+          open={open}
+          onClose={() => {
+            setOpen(false);
+            setMessage({});
+          }}
+        />
+      )}
     </div>
   );
 }
