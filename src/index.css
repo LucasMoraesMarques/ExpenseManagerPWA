@@ -20,3 +20,7 @@ code {
 /*input[data-form-type="date"].MuiInputBase-input.MuiOutlinedInput-input{
   padding: 5px !important;
 }*/
+
+div #expenseEdit #simple-tabpanel-1 .MuiBox-root .MuiList-root {
+  padding:0px 5px; 
+}

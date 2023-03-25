@@ -19,6 +19,7 @@ import { Link, useNavigate, Location } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
+import BackButton from "../components/BackButton";
 
 function ProfileEdit() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -36,16 +37,7 @@ function ProfileEdit() {
     <div>
       <AppBar position="sticky">
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-            onClick={() => navigate("/")}
-          >
-            <ArrowBackIcon />
-          </IconButton>
+        <BackButton/>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Seus dados
           </Typography>

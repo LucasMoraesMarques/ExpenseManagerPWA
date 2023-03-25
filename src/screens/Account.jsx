@@ -30,6 +30,7 @@ import ListItemText from "@mui/material/ListItemText";
 import PermIdentityOutlinedIcon from "@mui/icons-material/PermIdentityOutlined";
 import WalletOutlinedIcon from "@mui/icons-material/WalletOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import BackButton from "../components/BackButton";
 
 const modalStyle = {
   position: "absolute",
@@ -81,16 +82,7 @@ function Account() {
     <div className="min-h-screen">
       <AppBar position="static">
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-            onClick={() => navigate("/")}
-          >
-            <ArrowBackIcon />
-          </IconButton>
+          <BackButton/>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Sua conta
           </Typography>

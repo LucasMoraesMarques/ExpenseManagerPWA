@@ -35,6 +35,7 @@ function ExpenseItem({ key, expense, edit=false, onCheck=()=>{} }) {
     <ListItem
       key={key}
       disableGutters
+      className="z-1000"
     ><Checkbox onClick={onCheck}/>
       <ListItemButton className="flex flex-row justify-center items-start">
         <span className="absolute top-[35px] left-[100px]"></span>

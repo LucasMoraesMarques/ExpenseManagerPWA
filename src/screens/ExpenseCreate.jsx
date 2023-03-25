@@ -33,10 +33,7 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import PaymentItem from "../components/PaymentItem";
 
-const groups = [
-  { label: "Group 1", id: 1 },
-  { label: "Group 2", id: 2 },
-];
+
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -55,11 +52,10 @@ function TabPanel(props) {
   );
 }
 
-function ExpenseEdit() {
+function ExpenseCreate() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
-  let { id = null } = useParams();
   const expenseState = useSelector((state) => state.expense);
   const regardingState = useSelector((state) => state.regarding);
   const groupState = useSelector((state) => state.group);
@@ -160,7 +156,7 @@ function ExpenseEdit() {
     let lastId = 0;
     for (let { id } of inputStates.payments) {
       if (id > lastId) {
-        lastId = id + 1
+        lastId = id;
       }
     }
     let payer = userState.users.find((item) => item.id == payment.payer.id);
@@ -203,7 +199,13 @@ function ExpenseEdit() {
       value.map((item) => newConsumers.push(item.id));
     }
     console.log(newConsumers);
-    setItem({ ...item, consumers: value, id: inputStates.items.length });
+    let lastId = 0;
+    for (let { id } of inputStates.items) {
+      if (id > lastId) {
+        lastId = id + 1
+      }
+    }
+    setItem({ ...item, consumers: value, id: lastId });
   };
 
   const handleChangePayer = (e, value) => {
@@ -243,17 +245,9 @@ function ExpenseEdit() {
       regarding: inputStates.regarding.id,
     };
     console.log(data);
-    editExpense("", id, data).then(({ flag, data }) => {
-      console.log(flag, data);
+    createExpense("", data).then(({ flag, data }) => {
       if (flag) {
-        let newExpense = {
-          ...data,
-          date: `${data.date.slice(8, 10)}-${data.date.slice(
-            5,
-            7
-          )}-${data.date.slice(0, 4)}`,
-        };
-        setExpense({ ...inputStates, ...newExpense });
+        setExpense({ ...data, ...inputStates });
         loadRegardings("").then((newRegardings) =>
           dispatch(setRegardings(newRegardings))
         );
@@ -263,59 +257,21 @@ function ExpenseEdit() {
         setMessage({
           severity: "success",
           title: "Sucesso!",
-          body: "Despesa editada com sucesso!",
+          body: "Despesa adicionada com sucesso!",
         });
         setOpen(true);
       } else {
         setMessage({
           severity: "error",
           title: "Erro!",
-          body: "Tivemos problemas ao atualizar os dados. Tente novamente!",
+          body: "Tivemos problemas ao criar a despesa. Tente novamente!",
         });
         setOpen(true);
       }
     });
   };
 
-  useEffect(() => {
-    let index = expenseState.userExpenses.findIndex((item) => item.id == id);
-    console.log(id, index, expenseState.userExpenses);
-    if (index != -1) {
-      let data = expenseState.userExpenses[index];
-      console.log(data);
-      let regarding = regardingState.userRegardings.find(
-        (item) => item.id == data.regarding
-      );
-      setExpense({ ...data });
-      setInputStates({
-        name: data.name,
-        description: data.description,
-        date: dayjs(
-          `${data.date.slice(3, 5)}-${data.date.slice(0, 2)}-${data.date.slice(
-            6,
-            10
-          )}`
-        ),
-        cost: data.cost,
-        regarding: { id: regarding.id, label: regarding.name },
-        items: data.items,
-        payments: data.payments,
-      });
-      let groupId = regarding.expense_group;
-      let selectedGroup = groupState.userGroups.find(
-        (item) => item.id == groupId
-      );
-      if (selectedGroup && Object.keys(selectedGroup).length > 0) {
-        console.log(selectedGroup);
-        setUserOptions(
-          selectedGroup.members.map((item) => ({
-            id: item.id,
-            name: item.first_name + " " + item.last_name,
-          }))
-        );
-      }
-    }
-  }, []);
+  useEffect(() => {}, []);
 
   useEffect(() => {
     console.log(inputStates);
@@ -691,4 +647,4 @@ function ExpenseEdit() {
   );
 }
 
-export default ExpenseEdit;
+export default ExpenseCreate;

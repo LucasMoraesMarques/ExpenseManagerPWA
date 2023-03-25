@@ -24,7 +24,7 @@ function PaymentItem({ key, payment, edit = false, onDelete=()=>{} }) {
   return (
     <ListItem key={key} disableGutters className="w-full p-0" disablePadding secondaryAction={
       edit ? (
-        <IconButton onClick={() => onDelete(payment)}>
+        <IconButton onClick={() => onDelete(payment)} className="p-0">
           <DisabledByDefaultIcon sx={{ color: "red" }} />
         </IconButton>
       ) : (
@@ -37,7 +37,7 @@ function PaymentItem({ key, payment, edit = false, onDelete=()=>{} }) {
       </Avatar>
     </ListItemAvatar>
     <ListItemText primary={`${payment.payer_name} pagou`} secondary={`${payment.payment_method.description} - ${STATUS[payment.payment_status]}`} sx={{ lineHeight: 1, margin: 0 }}/>
-    <span>R$ {payment.value}</span>
+    <span className="min-w-[80px] text-end text-md">R$ {payment.value}</span>
 
   </ListItemButton>
   }

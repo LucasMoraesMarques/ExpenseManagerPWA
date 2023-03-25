@@ -22,36 +22,94 @@ import Box from "@mui/material/Box";
 import CustomModal from "../components/CustomModal";
 import PaymentMethodItem from "../components/PaymentMethodItem";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import BackButton from "../components/BackButton";
+import dayjs, { Dayjs } from "dayjs";
+import { createPaymentMethod } from "../services/payments";
+import { useSelector, useDispatch } from "react-redux";
 
-const PAYMENT_METHOD_TYPES = ["Cartão de Crédito", "Cartão de Débito", "Dinheiro"]
+const PAYMENT_METHOD_TYPES = [
+  "Cartão de Crédito",
+  "Cartão de Débito",
+  "Dinheiro",
+];
 
 function PaymentMethodList() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openModal, setOpenModal] = useState(false);
-  const [paymentType, setPaymentType] = useState("Dinheiro");
   const navigate = useNavigate();
-
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
+  const userState = useSelector((state) => state.user);
+  const [inputStates, setInputStates] = useState({
+    type: "",
+    description: "",
+    wallet: "",
+    limit: "",
+    compensation_day: "",
+  });
+  const handleChangeType = (e, value) => {
+    setInputStates({ ...inputStates, type: value });
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
+  const handleChangeDescription = (e) => {
+    setInputStates({ ...inputStates, description: e.target.value });
+  };
+
+  const handleChangeCompensationDay = (value) => {
+    console.log(value);
+    setInputStates({ ...inputStates, compensation_day: dayjs(value.$d) });
+  };
+
+  const handleChangeLimit = (e) => {
+    setInputStates({ ...inputStates, limit: e.target.value });
+  };
+
+  const handleAddPaymentMethod = () => {
+    console.log(inputStates);
+    let data = {
+      ...inputStates,
+      date: `${inputStates.compensation_day.$y}-${(
+        inputStates.compensation_day.$M + 1
+      )
+        .toString()
+        .padStart(2, 0)}-${inputStates.compensation_day.$D
+        .toString()
+        .padStart(2, 0)}`,
+    };
+    console.log(data);
+    createPaymentMethod("", data).then(({ flag, data }) => {
+      console.log(flag, data);
+      if (flag) {
+        let newPaymentMethod = {
+          ...data,
+          date: `${data.compensation_day.slice(
+            8,
+            10
+          )}-${data.compensation_day.slice(5, 7)}-${data.compensation_day.slice(
+            0,
+            4
+          )}`,
+        };
+
+        /*setMessage({
+          severity: "success",
+          title: "Sucesso!",
+          body: "Despesa editada com sucesso!",
+        });
+        setOpen(true);*/
+      } else {
+        /*setMessage({
+          severity: "error",
+          title: "Erro!",
+          body: "Tivemos problemas ao atualizar os dados. Tente novamente!",
+        });
+        setOpen(true);*/
+      }
+    });
   };
   return (
     <div>
       <AppBar position="sticky">
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-            onClick={() => navigate("/")}
-          >
-            <ArrowBackIcon />
-          </IconButton>
+          <BackButton />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Métodos de Pagamento
           </Typography>
@@ -85,6 +143,8 @@ function PaymentMethodList() {
                 label="Nome"
                 variant="outlined"
                 size="medium"
+                value={inputStates.description}
+                onChange={handleChangeDescription}
                 fullWidth
                 sx={{ margin: "10px 0px" }}
               />
@@ -92,25 +152,28 @@ function PaymentMethodList() {
                 id="tags-standard"
                 options={PAYMENT_METHOD_TYPES}
                 filterSelectedOptions
-                value={paymentType}
-                onChange={(event, value) => setPaymentType(value)}
+                value={inputStates.type}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                size="medium"
+                onChange={handleChangeType}
                 renderInput={(params) => (
                   <TextField
                     {...params}
                     label="Tipo"
                     placeholder="Favorites"
                     variant="outlined"
-                    
                   />
                 )}
               />
-              {paymentType == "Cartão de Crédito" && (
+              {inputStates.type == "Cartão de Crédito" && (
                 <>
                   <TextField
                     id="outlined-basic"
                     label="Limite"
                     placeholder="Digite o limite do Cartão"
                     variant="outlined"
+                    value={inputStates.limit}
+                    onChange={handleChangeLimit}
                     size="medium"
                     fullWidth
                     sx={{ margin: "10px 0px" }}
@@ -120,7 +183,12 @@ function PaymentMethodList() {
                       ),
                     }}
                   />
-                  <DatePicker className="w-full" label="Data de compensação" />
+                  <DatePicker
+                    className="w-full"
+                    label="Data de compensação"
+                    value={inputStates.compensation_day}
+                    onChange={handleChangeCompensationDay}
+                  />
                 </>
               )}
 
@@ -128,16 +196,18 @@ function PaymentMethodList() {
                 <Button variant="outlined" onClick={() => setOpenModal(false)}>
                   Cancelar
                 </Button>
-                <Button variant="contained">Adicionar</Button>
+                <Button variant="contained" onClick={handleAddPaymentMethod}>
+                  Adicionar
+                </Button>
               </Box>
             </>
           }
         />
 
         <List>
-          <PaymentMethodItem />
-          <PaymentMethodItem />
-          <PaymentMethodItem />
+          {userState.users[0].wallet.payment_methods.map((method) => (
+            <PaymentMethodItem method={method}/>
+          ))}
         </List>
       </div>
     </div>

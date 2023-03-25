@@ -12,7 +12,13 @@ import CustomModal from "../components/CustomModal";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 
-function PaymentMethodItem({key}) {
+const METHODS ={
+  DEBIT: "CARTÃO DE DÉBITO",
+  CREDIT: "CARTÃO DE CRÉDITO",
+  CASH: "DINHEIRO",
+}
+
+function PaymentMethodItem({key, method}) {
   const [openModal, setOpenModal] = useState(false);
 
   return (
@@ -26,7 +32,7 @@ function PaymentMethodItem({key}) {
     }
     >
       <ListItemButton className="flex flex-row justify-center items-start">
-        <ListItemText primary="Work" secondary="Lucas, Baiano" />
+        <ListItemText primary={`${METHODS[method.type]} - ${method.description}`} secondary={method.type == 'CREDIT' ? `R$ ${method.limit} - Dia ${method.compensation_day}` : ''} />
       </ListItemButton>
       <CustomModal
           open={openModal}

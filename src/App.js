@@ -7,6 +7,7 @@ import AddMember from './screens/AddMember';
 import GroupEdit from './screens/GroupEdit';
 import RegardingDetail from './screens/RegardingDetail';
 import ExpenseDetail from './screens/ExpenseDetail';
+import ExpenseCreate from './screens/ExpenseCreate';
 import Notifications from './screens/Notifications';
 import Account from './screens/Account';
 import GroupList from './screens/GroupList';
@@ -29,7 +30,7 @@ function App() {
         <Route index path="/entrar" element={<Login/>}/>
         <Route index path="/registrar" element={<Register/>}/>
         <Route path="/inicio" element={<BaseScreen/>}/>
-        <Route path="/criar-despesa" element={<ExpenseEdit/>}/>
+        <Route path="/criar-despesa" element={<ExpenseCreate/>}/>
         <Route path="/editar-despesa/:id" element={<ExpenseEdit/>}/>
         <Route path="/despesa/:id" element={<ExpenseDetail/>}/>
         <Route path="/criar-referencia" element={<RegardingEdit/>}/>
