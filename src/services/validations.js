@@ -23,7 +23,7 @@ export const loadValidations = async (apiToken) => {
   }
 };
 
-export const editValidations = async (apiToken, id, data) => {
+export const editValidation = async (apiToken, id, data) => {
   try {
     const response = await fetch(process.env.REACT_APP_API_ROOT_URL + `validations/${id}/`, {
       method: 'PATCH',
@@ -37,14 +37,14 @@ export const editValidations = async (apiToken, id, data) => {
     )
     const json = await response.json();
     if (response.status != 200) {
-      return []
+      return {flag:false, data:[]}
     }
-    return json
+    return {flag:true, data:json}
   } catch (error) {
     console.log(error)
     //Sentry.captureException(error);
     //ToastAlert("Desculpe, tivemos um problema ao carregar os favoritos. Tente novamente!")
-    return []
+    return {flag:false, data:[]}
   } finally {
   }
 };

@@ -24,3 +24,8 @@ code {
 div #expenseEdit #simple-tabpanel-1 .MuiBox-root .MuiList-root {
   padding:0px 5px; 
 }
+
+div #notifications [role=tabpanel] .MuiBox-root{
+  padding:0px 5px;
+  height: '100%'
+}

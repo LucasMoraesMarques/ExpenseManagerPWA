@@ -23,10 +23,16 @@ import Tab from "@mui/material/Tab";
 import NotificationItem from "../components/NotificationItem";
 import ValidationItem from "../components/ValidationItem";
 import CustomModal from "../components/CustomModal";
-import { useSelector } from "react-redux";
-import BackButton from "../components/BackButton"
-import Badge from '@mui/material/Badge';
-
+import { useDispatch, useSelector } from "react-redux";
+import BackButton from "../components/BackButton";
+import Badge from "@mui/material/Badge";
+import { editNotifications } from "../services/notifications";
+import { setNotifications } from "../redux/slices/notificationSlice";
+import { editValidation } from "../services/validations";
+import { setValidations } from "../redux/slices/validationSlice";
+import Chip from "@mui/material/Chip";
+import Stack from "@mui/material/Stack";
+import NoData from "../components/NoData";
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -48,9 +54,13 @@ function Notifications() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [value, setValue] = useState(0);
   const notificationState = useSelector((state) => state.notification);
   const validationState = useSelector((state) => state.validation);
+  const [notificationDetail, setNotificationDetail] = useState({});
+  const [selectedChip, setSelectedChip] = useState("Todas");
+  const [filteredValidations, setFilteredValidations] = useState([]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -60,16 +70,93 @@ function Notifications() {
     setAnchorEl(event.currentTarget);
   };
 
-  const editRegarding = () => {
-    setAnchorEl(null);
-    navigate("/editar-referencia/5");
+  const deactivateNotification = (notification) => {
+    setOpenModal(true);
+    setNotificationDetail(notification);
+    editNotifications("", notification.id, { is_active: false }).then(
+      ({ flag, data }) => {
+        console.log(data, flag);
+        if (flag) {
+          let index = notificationState.userNotifications.findIndex(
+            (item) => item.id == notification.id
+          );
+          let newNotifications = [...notificationState.userNotifications];
+          newNotifications[index] = { ...data };
+          dispatch(setNotifications(newNotifications));
+        } else {
+        }
+      }
+    );
   };
 
+  const deactivateValidation = (validation, rejected = false) => {
+    let newValidation = {
+      ...validation,
+      is_active: false,
+      validator: validation.validator.id,
+      expense: validation.expense.id,
+    };
+    if (!rejected) {
+      newValidation.validated_at = new Date()
+        .toLocaleDateString("zh-Hans-CN")
+        .replaceAll("/", "-");
+    }
+    console.log(newValidation);
+    editValidation("", validation.id, newValidation).then(({ flag, data }) => {
+      console.log(data, flag);
+      if (flag) {
+        let index = validationState.userValidations.findIndex(
+          (item) => item.id == validation.id
+        );
+        let newValidations = [...validationState.userValidations];
+        newValidations[index] = {
+          ...validation,
+          is_active: data.is_active,
+          validated_at: data.validated_at ? `${data.validated_at.slice(
+            0,
+            4
+          )}/${data.validated_at.slice(5, 7)}/${data.validated_at.slice(
+            8,
+            10
+          )}` : "",
+        };
+        dispatch(setValidations(newValidations));
+      } else {
+      }
+    });
+  };
+
+  const handleSelectChip = (label) => {
+    console.log(label)
+    setSelectedChip(label);
+    setFilteredValidations([
+      ...validationState.userValidations.filter((item) => {
+
+        console.log(item)
+        if(label == "Abertas"){
+          return item.is_active;
+        }
+        else if (label == "Validadas") {
+          return item.validated_at;
+        } else if (label == "Rejeitadas") {
+          return !item.validated_at && !item.is_active;
+        } else {
+          return true;
+        }
+      }),
+    ]);
+  };
+
+  useEffect(() => {
+    setFilteredValidations([...validationState.userValidations]);
+    handleSelectChip(selectedChip)
+  }, [validationState]);
+
   return (
-    <div>
+    <div className="h-screen">
       <AppBar position="sticky">
         <Toolbar>
-          <BackButton/>
+          <BackButton />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Notificações
           </Typography>
@@ -102,7 +189,9 @@ function Notifications() {
               >
                 <MenuItem onClick={() => {}}>Deletar todas</MenuItem>
                 {value == 0 ? (
-                  <MenuItem onClick={() => {}}>Marcar todas como lidas</MenuItem>
+                  <MenuItem onClick={() => {}}>
+                    Marcar todas como lidas
+                  </MenuItem>
                 ) : (
                   <MenuItem onClick={() => {}}>Validar todas</MenuItem>
                 )}
@@ -111,7 +200,7 @@ function Notifications() {
           )}
         </Toolbar>
       </AppBar>
-      <div>
+      <div id="notifications" >
         <AppBar position="static">
           <Tabs
             value={value}
@@ -126,27 +215,112 @@ function Notifications() {
             <Tab label="Validações" />
           </Tabs>
           <TabPanel value={value} index={0} className="text-black">
-
-          <Badge badgeContent={notificationState.userNotifications.filter((item) => item.is_active).length} color="primary" className="absolute top-[-60px] left-[calc((100vw/2)-50px)]">
-    </Badge>
+            <Badge
+              badgeContent={
+                notificationState.userNotifications.filter(
+                  (item) => item.is_active
+                ).length
+              }
+              color="error"
+              className="absolute top-[-40px] left-[calc((100vw/2)-40px)]"
+            />
             <List>
-            {notificationState.userNotifications.length > 0 && notificationState.userNotifications.map((item) => {
-            return <NotificationItem key={item.id} notification={item} />;
-          })}
+              {notificationState.userNotifications.length > 0 &&
+                notificationState.userNotifications.map((item) => {
+                  return (
+                    <NotificationItem
+                      key={item.id}
+                      notification={item}
+                      onClick={deactivateNotification}
+                    />
+                  );
+                })}
             </List>
           </TabPanel>
-       
+
           <TabPanel value={value} index={1}>
-          <Badge badgeContent={validationState.userValidations.length} color="primary" className="absolute top-[-60px] left-[calc(100vw-50px)]">
-    </Badge>
+            <Badge
+              badgeContent={validationState.userValidations.length}
+              color="error"
+              className="absolute top-[-40px] left-[calc(100vw-40px)]"
+            />
+            <Stack direction="row" spacing={1}>
+              <Chip
+                label="Todas"
+                color="primary"
+                variant={selectedChip == "Todas" ? "contained" : "outlined"}
+                onClick={() => handleSelectChip("Todas")}
+              />
+              <Chip
+                label="Abertas"
+                color="primary"
+                variant={
+                  selectedChip == "Abertas" ? "contained" : "outlined"
+                }
+                onClick={() => handleSelectChip("Abertas")}
+
+              />
+
+              <Chip
+                label="Validadas"
+                color="primary"
+                variant={selectedChip == "Validadas" ? "contained" : "outlined"}
+                onClick={() => handleSelectChip("Validadas")}
+              />
+              <Chip
+                label="Rejeitadas"
+                color="primary"
+                variant={
+                  selectedChip == "Rejeitadas" ? "contained" : "outlined"
+                }
+                onClick={() => handleSelectChip("Rejeitadas")}
+
+              />
+            </Stack>
             <List>
-            {validationState.userValidations.length > 0 && validationState.userValidations.map((item) => {
-            return <ValidationItem key={item.id} validation={item} />;
-          })}
+              {filteredValidations.length > 0 ?
+                filteredValidations.map((item) => {
+                  return (
+                    <ValidationItem
+                      key={item.id}
+                      validation={item}
+                      onClick={deactivateValidation}
+                    />
+                  );
+                }) : <NoData message="Nenhuma validação encontrada"/>}
             </List>
           </TabPanel>
         </AppBar>
       </div>
+      <CustomModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        children={
+          <>
+            <Typography
+              id="modal-modal-title"
+              variant="h6"
+              component="h2"
+              sx={{ fontWeight: "bold" }}
+            >
+              Detalhes da Notificação
+            </Typography>
+            <span>{notificationDetail.body}</span>
+
+            <Box className="flex flex-row justify-end mt-[10px]">
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  setOpenModal(false);
+                  setNotificationDetail({});
+                }}
+              >
+                Fechar
+              </Button>
+            </Box>
+          </>
+        }
+      />
     </div>
   );
 }
