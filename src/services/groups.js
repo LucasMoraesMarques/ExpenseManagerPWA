@@ -136,17 +136,19 @@ export const joinGroup = async (apiToken, hashId) => {
         'Authorization': `Token ${apiToken}`,
       },
     });
+    const json = await response.json();
+    
     if (response.status == 200) {
-      return true
+      return {flag: true, message:json.detail}
     }
-    else {
-      throw new Error(response.text)
-    }
+    return {flag: false, message:json.detail} 
+
   } catch (error) {
     //Sentry.captureException(error);
     console.log(error)
     //ToastAlert("Desculpe, tivemos um problema ao carregar os produtos. Tente novamente!")
-    return false
+    return {flag: false, message:"Tivemos problemas ao adicioná-lo ao grupo. Tente novamente!"}
+
   } finally {
   }
 };

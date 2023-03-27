@@ -69,6 +69,7 @@ function ExpenseCreate() {
     regarding: "",
     items: [],
     payments: [],
+    validators: []
   });
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState({});
@@ -139,6 +140,16 @@ function ExpenseCreate() {
     }
     setInputStates({ ...inputStates, regarding: value });
   };
+
+  const handleChangeValidators = (e, value) => {
+    console.log(value);
+    let newValidators = [];
+    if (value.length > 0) {
+      value.map((item) => newValidators.push(item));
+    }
+    setInputStates({...inputStates, validators:newValidators})
+  
+  }
 
   const handleAddItem = () => {
     setInputStates({ ...inputStates, items: [...inputStates.items, item] });
@@ -379,6 +390,25 @@ function ExpenseCreate() {
             onChange={handleChangeRegarding}
             sx={{ margin: "10px 0px" }}
           />
+          <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={userOptions.map((item) => ({
+                      id: item.id,
+                      label: item.name,
+                    }))}
+                    value={item.validators}
+                    onChange={handleChangeValidators}
+                    getOptionLabel={(option) => option.label}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Validantes"
+                        placeholder="Selecione quem deve validar"
+                        variant="outlined"
+                      />
+                    )}
+                  />
           {/*<IconButton
           color="primary"
           aria-label="upload picture"

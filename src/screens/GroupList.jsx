@@ -60,20 +60,20 @@ function GroupList() {
   };
 
   const handleJoinGroup = async () => {
-    joinGroup('', hashId).then((flag) => {
+    joinGroup('', hashId).then(({flag, message}) => {
       if (flag) {
         loadGroups('').then((newGroups)=>dispatch(setGroups(newGroups)))
         setMessage({
           severity: "success",
           title: "Sucesso!",
-          body: "Você entrou no grupo!",
+          body: message,
         });
         setOpen(true);
       } else {
         setMessage({
           severity: "error",
           title: "Erro!",
-          body: "Tivemos problemas ao adicioná-lo ao grupo. Tente novamente!",
+          body: message,
         });
         setOpen(true);
       }
@@ -99,8 +99,7 @@ function GroupList() {
 
   useEffect(() => {
     setFilteredGroups([...groupState.userGroups]);
-    console.log(groupState.userGroups)
-  }, []);
+  }, [groupState.userGroups]);
   return (
     <div className="">
       <AppBar position="sticky">

@@ -9,6 +9,8 @@ import AddIcon from "@mui/icons-material/Add"
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import { Link } from "react-router-dom";
+import { stringAvatar } from "../services/utils";
+
 
 function GroupItem({ key, variant = "rounded", group}) {
     return (<Link to={`/grupo/${group.id}`}>
@@ -16,9 +18,7 @@ function GroupItem({ key, variant = "rounded", group}) {
       <ListItem key={key} disableGutters sx={{ width: "125px" }}>
         <ListItemButton>
           <div className="flex flex-col justify-center items-center">
-          <Avatar>
-              <Person2Icon />
-            </Avatar>
+          <Avatar {...stringAvatar(group.name)} size={10}/>
             <span className="">{group.name.length >= 10 ? group.name.slice(0, 7) + '...': group.name}</span>
           </div>
             
