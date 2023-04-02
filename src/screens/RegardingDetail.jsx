@@ -26,18 +26,15 @@ import DashItem from "../components/DashItem";
 import LineChart from "../components/LineChart";
 import PieChart from "../components/PieChart";
 import ExpenseList from "./ExpenseList";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import BackButton from "../components/BackButton";
-const modalStyle = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "90%",
-  bgcolor: "background.paper",
-  boxShadow: 24,
-  p: 3,
-};
+import { deleteRegarding, loadRegardings } from "../services/regardings";
+import { setRegardings } from "../redux/slices/regardingSlice";
+import ConfirmationModal from "../components/ConfirmationModal";
+import CustomModal from "../components/CustomModal";
+import AlertToast from "../components/AlertToast";
+import { loadActions } from '../services/actions';
+import { setActions } from '../redux/slices/actionSlice';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -58,9 +55,12 @@ function TabPanel(props) {
 
 function RegardingDetail() {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
+  const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
+  const [message, setMessage] = useState({});
+  const [open, setOpen] = useState(false);
   let { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [value, setValue] = useState(0);
   const regardingState = useSelector((state) => state.regarding);
   const [regarding, setRegarding] = useState({});
@@ -77,6 +77,34 @@ function RegardingDetail() {
     setAnchorEl(null);
     navigate(`/editar-referencia/${id}`);
   };
+
+  const handleRemove = async () => {
+    deleteRegarding('', regarding.id).then((flag) => {
+      if(flag){
+        loadRegardings('').then((data) => dispatch(setRegardings([...data])))
+        setMessage({
+          severity: "success",
+          title: "Sucesso!",
+          body: "Referência removida com sucesso!",
+        });
+      }
+      else{
+        setMessage({
+          severity: "error",
+          title: "Erro!",
+          body: "Tivemos problemas ao deletar a referência. Tente novamente!",
+        });
+      }
+      setOpen(true)
+      setOpenConfirmationModal(false)
+      loadActions('').then((json) => {
+        dispatch(setActions(json))
+      })
+      if(flag){
+        setTimeout(() => navigate('/inicio'), 1000)
+      }
+    })
+  }
 
   useEffect(() => {
     let index = regardingState.userRegardings.findIndex(
@@ -124,7 +152,7 @@ function RegardingDetail() {
                 onClose={() => setAnchorEl(null)}
               >
                 <MenuItem onClick={editRegarding}>Editar</MenuItem>
-                <MenuItem onClick={() => {}}>Deletar</MenuItem>
+                <MenuItem onClick={() => setOpenConfirmationModal(true)}>Deletar</MenuItem>
               </Menu>
             </div>
           )}
@@ -196,6 +224,14 @@ function RegardingDetail() {
                 </Grid>
               </Grid>
             )}
+            <h5 className="font-bold mt-2">Débitos individuais</h5>
+            {"total_member_vs_member" in regarding && Object.keys(regarding.total_member_vs_member).map((member1) => {
+              let data = regarding.total_member_vs_member[member1]
+              return Object.keys(data).map((member2) => {
+                let value = data[member2]
+                return  <p className="ml-[10px] text-sm">{member2} deve R$ {value} a {member1}</p>
+              })
+            })}
             {"general_total" in regarding && (
               <>
                 <Box className="w-[95%] mx-auto my-3">
@@ -279,6 +315,31 @@ function RegardingDetail() {
           </TabPanel>
         </AppBar>
       </div>
+      {Object.keys(message) && (
+        <AlertToast
+          severity={message.severity}
+          title={message.title}
+          message={message.body}
+          open={open}
+          onClose={() => {
+            setOpen(false);
+            setMessage({});
+          }}
+        />
+      )}
+      <CustomModal
+        open={openConfirmationModal}
+        onClose={() => setOpenConfirmationModal(false)}
+        children={
+          <>
+            <ConfirmationModal
+              message={`Você realmente deseja deletar essa referência? Todos as despesas também serão deletadas.`}
+              onCancel={() => setOpenConfirmationModal(false)}
+              onConfirm={handleRemove}
+            />
+          </>
+        }
+      />
     </div>
   );
 }

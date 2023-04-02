@@ -11,7 +11,7 @@ import List from "@mui/material/List";
 import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Member from "../components/Member";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import NoData from "../components/NoData";
@@ -20,15 +20,25 @@ import TagIcon from '@mui/icons-material/Tag';
 import TextField from "@mui/material/TextField";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import AlertToast from "../components/AlertToast";
+import ConfirmationModal from "../components/ConfirmationModal";
+import CustomModal from "../components/CustomModal";
+import { deleteGroup } from "../services/groups";
+import { setGroups } from "../redux/slices/groupSlice";
+import { loadRegardings } from "../services/regardings";
+import { setRegardings } from "../redux/slices/regardingSlice";
+import { loadActions } from '../services/actions';
+import { setActions } from '../redux/slices/actionSlice';
 
 function GroupDetail() {
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
   let { id } = useParams();
   const groupState = useSelector((state) => state.group);
+  const dispatch = useDispatch();
   const [group, setGroup] = useState({});
   const [message, setMessage] = useState({});
   const [open, setOpen] = useState(false);
+  const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -48,6 +58,37 @@ function GroupDetail() {
       body: "Código do grupo copiado com sucesso!"
     })
 
+  }
+
+  const handleRemove = async () => {
+    deleteGroup('', group.id).then((flag) => {
+      if(flag){
+        let newGroups = groupState.userGroups.filter((item) => item.id != group.id)
+        dispatch(setGroups([...newGroups]))
+        loadRegardings('').then((data) => dispatch(setRegardings([...data])))
+        setMessage({
+          severity: "success",
+          title: "Sucesso!",
+          body: "Grupo removido com sucesso!",
+        });
+      }
+      else{
+        setMessage({
+          severity: "error",
+          title: "Erro!",
+          body: "Tivemos problemas ao deletar o grupo. Tente novamente!",
+        });
+      }
+      setOpen(true)
+      setOpenConfirmationModal(false)
+      loadActions('').then((json) => {
+        dispatch(setActions(json))
+      })
+      if(flag){
+        setTimeout(() => navigate('/inicio'), 1000)
+      }
+
+    })
   }
 
   useEffect(() => {
@@ -97,7 +138,7 @@ function GroupDetail() {
                 onClose={() => setAnchorEl(null)}
               >
                 <MenuItem onClick={editGroup}>Editar</MenuItem>
-                {/*<MenuItem onClick={() => {}}>Deletar</MenuItem>*/}
+                <MenuItem onClick={() => setOpenConfirmationModal(true)}>Deletar</MenuItem>
               </Menu>
             </div>
           )}
@@ -167,6 +208,19 @@ function GroupDetail() {
           }}
         />
       )}
+      <CustomModal
+        open={openConfirmationModal}
+        onClose={() => setOpenConfirmationModal(false)}
+        children={
+          <>
+            <ConfirmationModal
+              message={`Você realmente deseja deletar esse grupo? Todos as referências e despesas também serão deletadas.`}
+              onCancel={() => setOpenConfirmationModal(false)}
+              onConfirm={handleRemove}
+            />
+          </>
+        }
+      />
     </div>
   );
 }

@@ -13,8 +13,16 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import { Link, useNavigate, Location } from "react-router-dom";
 import NoteAltOutlinedIcon from "@mui/icons-material/NoteAltOutlined";
+import { stringAvatar } from "../services/utils";
+import Avatar from "@mui/material/Avatar";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
 
-function ValidationItem({ key, validation, onClick = () => {} }) {
+function ValidationItem({
+  key,
+  validation,
+  onClick = () => {},
+  detail = false,
+}) {
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
   const [inputStates, setInputStates] = useState({
@@ -34,22 +42,49 @@ function ValidationItem({ key, validation, onClick = () => {} }) {
 
   return (
     <ListItem key={key} disableGutters>
-      <ListItemButton
-        className="flex flex-row justify-center items-start"
-        onClick={() => navigate(`/despesa/${validation.expense.id}`)}
-      >
-        <ListItemText
-          primary={`${validation.requested_by} solicitou sua validação na despesa ${validation.expense.name}`}
-          secondary={
-            validation.is_active
-              ? `Solicitada em ${validation.created_at}`
-              : validation.validated_at
-              ? `Validada em ${validation.validated_at}`
-              : "Rejeitada"
-          }
-        />
-      </ListItemButton>
-      {validation.is_active ? (
+      {detail ? (
+        <ListItemButton className="flex flex-row justify-center items-start">
+          {" "}
+          <ListItemAvatar>
+            <Avatar
+              {...stringAvatar(validation.validator.full_name)}
+              size={10}
+            />
+          </ListItemAvatar>
+          <ListItemText
+            primary={
+              validation.status == "AGUARDANDO"
+                ? `${validation.status} validação de ${validation.validator.full_name}`
+                : `${validation.validator.full_name} ${validation.status} a despesa`
+            }
+            secondary={
+              validation.is_active
+                ? `Solicitada em ${validation.created_at}`
+                : validation.validated_at
+                ? `Validada em ${validation.validated_at}`
+                : "Rejeitada"
+            }
+          />
+        </ListItemButton>
+      ) : (
+        <ListItemButton
+          className="flex flex-row justify-center items-start"
+          onClick={() => navigate(`/despesa/${validation.expense.id}`)}
+        >
+          <ListItemText
+            primary={`${validation.requested_by} solicitou sua validação na despesa ${validation.expense.name}`}
+            secondary={
+              validation.is_active
+                ? `Solicitada em ${validation.created_at}`
+                : validation.validated_at
+                ? `Validada em ${validation.validated_at}`
+                : "Rejeitada"
+            }
+          />
+        </ListItemButton>
+      )}
+
+      {validation.is_active && !detail ? (
         <div className="flex flex-row justify-center items-start">
           <IconButton onClick={() => onClick(validation)}>
             <CheckBoxIcon color="success" />
@@ -58,7 +93,7 @@ function ValidationItem({ key, validation, onClick = () => {} }) {
             <DisabledByDefaultIcon sx={{ color: "red" }} />
           </IconButton>
         </div>
-      ) : !validation.validated_at ? (
+      ) : !validation.is_active && !validation.validated_at ? (
         <IconButton onClick={() => setOpenModal(true)}>
           <NoteAltOutlinedIcon color="primary" />
         </IconButton>
@@ -137,15 +172,31 @@ function ValidationItem({ key, validation, onClick = () => {} }) {
                   multiline
                   sx={{ margin: "10px 0px" }}
                 />
-
-                <Box className="flex flex-row justify-end mt-[10px]">
-                  <Button
-                    variant="outlined"
-                    onClick={() => setOpenModal(false)}
-                  >
-                    Fechar
-                  </Button>
-                </Box>
+                {detail ? (
+                  <Box className="flex flex-row justify-between mt-[10px]">
+                    <Button
+                      variant="contained"
+                      onClick={() => setOpenModal(false)}
+                    >
+                      REVALIDAR
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      onClick={() => setOpenModal(false)}
+                    >
+                      Fechar
+                    </Button>
+                  </Box>
+                ) : (
+                  <Box className="flex flex-row justify-end mt-[10px]">
+                    <Button
+                      variant="outlined"
+                      onClick={() => setOpenModal(false)}
+                    >
+                      Fechar
+                    </Button>
+                  </Box>
+                )}
               </div>
             )}
           </>

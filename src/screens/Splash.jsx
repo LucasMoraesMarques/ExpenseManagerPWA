@@ -15,6 +15,8 @@ import { setExpenses } from '../redux/slices/expenseSlice';
 import { setValidations } from '../redux/slices/validationSlice';
 import { setNotifications } from '../redux/slices/notificationSlice';
 import { setUsers, setWallet, setCurrentUser } from '../redux/slices/userSlice';
+import { loadActions } from '../services/actions';
+import { setActions } from '../redux/slices/actionSlice';
 
 
 function Splash() {
@@ -41,6 +43,9 @@ function Splash() {
       dispatch(setUsers(json))
       dispatch(setCurrentUser(json[0]))
       dispatch(setWallet(json[0].wallet))
+    })
+    loadActions('').then((json) => {
+      dispatch(setActions(json))
     })
     redirect()
   }

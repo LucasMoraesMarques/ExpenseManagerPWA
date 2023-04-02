@@ -29,6 +29,8 @@ import { createGroup, editGroup, loadGroups } from "../services/groups";
 import { setGroups } from "../redux/slices/groupSlice";
 import AlertToast from "../components/AlertToast";
 import BackButton from "../components/BackButton";
+import { loadActions } from '../services/actions';
+import { setActions } from '../redux/slices/actionSlice';
 
 function GroupEdit() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -135,6 +137,9 @@ function GroupEdit() {
         }
       });
     }
+    loadActions('').then((json) => {
+      dispatch(setActions(json))
+    })
   };
 
   const handleChangeMemberSearch = (e) => {

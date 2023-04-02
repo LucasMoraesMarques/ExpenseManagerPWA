@@ -12,7 +12,7 @@ import { Link, useNavigate, Location } from "react-router-dom";
 import Checkbox from "@mui/material/Checkbox";
 import CheckBox from "@mui/icons-material/CheckBox";
 
-function ExpenseItem({ key, expense, edit=false, onCheck=()=>{} }) {
+function ExpenseItem({ key, expense, edit=false, onCheck=()=>{}, isChecked }) {
   const navigate = useNavigate();
   const [primaryText, setPrimaryText] = useState('')
 
@@ -36,14 +36,14 @@ function ExpenseItem({ key, expense, edit=false, onCheck=()=>{} }) {
       key={key}
       disableGutters
       className="z-1000"
-    ><Checkbox onClick={onCheck}/>
+    ><Checkbox onClick={onCheck} checked={isChecked}/>
       <ListItemButton className="flex flex-row justify-center items-start">
         <span className="absolute top-[35px] left-[100px]"></span>
         <ListItemText
           primary={primaryText}
           secondary={
             expense.date +
-            (expense.is_validated ? " - Validada" : " - Em validação")
+            (' - ' + expense.validation_status)
           }
         />
         <span>R$ {expense.cost}</span>
@@ -60,7 +60,7 @@ function ExpenseItem({ key, expense, edit=false, onCheck=()=>{} }) {
           primary={primaryText}
           secondary={
             expense.date +
-            (expense.is_validated ? " - Validada" : " - Em validação")
+            (' - ' + expense.validation_status)
           }
         />
         {/*<Chip label="Pago" color="success" />*/}

@@ -98,5 +98,28 @@ export const deleteExpenses = async (apiToken, ids) => {
   }
 };
 
+export const deleteExpense = async (apiToken, id) => {
+  try {
+    const response = await fetch(process.env.REACT_APP_API_ROOT_URL + `expenses/${id}/`, {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${apiToken}`,
+      },
+    })
+    if (response.status != 204) {
+      return false
+    }
+    return true
+  } catch (error) {
+    console.log(error)
+    //Sentry.captureException(error);
+    //ToastAlert("Desculpe, tivemos um problema ao carregar os favoritos. Tente novamente!")
+    return false
+  } finally {
+  }
+};
+
 
 

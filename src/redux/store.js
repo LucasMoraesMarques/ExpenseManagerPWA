@@ -5,6 +5,7 @@ import regardingReducer from "./slices/regardingSlice";
 import expenseReducer from "./slices/expenseSlice";
 import notificationReducer from "./slices/notificationSlice";
 import validationReducer from "./slices/validationSlice";
+import actionReducer from "./slices/actionSlice";
 
 
 export default configureStore({
@@ -14,7 +15,8 @@ export default configureStore({
     regarding: regardingReducer,
     expense: expenseReducer,
     notification: notificationReducer,
-    validation: validationReducer
+    validation: validationReducer,
+    action: actionReducer
   },
   devTools: true
 })

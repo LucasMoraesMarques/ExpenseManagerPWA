@@ -32,7 +32,8 @@ import AlertToast from "../components/AlertToast";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import PaymentItem from "../components/PaymentItem";
-
+import { loadActions } from '../services/actions';
+import { setActions } from '../redux/slices/actionSlice';
 
 
 function TabPanel(props) {
@@ -279,6 +280,9 @@ function ExpenseCreate() {
         });
         setOpen(true);
       }
+      loadActions('').then((json) => {
+        dispatch(setActions(json))
+      })
     });
   };
 

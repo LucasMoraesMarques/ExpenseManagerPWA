@@ -32,7 +32,8 @@ import AlertToast from "../components/AlertToast";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import PaymentItem from "../components/PaymentItem";
-
+import { loadActions } from '../services/actions';
+import { setActions } from '../redux/slices/actionSlice';
 const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },
@@ -274,6 +275,9 @@ function ExpenseEdit() {
         });
         setOpen(true);
       }
+      loadActions('').then((json) => {
+        dispatch(setActions(json))
+      })
     });
   };
 

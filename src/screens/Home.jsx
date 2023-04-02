@@ -31,6 +31,7 @@ function Home() {
   const groupState = useSelector((state) => state.group);
   const regardingState = useSelector((state) => state.regarding);
   const expenseState = useSelector((state) => state.expense);
+  const actionState = useSelector((state) => state.action);
   const [numberOfItems, setNumberOfItems] = useState(0)
 
   useEffect(() => {
@@ -92,13 +93,10 @@ function Home() {
         </div>
 
         <List>
-          <RecentAction />
-          <RecentAction />
-
-          <RecentAction />
-
-          <RecentAction />
-          <RecentAction />
+          {
+        actionState.groupsActions.length > 0 && actionState.groupsActions.map((item) => {
+            return <RecentAction variant="rounded" key={item.id} action={item} />;
+          })}
         </List>
       </div>
     </div>

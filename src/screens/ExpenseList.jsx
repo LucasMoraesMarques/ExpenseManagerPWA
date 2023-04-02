@@ -35,6 +35,10 @@ import { setExpenses } from "../redux/slices/expenseSlice";
 import { loadRegardings } from "../services/regardings";
 import { setRegardings } from "../redux/slices/regardingSlice";
 import AlertToast from "../components/AlertToast";
+import ConfirmationModal from "../components/ConfirmationModal";
+import { loadActions } from '../services/actions';
+import { setActions } from '../redux/slices/actionSlice';
+
 const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },
@@ -43,6 +47,7 @@ const groups = [
 
 function ExpenseList({ regarding = null }) {
   const [openModal, setOpenModal] = useState(false);
+  const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
   const dispatch = useDispatch();
   const expenseState = useSelector((state) => state.expense);
   const [filteredExpenses, setFilteredExpenses] = useState([]);
@@ -91,6 +96,10 @@ function ExpenseList({ regarding = null }) {
         });
       }
       setOpen(true)
+      setOpenConfirmationModal(false)
+      loadActions('').then((json) => {
+        dispatch(setActions(json))
+      })
     })
   }
 
@@ -305,7 +314,7 @@ function ExpenseList({ regarding = null }) {
         {edit ? (
           <div>
             <Button onClick={() => {setEdit(false);setDeleteIds([])}}>Cancelar</Button>
-            <Button onClick={handleRemoveSelected}>Remover</Button>
+            <Button onClick={() => setOpenConfirmationModal(true)}>Remover</Button>
           </div>
         ) : (
           <IconButton onClick={() => setEdit(true)}>
@@ -317,7 +326,7 @@ function ExpenseList({ regarding = null }) {
       <List>
         {filteredExpenses.length > 0 ? (
           filteredExpenses.map((item) => {
-            return <ExpenseItem key={item.id} expense={item} edit={edit} onCheck={() => handleCheckbox(item.id)}/>;
+            return <ExpenseItem key={item.id} expense={item} edit={edit} onCheck={() => handleCheckbox(item.id)} isChecked={deleteIds.includes(item.id)}/>;
           })
         ) : (
           <NoData message="Nenhuma despesa encontrada" />
@@ -336,6 +345,19 @@ function ExpenseList({ regarding = null }) {
           }}
         />
       )}
+      <CustomModal
+        open={openConfirmationModal}
+        onClose={() => setOpenConfirmationModal(false)}
+        children={
+          <>
+            <ConfirmationModal
+              message={`Você realmente deseja deletar as despesas selecionadas? Todos items, pagamentos e validações também serão deletados.`}
+              onCancel={() => setOpenConfirmationModal(false)}
+              onConfirm={handleRemoveSelected}
+            />
+          </>
+        }
+      />
     </div>
   );
 }

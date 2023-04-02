@@ -85,16 +85,15 @@ export const deleteGroup = async (apiToken, id) => {
         'Authorization': `Token ${apiToken}`,
       },
     })
-    const json = await response.json();
-    if (response.status != 201) {
-      return []
+    if (response.status != 204) {
+      return false
     }
-    return json
+    return true
   } catch (error) {
     console.log(error)
     //Sentry.captureException(error);
     //ToastAlert("Desculpe, tivemos um problema ao carregar os favoritos. Tente novamente!")
-    return []
+    return false 
   } finally {
   }
 };

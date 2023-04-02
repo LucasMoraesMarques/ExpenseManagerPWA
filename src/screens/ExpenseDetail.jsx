@@ -25,19 +25,18 @@ import PaymentItem from "../components/PaymentItem";
 import Item from "../components/Item";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import SearchIcon from "@mui/icons-material/Search";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import BackButton from "../components/BackButton";
-
-const modalStyle = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "90%",
-  bgcolor: "background.paper",
-  boxShadow: 24,
-  p: 3,
-};
+import ValidationItem from "../components/ValidationItem";
+import AlertToast from "../components/AlertToast";
+import ConfirmationModal from "../components/ConfirmationModal";
+import CustomModal from "../components/CustomModal";
+import { deleteExpense } from "../services/expenses";
+import { setExpenses } from "../redux/slices/expenseSlice";
+import { loadRegardings } from "../services/regardings";
+import { setRegardings } from "../redux/slices/regardingSlice";
+import { loadActions } from '../services/actions';
+import { setActions } from '../redux/slices/actionSlice';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -58,7 +57,8 @@ function TabPanel(props) {
 
 function ExpenseDetail() {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
   const navigate = useNavigate();
   const [value, setValue] = useState(0);
   let { id } = useParams();
@@ -66,6 +66,10 @@ function ExpenseDetail() {
   const [expense, setExpense] = useState({});
   const [filteredItems, setFilteredItems] = useState([]);
   const [search, setSearch] = useState("");
+  const dispatch = useDispatch();
+  const [message, setMessage] = useState({});
+
+
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -96,6 +100,36 @@ function ExpenseDetail() {
     });
     setFilteredItems([...newItems]);
   };
+
+  const handleRemove = async () => {
+    deleteExpense('', expense.id).then((flag) => {
+      if(flag){
+        let newExpenses = expenseState.userExpenses.filter((item) => item.id != expense.id)
+        dispatch(setExpenses([...newExpenses]))
+        loadRegardings('').then((data) => dispatch(setRegardings([...data])))
+        setMessage({
+          severity: "success",
+          title: "Sucesso!",
+          body: "Despesa removida com sucesso!",
+        });
+      }
+      else{
+        setMessage({
+          severity: "error",
+          title: "Erro!",
+          body: "Tivemos problemas ao deletar a despesa. Tente novamente!",
+        });
+      }
+      setOpen(true)
+      setOpenConfirmationModal(false)
+      loadActions('').then((json) => {
+        dispatch(setActions(json))
+      })
+      if(flag){
+        setTimeout(() => navigate('/inicio'), 1000)
+      }
+    })
+  }
 
   useEffect(() => {
     let index = expenseState.userExpenses.findIndex((item) => item.id == id);
@@ -142,7 +176,7 @@ function ExpenseDetail() {
                 onClose={() => setAnchorEl(null)}
               >
                 <MenuItem onClick={editExpense}>Editar</MenuItem>
-                <MenuItem onClick={() => {}}>Deletar</MenuItem>
+                <MenuItem onClick={() => setOpenConfirmationModal(true)}>Deletar</MenuItem>
               </Menu>
             </div>
           )}
@@ -194,6 +228,13 @@ function ExpenseDetail() {
                   return <PaymentItem payment={item} />;
                 })}
             </List>
+            <h5 className="font-bold">Validações</h5>
+            <List>
+              {"validations" in expense &&
+                expense.validations.map((item) => {
+                  return <ValidationItem key={item.id} validation={item} detail={true}/>;
+                })}
+            </List>
           </TabPanel>
           <TabPanel value={value} index={1}>
             <div className="flex flex-row justify-between">
@@ -225,6 +266,31 @@ function ExpenseDetail() {
           </TabPanel>
         </AppBar>
       </div>
+      <CustomModal
+        open={openConfirmationModal}
+        onClose={() => setOpenConfirmationModal(false)}
+        children={
+          <>
+            <ConfirmationModal
+              message={`Você realmente deseja deletar essa despesa? Todos items, pagamentos e validações também serão deletados.`}
+              onCancel={() => setOpenConfirmationModal(false)}
+              onConfirm={handleRemove}
+            />
+          </>
+        }
+      />
+      {Object.keys(message) && (
+        <AlertToast
+          severity={message.severity}
+          title={message.title}
+          message={message.body}
+          open={open}
+          onClose={() => {
+            setOpen(false);
+            setMessage({});
+          }}
+        />
+      )}
     </div>
   );
 }

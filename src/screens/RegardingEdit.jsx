@@ -27,6 +27,8 @@ import dayjs, { Dayjs } from "dayjs";
 import { createRegarding, editRegarding, loadRegardings } from "../services/regardings";
 import { setRegardings } from "../redux/slices/regardingSlice";
 import AlertToast from "../components/AlertToast";
+import { loadActions } from '../services/actions';
+import { setActions } from '../redux/slices/actionSlice';
 
 const REGARDING_STATES = [
   { label: "Em andamento", id: 0 },
@@ -159,6 +161,9 @@ function RegardingEdit() {
         }
       });
     }
+    loadActions('').then((json) => {
+      dispatch(setActions(json))
+    })
   };
 
   useEffect(() => {
