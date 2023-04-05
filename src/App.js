@@ -18,6 +18,8 @@ import Splash from './screens/Splash';
 import Onboarding from './screens/Onboarding';
 import Login from './screens/Login';
 import Register from './screens/Register';
+import RecentActionList from './screens/RecentActionList';
+import RecentActionDetail from './screens/RecentActionDetail';
 
 
 function App() {
@@ -45,6 +47,8 @@ function App() {
         <Route path="/conta" element={<Account/>}/>
         <Route path="/perfil" element={<ProfileEdit/>}/>
         <Route path="/metodos-de-pagamento" element={<PaymentMethodList/>}/>
+        <Route path="/historico-de-acoes" element={<RecentActionList/>}/>
+        <Route path="/acao/:id" element={<RecentActionDetail/>}/>
       </Routes>
       </BrowserRouter>
   );

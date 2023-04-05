@@ -35,6 +35,7 @@ import CustomModal from "../components/CustomModal";
 import AlertToast from "../components/AlertToast";
 import { loadActions } from '../services/actions';
 import { setActions } from '../redux/slices/actionSlice';
+import DebtItem from "../components/DebtItem";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -173,7 +174,7 @@ function RegardingDetail() {
             <Tab label="Despesas" />
           </Tabs>
           <TabPanel value={value} index={0} className="text-black">
-            <h5 className="font-bold">Nome</h5>
+            <h5 className="font-bold">Nome </h5>
             <span className="ml-[10px] text-sm">{regarding.name}</span>
             <h5 className="font-bold mt-2">Descrição</h5>
             <span className="ml-[10px] text-sm">{regarding.description}</span>
@@ -196,42 +197,50 @@ function RegardingDetail() {
                   <DashItem
                     title="Total Geral"
                     value={"R$ " + regarding.general_total.total_expenses}
+                    helpText={"Soma de todas as despesas da referência"}
                   />
                 </Grid>
                 <Grid item xs={6}>
                   <DashItem
                     title="Total Compartilhado Completo"
                     value={"R$ " + regarding.consumer_total.shared}
+                    helpText={"Soma dos itens em que todos os membros são consumidores"}
                   />
                 </Grid>
                 <Grid item xs={6}>
                   <DashItem
                     title="Total Compartilhado Parcial"
                     value={"R$ " + regarding.consumer_total.partial_shared}
+                    helpText={"Soma dos itens em que alguém dividiu algo com você"}
                   />
                 </Grid>
                 <Grid item xs={6}>
                   <DashItem
                     title="Total Individual"
                     value={"R$ " + regarding.consumer_total.individual}
+                    helpText={"Soma dos itens em que você é o único consumidor"}
                   />
                 </Grid>
                 <Grid item xs={6}>
                   <DashItem
                     title="Saldo Compartilhado"
                     value={"R$ " + regarding.consumer_total.balance}
+                    helpText={"Saldo relativo ao total pago do valor compartilhado em relação à parcela esperada devido ao peso do membro"}
                   />
                 </Grid>
               </Grid>
             )}
+            
             <h5 className="font-bold mt-2">Débitos individuais</h5>
+            <List>
             {"total_member_vs_member" in regarding && Object.keys(regarding.total_member_vs_member).map((member1) => {
               let data = regarding.total_member_vs_member[member1]
               return Object.keys(data).map((member2) => {
                 let value = data[member2]
-                return  <p className="ml-[10px] text-sm">{member2} deve R$ {value} a {member1}</p>
+                return  <DebtItem key={member1 + member2} payer={member2} receiver={member1} debt={value}/>
               })
             })}
+            </List>
             {"general_total" in regarding && (
               <>
                 <Box className="w-[95%] mx-auto my-3">

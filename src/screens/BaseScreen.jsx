@@ -33,10 +33,11 @@ function BaseScreen() {
           {screens[screen]}
       </div>
      
-      <div className="fixed bottom-[40px] mx-auto flex flex-row justify-center w-screen z-10">
       <SpeedDial
   ariaLabel="SpeedDial basic example"
   icon={<SpeedDialIcon />}
+  style={{position:'fixed', bottom: '40px', margin: '0px auto'}}
+  className='mx-auto w-full'
 >
 {actions.map((action) => (
           <SpeedDialAction
@@ -48,7 +49,6 @@ function BaseScreen() {
           />
         ))}
 </SpeedDial>
-      </div>
       <BottomNavigation
         showLabels
         value={screen}

@@ -88,13 +88,13 @@ function Home() {
             Atividades Recentes
           </span>
           <span className="align-middle">
-            <Link to="/">Ver todos</Link>
+            <Link to="/historico-de-acoes">Ver todos</Link>
           </span>
         </div>
 
         <List>
           {
-        actionState.groupsActions.length > 0 && actionState.groupsActions.map((item) => {
+        actionState.groupsActions.length > 0 && actionState.groupsActions.slice(0,5).map((item) => {
             return <RecentAction variant="rounded" key={item.id} action={item} />;
           })}
         </List>
