@@ -31,6 +31,7 @@ import PermIdentityOutlinedIcon from "@mui/icons-material/PermIdentityOutlined";
 import WalletOutlinedIcon from "@mui/icons-material/WalletOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import BackButton from "../components/BackButton";
+import AlertToast from "../components/AlertToast";
 
 const modalStyle = {
   position: "absolute",
@@ -61,23 +62,18 @@ function TabPanel(props) {
 }
 
 function Account() {
-  const [anchorEl, setAnchorEl] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
-  const [value, setValue] = useState(0);
+  const [message, setMessage] = useState({});
+  const [open, setOpen] = useState(false);
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
 
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const editRegarding = () => {
-    setAnchorEl(null);
-    navigate("/editar-referencia/5");
-  };
+  const logout = () => {
+    localStorage.removeItem('persist:root')
+    setMessage({title: '', body:'Você saiu da sua conta!', severity:'success'});
+    setOpen(true)
+    setTimeout(() => navigate("/boas-vindas"), 2000);
+  }
   return (
     <div className="min-h-screen">
       <AppBar position="static">
@@ -111,15 +107,27 @@ function Account() {
               </ListItemButton>
           </ListItem>
           <ListItem>
-              <ListItemButton sx={{ borderBottom: "1px solid #94a3b8" }} onClick={() => navigate("/metodos-de-pagamento")}>
+              <ListItemButton sx={{ borderBottom: "1px solid #94a3b8" }} onClick={() => logout()}>
                 <ListItemIcon>
                   <LogoutOutlinedIcon sx={{ width: 35, height: 35 }} />
                 </ListItemIcon>
-                <ListItemText primary="Sair" />
+                <ListItemText primary="Sair"/>
               </ListItemButton>
           </ListItem>
         </List>
       </div>
+      {Object.keys(message) && (
+        <AlertToast
+          severity={message.severity}
+          title={message.title}
+          message={message.body}
+          open={open}
+          onClose={() => {
+            setOpen(false);
+            setMessage({});
+          }}
+        />
+      )}
     </div>
   );
 }

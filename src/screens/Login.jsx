@@ -25,27 +25,86 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import {ReactComponent as LoginSVG} from '../assets/img/login.svg';
 import { signInWithGoogle } from '../services/firebase';
 import { useSelector, useDispatch } from "react-redux";
-import { setCurrentUser, setUser } from "../redux/slices/userSlice";
-const groups = [
-  { label: "Group 1", id: 1 },
-  { label: "Group 2", id: 2 },
-];
+import { setCurrentUser } from "../redux/slices/userSlice";
+import AlertToast from "../components/AlertToast";
+import CircularProgress from '@mui/material/CircularProgress';
+
 
 function Login() {
   const [showPassword, setShowPassword] = React.useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [formFilled, setFormFilled] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loginWithGoogle, setLoginWithGoogle] = useState(false);
+  const navigate = useNavigate();
+  const dispatch = useDispatch()
+  const user = useSelector(state => state.user)
+  const [message, setMessage] = useState({});
+  const [open, setOpen] = useState(false);
+
+  const login = async userInfo => {
+    setLoading(true);
+    let idToken = '';
+    if (Object.keys(userInfo).length != 0) {
+      idToken = userInfo.id;
+    }
+    try {
+      const response = await fetch(process.env.REACT_APP_API_ROOT_URL + 'login/', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: idToken ? userInfo.email : email,
+          password: password,
+          accountId: idToken ? userInfo.id : '',
+        }),
+      });
+      const json = await response.json();
+      if (response.status == 200) {
+        try {
+          console.log(json)
+          dispatch(setCurrentUser({...json.user, api_token: json.api_token}));
+          setMessage({title: 'Alerta', body:'Login realizado com sucesso!', severity:'success'});
+          setOpen(true)
+          setTimeout(() => navigate('/'), 2000);
+        } catch (error) {
+          setLoading(false);
+          setLoginWithGoogle(false);
+          //Sentry.captureException(error);
+        }
+      } else {
+        setLoading(false);
+        setLoginWithGoogle(false);
+        setMessage({title: 'Alerta', body:json.detail, severity:'warning'});
+        setOpen(true)
+      }
+    } catch (error) {
+      setLoading(false);
+      setLoginWithGoogle(false);
+      //Sentry.captureException(error);
+    } finally {
+    }
+  };
+
+  useEffect(() => {
+    setFormFilled((password.length > 0) & (email.length > 0));
+  }, [password, email]);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
-  const navigate = useNavigate();
-  const dispatch = useDispatch()
-  const user = useSelector(state => state.user)
+  
 
 
   const handleSignInWithGoogle = async () => {
     try {
+      setLoading(true)
+      setLoginWithGoogle(true)
       const result = await signInWithGoogle()
       console.log(result)
       const userInfo = result.additionalUserInfo.profile
@@ -56,7 +115,7 @@ function Login() {
         google_id: userInfo.id
 
       }
-      dispatch(setCurrentUser(data))
+      await login(userInfo);
     } catch(error) {
       console.log(error)
 
@@ -91,19 +150,21 @@ function Login() {
       <div className="w-[90vw] mx-auto my-3 flex flex-col justify-start items-center">
         <LoginSVG className="w-[180px] h-[180px] my-4"/>
         <TextField
-          id="outlined-basic"
           label="Email"
           variant="outlined"
           size="medium"
           type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           fullWidth
           sx={{ margin: "10px 0px" }}
         />
         <TextField
-          id="outlined-basic"
           label="Senha"
           variant="outlined"
           size="medium"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           fullWidth
           sx={{ margin: "10px 0px" }}
           type={showPassword ? 'text' : 'password'}
@@ -120,16 +181,35 @@ function Login() {
               </InputAdornment>
             }
         />
-        <Button variant="contained" className="w-full">
-          Entrar
+        <Button variant="contained" className="w-full" disabled={!formFilled} onClick={() => login({})}>
+        {loading && !loginWithGoogle ? <span><CircularProgress size={20} sx={{color: 'white'}}/> Entrando ...</span> : <span>Entrar</span>}
         </Button>
         <span className="my-3">Ou</span>
         <Button variant="contained" className="w-full" color="success" onClick={handleSignInWithGoogle}>
-          Entrar com google
+        {loading && loginWithGoogle ? (
+                <CircularProgress size={20} sx={{color: 'white'}}/>
+              ) : (
+                <></>
+              )}
+        {loading && loginWithGoogle
+                  ? 'Entrando ...'
+                  : 'Entrar com o Google'}
         </Button>  
         <span className="my-3">Ainda não tem uma conta? <Link to='/registrar' className="text-blue-600">Registre-se aqui</Link> </span>
        
       </div>
+      {Object.keys(message) && (
+        <AlertToast
+          severity={message.severity}
+          title={message.title}
+          message={message.body}
+          open={open}
+          onClose={() => {
+            setOpen(false);
+            setMessage({});
+          }}
+        />
+      )}
     </div>
   );
 }

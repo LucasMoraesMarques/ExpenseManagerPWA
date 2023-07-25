@@ -240,7 +240,9 @@ function Notifications() {
 
           <TabPanel value={value} index={1}>
             <Badge
-              badgeContent={validationState.userValidations.length}
+              badgeContent={validationState.userValidations.filter(
+                (item) => item.is_active
+              ).length}
               color="error"
               className="absolute top-[-40px] left-[calc(100vw-40px)]"
             />
