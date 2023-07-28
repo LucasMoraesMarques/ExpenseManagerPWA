@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from "react-redux";
 import { setMessages } from '../redux/slices/messageSlice';
-import AlertToast from "../components/AlertToast";
+import AlertToast from "./AlertToast";
 
-function Message() {
+function MessageQueue() {
   const [activeMessage, setActiveMessage] = useState({})
   const [open, setOpen] = useState(false)
   const messageState = useSelector((state) => state.message);
@@ -41,4 +41,4 @@ function Message() {
   />) : <></>)
 }
 
-export default Message
+export default MessageQueue

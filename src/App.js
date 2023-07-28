@@ -21,40 +21,47 @@ import Register from "./screens/Register";
 import RecentActionList from "./screens/RecentActionList";
 import RecentActionDetail from "./screens/RecentActionDetail";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { useSelector } from 'react-redux';
+import MessageQueue from "./components/MessageQueue";
+import { useSelector } from "react-redux";
 
 function App() {
-  const userState = useSelector(state => state.user)
+  const userState = useSelector((state) => state.user);
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route index path="/" element={<Splash />} />
-        <Route index path="/boas-vindas" element={<Onboarding />} />
-        <Route index path="/entrar" element={<Login />} />
-        <Route index path="/registrar" element={<Register />} />
-        <Route element={<ProtectedRoute user={userState.currentUser} />}>
-          <Route path="/inicio" element={<BaseScreen />} />
-          <Route path="/criar-despesa" element={<ExpenseCreate />} />
-          <Route path="/editar-despesa/:id" element={<ExpenseEdit />} />
-          <Route path="/despesa/:id" element={<ExpenseDetail />} />
-          <Route path="/criar-referencia" element={<RegardingEdit />} />
-          <Route path="/editar-referencia/:id" element={<RegardingEdit />} />
-          <Route path="/referencia/:id" element={<RegardingDetail />} />
-          <Route path="/criar-grupo" element={<GroupEdit />} />
-          <Route path="/editar-grupo/:id" element={<GroupEdit />} />
-          <Route path="/grupo/:id/adicionar-membro" element={<AddMember />} />
-          <Route path="/grupos" element={<GroupList />} />
-          <Route path="/grupo/:id" element={<GroupDetail />} />
-          <Route path="/notificacoes" element={<Notifications />} />
-          <Route path="/conta" element={<Account />} />
-          <Route path="/perfil" element={<ProfileEdit />} />
-          <Route path="/metodos-de-pagamento" element={<PaymentMethodList />} />
-          <Route path="/historico-de-acoes" element={<RecentActionList />} />
-          <Route path="/acao/:id" element={<RecentActionDetail />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route index path="/" element={<Splash />} />
+          <Route index path="/boas-vindas" element={<Onboarding />} />
+          <Route index path="/entrar" element={<Login />} />
+          <Route index path="/registrar" element={<Register />} />
+          <Route element={<ProtectedRoute user={userState.currentUser} />}>
+            <Route path="/inicio" element={<BaseScreen />} />
+            <Route path="/criar-despesa" element={<ExpenseCreate />} />
+            <Route path="/editar-despesa/:id" element={<ExpenseEdit />} />
+            <Route path="/despesa/:id" element={<ExpenseDetail />} />
+            <Route path="/criar-referencia" element={<RegardingEdit />} />
+            <Route path="/editar-referencia/:id" element={<RegardingEdit />} />
+            <Route path="/referencia/:id" element={<RegardingDetail />} />
+            <Route path="/criar-grupo" element={<GroupEdit />} />
+            <Route path="/editar-grupo/:id" element={<GroupEdit />} />
+            <Route path="/grupo/:id/adicionar-membro" element={<AddMember />} />
+            <Route path="/grupos" element={<GroupList />} />
+            <Route path="/grupo/:id" element={<GroupDetail />} />
+            <Route path="/notificacoes" element={<Notifications />} />
+            <Route path="/conta" element={<Account />} />
+            <Route path="/perfil" element={<ProfileEdit />} />
+            <Route
+              path="/metodos-de-pagamento"
+              element={<PaymentMethodList />}
+            />
+            <Route path="/historico-de-acoes" element={<RecentActionList />} />
+            <Route path="/acao/:id" element={<RecentActionDetail />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+      <MessageQueue />
+    </>
   );
 }
 

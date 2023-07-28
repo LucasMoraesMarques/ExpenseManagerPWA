@@ -28,7 +28,7 @@ ChartJS.register(
 const chartConfig = {
   data:{},
   options: {
-    //responsive: true,
+    responsive: true,
     //maintainAspectRatio: false,
     scales: {
       x: {
@@ -89,7 +89,7 @@ const chartConfig = {
 
 const LineChart = ({data}) => {
   return (
-    <Line data={data} className="flex justify-center"/>
+    <Line data={data} options={chartConfig}/>
   );
 };
 

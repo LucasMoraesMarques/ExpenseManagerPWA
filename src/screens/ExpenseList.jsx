@@ -45,7 +45,7 @@ const groups = [
 ];
 
 
-function ExpenseList({ regarding = null }) {
+function ExpenseList({ regarding = null , showRegardingName=true}) {
   const [openModal, setOpenModal] = useState(false);
   const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
   const dispatch = useDispatch();
@@ -316,7 +316,7 @@ function ExpenseList({ regarding = null }) {
             <Button onClick={() => {setEdit(false);setDeleteIds([])}}>Cancelar</Button>
             <Button onClick={() => setOpenConfirmationModal(true)}>Remover</Button>
           </div>
-        ) : (
+        ) : ( filteredExpenses.length > 0 &&
           <IconButton onClick={() => setEdit(true)}>
             <DeleteIcon sx={{ color: "red" }} />
           </IconButton>
@@ -326,7 +326,7 @@ function ExpenseList({ regarding = null }) {
       <List>
         {filteredExpenses.length > 0 ? (
           filteredExpenses.map((item) => {
-            return <ExpenseItem key={item.id} expense={item} edit={edit} onCheck={() => handleCheckbox(item.id)} isChecked={deleteIds.includes(item.id)}/>;
+            return <ExpenseItem key={item.id} expense={item} edit={edit} onCheck={() => handleCheckbox(item.id)} isChecked={deleteIds.includes(item.id)} showRegardingName={showRegardingName}/>;
           })
         ) : (
           <NoData message="Nenhuma despesa encontrada" />

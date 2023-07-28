@@ -284,7 +284,7 @@ function RegardingDetail() {
                 </Box>
                 <Box className="w-[95%] mx-auto my-3">
                   <h5 className="font-bold">Compras por dia</h5>
-                  <Box className="w-[75%] mx-auto my-3">
+                  <Box className="my-3">
                     <LineChart
                       data={{
                         labels: Object.keys(regarding.total_by_day),
@@ -320,7 +320,7 @@ function RegardingDetail() {
             )}
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <ExpenseList regarding={regarding.id}/>
+            <ExpenseList regarding={regarding.id} showRegardingName={false}/>
           </TabPanel>
         </AppBar>
       </div>

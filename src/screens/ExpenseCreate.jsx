@@ -2,20 +2,14 @@ import React from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState, useEffect } from "react";
-import MenuItem from "@mui/material/MenuItem";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
-import AttachmentIcon from "@mui/icons-material/Attachment";
 import InputAdornment from "@mui/material/InputAdornment";
-import FormControl from "@mui/material/FormControl";
 import List from "@mui/material/List";
 import Item from "../components/Item";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
@@ -23,19 +17,27 @@ import CustomModal from "../components/CustomModal";
 import BackButton from "../components/BackButton";
 import { useSelector, useDispatch } from "react-redux";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs, { Dayjs } from "dayjs";
-import { createExpense, loadExpenses, editExpense } from "../services/expenses";
+import dayjs from "dayjs";
+import { createExpense, loadExpenses } from "../services/expenses";
 import { loadRegardings } from "../services/regardings";
 import { setExpenses } from "../redux/slices/expenseSlice";
 import { setRegardings } from "../redux/slices/regardingSlice";
-import AlertToast from "../components/AlertToast";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import PaymentItem from "../components/PaymentItem";
-import { loadActions } from '../services/actions';
-import { setActions } from '../redux/slices/actionSlice';
-import { validateTextField, validateCurrency, moneyMask, calculateTotalValueOfArray } from "../services/utils";
-import NoData from '../components/NoData';
+import { loadActions } from "../services/actions";
+import { setActions } from "../redux/slices/actionSlice";
+import {
+  validateTextField,
+  validateCurrency,
+  moneyMask,
+  calculateTotalValueOfArray,
+} from "../services/utils";
+import NoData from "../components/NoData";
+import { addMessage } from "../redux/slices/messageSlice";
+import { loadValidations } from '../services/validations';
+import { setValidations } from '../redux/slices/validationSlice';
+
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -55,10 +57,8 @@ function TabPanel(props) {
 }
 
 function ExpenseCreate() {
-  const [anchorEl, setAnchorEl] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
-  const expenseState = useSelector((state) => state.expense);
   const regardingState = useSelector((state) => state.regarding);
   const groupState = useSelector((state) => state.group);
   const userState = useSelector((state) => state.user);
@@ -71,7 +71,7 @@ function ExpenseCreate() {
     regarding: "",
     items: [],
     payments: [],
-    validators: []
+    validators: [],
   });
   const [inputValidation, setInputValidation] = useState({
     name: "",
@@ -81,10 +81,8 @@ function ExpenseCreate() {
     regarding: "",
     items: [],
     payments: [],
-    validators: []
+    validators: [],
   });
-  const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState({});
   const [userOptions, setUserOptions] = useState([]);
   const [validatorOptions, setValidatorOptions] = useState([]);
   const [consumerOptions, setConsumerOptions] = useState([]);
@@ -106,7 +104,7 @@ function ExpenseCreate() {
   });
   const dispatch = useDispatch();
   const [value, setValue] = useState(0);
-  const [saving, setSaving] = useState(false)
+  const [saving, setSaving] = useState(false);
 
   const handleChangeName = (e) => {
     setInputStates({ ...inputStates, name: e.target.value });
@@ -130,7 +128,6 @@ function ExpenseCreate() {
   };
 
   const handleChangeRegarding = (e, value) => {
-    console.log("dfgdgfdg")
     if (Object.keys(value).length > 0) {
       let regardingID = value.id;
       let selectedRegarding = regardingState.userRegardings.find(
@@ -148,17 +145,10 @@ function ExpenseCreate() {
           let options = selectedGroup.members.map((item) => ({
             id: item.id,
             name: item.first_name + " " + item.last_name,
-          }))
-          setUserOptions(
-            options
-          );
-          setValidatorOptions(
-            [...options, {id:0, name: "Todos"}]
-          );
-          setConsumerOptions(
-            [...options, {id:0, name: "Todos"}]
-          );
-          
+          }));
+          setUserOptions(options);
+          setValidatorOptions([...options, { id: 0, name: "Todos" }]);
+          setConsumerOptions([...options, { id: 0, name: "Todos" }]);
         }
       }
     }
@@ -169,32 +159,38 @@ function ExpenseCreate() {
     console.log(value);
     let newValidators = [];
     if (value.length > 0) {
-      if(value.some(item => item.id == 0)){
-        newValidators  = [...userOptions]
-      }
-      else{
-        newValidators = [...value]
+      if (value.some((item) => item.id == 0)) {
+        newValidators = [...userOptions];
+      } else {
+        newValidators = [...value];
       }
     }
-    let options = [...userOptions, {id:0, name: "Todos"}]
-    console.log(options)
-    setInputStates({...inputStates, validators:newValidators})
-    setValidatorOptions(options.filter((item) => !newValidators.includes(item)))
-  
-  }
+    let options = [...userOptions, { id: 0, name: "Todos" }];
+    console.log(options);
+    setInputStates({ ...inputStates, validators: newValidators });
+    setValidatorOptions(
+      options.filter((item) => !newValidators.includes(item))
+    );
+  };
 
   const handleAddItem = () => {
     setInputStates({ ...inputStates, items: [...inputStates.items, item] });
     setOpenModal(false);
-    setItem({ name: "", price: "0,00", expense: "", consumers: [], create: true, consumer_names: "" });
-    let options = [...userOptions, {id:0, name: "Todos"}]
-    setConsumerOptions(options)
+    setItem({
+      name: "",
+      price: "0,00",
+      expense: "",
+      consumers: [],
+      create: true,
+      consumer_names: "",
+    });
+    let options = [...userOptions, { id: 0, name: "Todos" }];
+    setConsumerOptions(options);
   };
 
   const handleDeleteItem = (instance) => {
     let newItems = [...inputStates.items];
     newItems = newItems.filter((item) => !(instance.id == item.id));
-    console.log(instance, inputStates.items)
     setInputStates({ ...inputStates, items: newItems });
   };
 
@@ -241,21 +237,25 @@ function ExpenseCreate() {
   const handleChangeConsumers = (e, value) => {
     console.log(value);
     let newConsumers = [];
-    if(value.some(item => item.id == 0)){
-      newConsumers  = [...userOptions]
-    }
-    else{
-      newConsumers = [...value]
+    if (value.some((item) => item.id == 0)) {
+      newConsumers = [...userOptions];
+    } else {
+      newConsumers = [...value];
     }
     let lastId = 0;
     for (let { id } of inputStates.items) {
       if (id >= lastId) {
-        lastId = id + 1
+        lastId = id + 1;
       }
     }
-    setItem({ ...item, consumers: newConsumers, id: lastId, consumers_names: newConsumers.map(({name}) => name).join(", ")  });
-    let options = [...userOptions, {id:0, name: "Todos"}]
-    setConsumerOptions(options.filter((item) => !newConsumers.includes(item)))
+    setItem({
+      ...item,
+      consumers: newConsumers,
+      id: lastId,
+      consumers_names: newConsumers.map(({ name }) => name).join(", "),
+    });
+    let options = [...userOptions, { id: 0, name: "Todos" }];
+    setConsumerOptions(options.filter((item) => !newConsumers.includes(item)));
   };
 
   const handleChangePayer = (e, value) => {
@@ -287,7 +287,7 @@ function ExpenseCreate() {
   };
 
   const handleSaveExpense = () => {
-    setSaving(true)
+    setSaving(true);
     let data = {
       ...inputStates,
       date: `${inputStates.date.$y}-${(inputStates.date.$M + 1)
@@ -305,25 +305,30 @@ function ExpenseCreate() {
         loadExpenses("").then((newExpenses) =>
           dispatch(setExpenses(newExpenses))
         );
-        setMessage({
-          severity: "success",
-          title: "Sucesso!",
-          body: "Despesa adicionada com sucesso!",
-        });
-        setOpen(true);
+        loadValidations("").then((json) => {
+          dispatch(setValidations(json))
+        })
+        dispatch(
+          addMessage({
+            severity: "success",
+            title: "Sucesso!",
+            body: "Despesa adicionada com sucesso!",
+          })
+        );
       } else {
-        setMessage({
-          severity: "error",
-          title: "Erro!",
-          body: "Tivemos problemas ao criar a despesa. Tente novamente!",
-        });
-        setOpen(true);
+        dispatch(
+          addMessage({
+            severity: "error",
+            title: "Erro!",
+            body: "Tivemos problemas ao criar a despesa. Tente novamente!",
+          })
+        );
       }
-      loadActions('').then((json) => {
-        dispatch(setActions(json))
-      })
-      setSaving(false)
-      navigate("/inicio")
+      loadActions("").then((json) => {
+        dispatch(setActions(json));
+      });
+      setSaving(false);
+      navigate("/inicio");
     });
   };
 
@@ -331,22 +336,30 @@ function ExpenseCreate() {
 
   useEffect(() => {
     console.log(inputStates);
-    let expenseCost = parseFloat(inputStates.cost.replace(".", "").replace(",", "."))
+    let expenseCost = parseFloat(
+      inputStates.cost.replace(".", "").replace(",", ".")
+    );
     let validations = {
       name: validateTextField(inputStates.name, true),
       description: validateTextField(inputStates.description),
       cost: validateCurrency(inputStates.cost),
       date: inputStates.date || null,
       regarding: inputStates.regarding || null,
-      items: inputStates.items.length > 0 && calculateTotalValueOfArray(inputStates.items.map(({price}) => price)) == expenseCost,
-      payments: inputStates.payments.length > 0 && calculateTotalValueOfArray(inputStates.payments.map(({value}) => value)) == expenseCost,
-      validators: true
-    }
-    setInputValidation(
-      validations
-    )
-    console.log(validations)
-    setFieldsValid(Object.values(validations).every(item => item))
+      items:
+        inputStates.items.length > 0 &&
+        calculateTotalValueOfArray(
+          inputStates.items.map(({ price }) => price)
+        ) == expenseCost,
+      payments:
+        inputStates.payments.length > 0 &&
+        calculateTotalValueOfArray(
+          inputStates.payments.map(({ value }) => value)
+        ) == expenseCost,
+      validators: true,
+    };
+    setInputValidation(validations);
+    console.log(validations);
+    setFieldsValid(Object.values(validations).every((item) => item));
   }, [inputStates]);
 
   useEffect(() => {
@@ -429,12 +442,14 @@ function ExpenseCreate() {
           <Autocomplete
             disablePortal
             id="combo-box-demo"
-            options={regardingState.userRegardings.filter((item) => !item.is_closed).map((item) => ({
-              id: item.id,
-              label: item.name,
-            }))}
+            options={regardingState.userRegardings
+              .filter((item) => !item.is_closed)
+              .map((item) => ({
+                id: item.id,
+                label: item.name,
+              }))}
             renderInput={(params) => (
-              <TextField {...params} label="Referência" required/>
+              <TextField {...params} label="Referência" required />
             )}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             size="medium"
@@ -444,21 +459,21 @@ function ExpenseCreate() {
             required
           />
           <Autocomplete
-                    multiple
-                    id="tags-standard"
-                    options={validatorOptions}
-                    onChange={handleChangeValidators}
-                    isOptionEqualToValue={(option, value) => option.id === value.id}
-                    getOptionLabel={(option) => option.name}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Validantes"
-                        placeholder="Selecione quem deve validar"
-                        variant="outlined"
-                      />
-                    )}
-                  />
+            multiple
+            id="tags-standard"
+            options={validatorOptions}
+            onChange={handleChangeValidators}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            getOptionLabel={(option) => option.name}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Validantes"
+                placeholder="Selecione quem deve validar"
+                variant="outlined"
+              />
+            )}
+          />
           {/*<IconButton
           color="primary"
           aria-label="upload picture"
@@ -474,119 +489,125 @@ function ExpenseCreate() {
         </IconButton>*/}
         </div>
 
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            className="bg-[#e2e2e2] text-[#000]"
-            textColor="inherit"
-            indicatorColor="primary"
-            variant="fullWidth"
-            aria-label="full width tabs example"
-          >
-            <Tab label="Items" />
-            <Tab label="Pagamentos" />
-          </Tabs>
-          <TabPanel value={value} index={0} className="text-black">
-            <div className="flex flex-row justify-between w-full items-center">
-              <span className="font-bold text-xl">Lista de Items</span>
-              <span className="rounded-[50%] bg-slate-300 align-middle">
-                <IconButton onClick={() => setOpenModal(true)}>
-                  <AddIcon />
-                </IconButton>
-              </span>
-            </div>
-            <CustomModal
-              open={openModal}
-              onClose={() => setOpenModal(false)}
-              children={
-                <>
-                  <Typography
-                    id="modal-modal-title"
-                    variant="h6"
-                    component="h2"
-                    sx={{ fontWeight: "bold" }}
-                  >
-                    Adicionar Item
-                  </Typography>
-                  <span className="text-sm">
-                    Selecione a referência para ver as opções
-                  </span>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          className="bg-[#e2e2e2] text-[#000]"
+          textColor="inherit"
+          indicatorColor="primary"
+          variant="fullWidth"
+          aria-label="full width tabs example"
+        >
+          <Tab label="Items" />
+          <Tab label="Pagamentos" />
+        </Tabs>
+        <TabPanel value={value} index={0} className="text-black">
+          <div className="flex flex-row justify-between w-full items-center">
+            <span className="font-bold text-xl">Lista de Items</span>
+            <span className="rounded-[50%] bg-slate-300 align-middle">
+              <IconButton onClick={() => setOpenModal(true)}>
+                <AddIcon />
+              </IconButton>
+            </span>
+          </div>
+          <CustomModal
+            open={openModal}
+            onClose={() => setOpenModal(false)}
+            children={
+              <>
+                <Typography
+                  id="modal-modal-title"
+                  variant="h6"
+                  component="h2"
+                  sx={{ fontWeight: "bold" }}
+                >
+                  Adicionar Item
+                </Typography>
+                <span className="text-sm">
+                  Selecione a referência para ver as opções
+                </span>
 
-                  <TextField
-                    id="outlined-basic"
-                    label="Nome"
-                    variant="outlined"
-                    size="medium"
-                    value={item.name}
-                    onChange={(e) => setItem({ ...item, name: e.target.value })}
-                    fullWidth
-                    sx={{ margin: "10px 0px" }}
-                    required
-                  />
-                  <TextField
-                    id="outlined-basic"
-                    label="Preço"
-                    value={item.price}
-                    onChange={(e) =>
-                      setItem({ ...item, price: moneyMask(e.target.value) })
-                    }
-                    variant="outlined"
-                    size="medium"
-                    fullWidth
-                    sx={{ margin: "10px 0px" }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">R$</InputAdornment>
-                      ),
-                    }}
-                    required
-                  />
-                  <Autocomplete
-                    multiple
-                    id="tags-standard"
-                    options={consumerOptions}
-                    onChange={handleChangeConsumers}
-                    isOptionEqualToValue={(option, value) => option.id === value.id}
-                    getOptionLabel={(option) => option.name}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Consumidores"
-                        placeholder="Selecione os consumidores do item"
-                        variant="outlined"
-                      />
-                    )}
-                    required
-                  />
-                  <Box className="flex flex-row justify-between mt-[10px]">
-                    <Button
+                <TextField
+                  id="outlined-basic"
+                  label="Nome"
+                  variant="outlined"
+                  size="medium"
+                  value={item.name}
+                  onChange={(e) => setItem({ ...item, name: e.target.value })}
+                  fullWidth
+                  sx={{ margin: "10px 0px" }}
+                  required
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="Preço"
+                  value={item.price}
+                  onChange={(e) =>
+                    setItem({ ...item, price: moneyMask(e.target.value) })
+                  }
+                  variant="outlined"
+                  size="medium"
+                  fullWidth
+                  sx={{ margin: "10px 0px" }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">R$</InputAdornment>
+                    ),
+                  }}
+                  required
+                />
+                <Autocomplete
+                  multiple
+                  id="tags-standard"
+                  options={consumerOptions}
+                  onChange={handleChangeConsumers}
+                  isOptionEqualToValue={(option, value) =>
+                    option.id === value.id
+                  }
+                  getOptionLabel={(option) => option.name}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Consumidores"
+                      placeholder="Selecione os consumidores do item"
                       variant="outlined"
-                      onClick={() => setOpenModal(false)}
-                    >
-                      Cancelar
-                    </Button>
-                    <Button
-                      variant="contained"
-                      onClick={handleAddItem}
-                      disabled={
-                        item.name && item.price && item.consumers.length > 0
-                          ? false
-                          : true
-                      }
-                    >
-                      Adicionar
-                    </Button>
-                  </Box>
-                </>
-              }
-            />
-            
-            {"items" in inputStates && inputStates.items.length > 0 ?
+                    />
+                  )}
+                  required
+                />
+                <Box className="flex flex-row justify-between mt-[10px]">
+                  <Button
+                    variant="outlined"
+                    onClick={() => setOpenModal(false)}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={handleAddItem}
+                    disabled={
+                      item.name && item.price && item.consumers.length > 0
+                        ? false
+                        : true
+                    }
+                  >
+                    Adicionar
+                  </Button>
+                </Box>
+              </>
+            }
+          />
+
+          {"items" in inputStates && inputStates.items.length > 0 ? (
             <>
-            {inputValidation.items ? "" :
-            <span className="text-[red] text-sm">A soma dos itens deve ser igual ao valor da despesa</span> }
-            <List>
-              
+              {inputValidation.items ? (
+                ""
+              ) : (
+                <span className="text-[red] text-sm">
+                  A soma dos itens deve ser igual ao valor da despesa
+                </span>
+              )}
+              <List>
                 {inputStates.items.map((item) => (
                   <Item
                     key={item.id}
@@ -595,121 +616,124 @@ function ExpenseCreate() {
                     onDelete={handleDeleteItem}
                   />
                 ))}
-                
-            </List>
+              </List>
             </>
-            : (
-              <NoData message="Nenhum item adicionado" />
-            )}
-          </TabPanel>
-          <TabPanel value={value} index={1}>
-            <div className="flex flex-row justify-between w-full items-center">
-              <span className="font-bold text-xl">Lista de Pagamentos</span>
-              <span className="rounded-[50%] bg-slate-300 align-middle">
-                <IconButton onClick={() => setOpenModal(true)}>
-                  <AddIcon />
-                </IconButton>
-              </span>
-            </div>
-            <CustomModal
-              open={openModal}
-              onClose={() => setOpenModal(false)}
-              children={
-                <>
-                  <Typography
-                    id="modal-modal-title"
-                    variant="h6"
-                    component="h2"
-                    sx={{ fontWeight: "bold" }}
-                  >
-                    Adicionar Pagamento
-                  </Typography>
-                  <span className="text-sm">
-                    Selecione a referência para ver as opções
-                  </span>
-                  <Autocomplete
-                    id="tags-standard"
-                    options={userOptions.map((item) => ({
-                      id: item.id,
-                      label: item.name,
-                    }))}
-                    value={payment.payer}
-                    onChange={handleChangePayer}
-                    sx={{ margin: "10px 0px" }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Pagador"
-                        placeholder="Selecione o pagador dessa despesa"
-                        variant="outlined"
-                      />
-                    )}
-                  />
-
-                  <Autocomplete
-                    id="tags-standard"
-                    options={paymentMethodOptions.map((item) => ({
-                      id: item.id,
-                      label: item.name,
-                    }))}
-                    value={payment.payment_method}
-                    onChange={handleChangePaymentMethod}
-                    sx={{ margin: "10px 0px" }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Método de Pagamento"
-                        placeholder="Selecione o método de pagamento"
-                        variant="outlined"
-                      />
-                    )}
-                  />
-                  <TextField
-                    id="outlined-basic"
-                    label="Preço"
-                    value={payment.value}
-                    onChange={(e) =>
-                      setPayment({ ...payment, value: moneyMask(e.target.value) })
-                    }
-                    variant="outlined"
-                    size="medium"
-                    fullWidth
-                    sx={{ margin: "10px 0px" }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">R$</InputAdornment>
-                      ),
-                    }}
-                  />
-
-                  <Box className="flex flex-row justify-between mt-[10px]">
-                    <Button
+          ) : (
+            <NoData message="Nenhum item adicionado" />
+          )}
+        </TabPanel>
+        <TabPanel value={value} index={1}>
+          <div className="flex flex-row justify-between w-full items-center">
+            <span className="font-bold text-xl">Lista de Pagamentos</span>
+            <span className="rounded-[50%] bg-slate-300 align-middle">
+              <IconButton onClick={() => setOpenModal(true)}>
+                <AddIcon />
+              </IconButton>
+            </span>
+          </div>
+          <CustomModal
+            open={openModal}
+            onClose={() => setOpenModal(false)}
+            children={
+              <>
+                <Typography
+                  id="modal-modal-title"
+                  variant="h6"
+                  component="h2"
+                  sx={{ fontWeight: "bold" }}
+                >
+                  Adicionar Pagamento
+                </Typography>
+                <span className="text-sm">
+                  Selecione a referência para ver as opções
+                </span>
+                <Autocomplete
+                  id="tags-standard"
+                  options={userOptions.map((item) => ({
+                    id: item.id,
+                    label: item.name,
+                  }))}
+                  value={payment.payer}
+                  onChange={handleChangePayer}
+                  sx={{ margin: "10px 0px" }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Pagador"
+                      placeholder="Selecione o pagador dessa despesa"
                       variant="outlined"
-                      onClick={() => setOpenModal(false)}
-                    >
-                      Cancelar
-                    </Button>
-                    <Button
-                      variant="contained"
-                      onClick={handleAddPayment}
-                      disabled={
-                        payment.payer && payment.payment_method && payment.value
-                          ? false
-                          : true
-                      }
-                    >
-                      Adicionar
-                    </Button>
-                  </Box>
-                </>
-              }
-            />
-            {"payments" in inputStates && inputStates.payments.length > 0 ?
+                    />
+                  )}
+                />
+
+                <Autocomplete
+                  id="tags-standard"
+                  options={paymentMethodOptions.map((item) => ({
+                    id: item.id,
+                    label: item.name,
+                  }))}
+                  value={payment.payment_method}
+                  onChange={handleChangePaymentMethod}
+                  sx={{ margin: "10px 0px" }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Método de Pagamento"
+                      placeholder="Selecione o método de pagamento"
+                      variant="outlined"
+                    />
+                  )}
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="Preço"
+                  value={payment.value}
+                  onChange={(e) =>
+                    setPayment({ ...payment, value: moneyMask(e.target.value) })
+                  }
+                  variant="outlined"
+                  size="medium"
+                  fullWidth
+                  sx={{ margin: "10px 0px" }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">R$</InputAdornment>
+                    ),
+                  }}
+                />
+
+                <Box className="flex flex-row justify-between mt-[10px]">
+                  <Button
+                    variant="outlined"
+                    onClick={() => setOpenModal(false)}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={handleAddPayment}
+                    disabled={
+                      payment.payer && payment.payment_method && payment.value
+                        ? false
+                        : true
+                    }
+                  >
+                    Adicionar
+                  </Button>
+                </Box>
+              </>
+            }
+          />
+          {"payments" in inputStates && inputStates.payments.length > 0 ? (
             <>
-            {inputValidation.payments ? "" :
-            <span className="text-[red] text-sm">A soma dos pagamentos deve ser igual ao valor da despesa</span> }
-            <List>
-              
+              {inputValidation.payments ? (
+                ""
+              ) : (
+                <span className="text-[red] text-sm">
+                  A soma dos pagamentos deve ser igual ao valor da despesa
+                </span>
+              )}
+              <List>
                 {inputStates.payments.map((item) => (
                   <PaymentItem
                     key={item.id}
@@ -718,13 +742,12 @@ function ExpenseCreate() {
                     onDelete={handleDeletePayment}
                   />
                 ))}
-                
-            </List>
+              </List>
             </>
-            : (
-              <NoData message="Nenhum item adicionado" />
-            )}
-          </TabPanel>
+          ) : (
+            <NoData message="Nenhum item adicionado" />
+          )}
+        </TabPanel>
       </div>
     </div>
   );

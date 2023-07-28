@@ -10,11 +10,14 @@ export const messageSlice = createSlice({
       // which detects changes to a "draft state" and produces a brand new
       // immutable state based off those changes
       state.messages = action.payload
+    },
+    addMessage: (state, action) => {
+      state.messages = [...state.messages, action.payload]
     }
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { setMessages } = messageSlice.actions
+export const { setMessages, addMessage } = messageSlice.actions
 
 export default messageSlice.reducer
