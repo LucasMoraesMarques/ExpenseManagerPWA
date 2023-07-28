@@ -6,6 +6,7 @@ import expenseReducer from "./slices/expenseSlice";
 import notificationReducer from "./slices/notificationSlice";
 import validationReducer from "./slices/validationSlice";
 import actionReducer from "./slices/actionSlice";
+import messageReducer from "./slices/messageSlice"
 import storage from 'redux-persist/lib/storage';
 import { persistReducer, persistStore } from 'redux-persist';
 import thunk from 'redux-thunk';
@@ -22,7 +23,8 @@ const rootReducer = combineReducers({
   expense: expenseReducer,
   notification: notificationReducer,
   validation: validationReducer,
-  action: actionReducer
+  action: actionReducer,
+  message: messageReducer
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)

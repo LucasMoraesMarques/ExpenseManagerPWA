@@ -34,7 +34,8 @@ import Tab from "@mui/material/Tab";
 import PaymentItem from "../components/PaymentItem";
 import { loadActions } from '../services/actions';
 import { setActions } from '../redux/slices/actionSlice';
-
+import { validateTextField, validateCurrency, moneyMask, calculateTotalValueOfArray } from "../services/utils";
+import NoData from '../components/NoData';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -46,7 +47,7 @@ function TabPanel(props) {
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       {...other}
-      className="bg-white text-black min-h-[calc(100vh-110px)]"
+      className="bg-white text-black grow"
     >
       {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
@@ -66,6 +67,16 @@ function ExpenseCreate() {
     name: "",
     description: "",
     date: "",
+    cost: "0,00",
+    regarding: "",
+    items: [],
+    payments: [],
+    validators: []
+  });
+  const [inputValidation, setInputValidation] = useState({
+    name: "",
+    description: "",
+    date: "",
     cost: "",
     regarding: "",
     items: [],
@@ -75,11 +86,13 @@ function ExpenseCreate() {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState({});
   const [userOptions, setUserOptions] = useState([]);
+  const [validatorOptions, setValidatorOptions] = useState([]);
+  const [consumerOptions, setConsumerOptions] = useState([]);
   const [paymentMethodOptions, setPaymentMethodOptions] = useState([]);
   const [fieldsValid, setFieldsValid] = useState(false);
   const [item, setItem] = useState({
     name: "",
-    price: "",
+    price: "0,00",
     expense: "",
     consumers: [],
     create: true,
@@ -87,12 +100,13 @@ function ExpenseCreate() {
   const [payment, setPayment] = useState({
     payer: "",
     payment_method: "",
-    value: "",
+    value: "0,00",
     expense: "",
     create: true,
   });
   const dispatch = useDispatch();
   const [value, setValue] = useState(0);
+  const [saving, setSaving] = useState(false)
 
   const handleChangeName = (e) => {
     setInputStates({ ...inputStates, name: e.target.value });
@@ -108,7 +122,7 @@ function ExpenseCreate() {
   };
 
   const handleChangeCost = (e) => {
-    setInputStates({ ...inputStates, cost: e.target.value });
+    setInputStates({ ...inputStates, cost: moneyMask(e.target.value) });
   };
 
   const handleChange = (event, newValue) => {
@@ -116,6 +130,7 @@ function ExpenseCreate() {
   };
 
   const handleChangeRegarding = (e, value) => {
+    console.log("dfgdgfdg")
     if (Object.keys(value).length > 0) {
       let regardingID = value.id;
       let selectedRegarding = regardingState.userRegardings.find(
@@ -130,12 +145,20 @@ function ExpenseCreate() {
         );
         if (selectedGroup && Object.keys(selectedGroup).length > 0) {
           console.log(selectedGroup);
+          let options = selectedGroup.members.map((item) => ({
+            id: item.id,
+            name: item.first_name + " " + item.last_name,
+          }))
           setUserOptions(
-            selectedGroup.members.map((item) => ({
-              id: item.id,
-              name: item.first_name + " " + item.last_name,
-            }))
+            options
           );
+          setValidatorOptions(
+            [...options, {id:0, name: "Todos"}]
+          );
+          setConsumerOptions(
+            [...options, {id:0, name: "Todos"}]
+          );
+          
         }
       }
     }
@@ -146,29 +169,40 @@ function ExpenseCreate() {
     console.log(value);
     let newValidators = [];
     if (value.length > 0) {
-      value.map((item) => newValidators.push(item));
+      if(value.some(item => item.id == 0)){
+        newValidators  = [...userOptions]
+      }
+      else{
+        newValidators = [...value]
+      }
     }
+    let options = [...userOptions, {id:0, name: "Todos"}]
+    console.log(options)
     setInputStates({...inputStates, validators:newValidators})
+    setValidatorOptions(options.filter((item) => !newValidators.includes(item)))
   
   }
 
   const handleAddItem = () => {
     setInputStates({ ...inputStates, items: [...inputStates.items, item] });
     setOpenModal(false);
-    setItem({ name: "", price: "", expense: "", consumers: [], create: true });
+    setItem({ name: "", price: "0,00", expense: "", consumers: [], create: true, consumer_names: "" });
+    let options = [...userOptions, {id:0, name: "Todos"}]
+    setConsumerOptions(options)
   };
 
   const handleDeleteItem = (instance) => {
     let newItems = [...inputStates.items];
     newItems = newItems.filter((item) => !(instance.id == item.id));
+    console.log(instance, inputStates.items)
     setInputStates({ ...inputStates, items: newItems });
   };
 
   const handleAddPayment = () => {
     let lastId = 0;
     for (let { id } of inputStates.payments) {
-      if (id > lastId) {
-        lastId = id;
+      if (id >= lastId) {
+        lastId = id + 1;
       }
     }
     let payer = userState.users.find((item) => item.id == payment.payer.id);
@@ -193,7 +227,7 @@ function ExpenseCreate() {
     setPayment({
       payer: "",
       payment_method: "",
-      value: "",
+      value: "0,00",
       expense: "",
     });
   };
@@ -207,17 +241,21 @@ function ExpenseCreate() {
   const handleChangeConsumers = (e, value) => {
     console.log(value);
     let newConsumers = [];
-    if (value.length > 0) {
-      value.map((item) => newConsumers.push(item.id));
+    if(value.some(item => item.id == 0)){
+      newConsumers  = [...userOptions]
     }
-    console.log(newConsumers);
+    else{
+      newConsumers = [...value]
+    }
     let lastId = 0;
     for (let { id } of inputStates.items) {
-      if (id > lastId) {
+      if (id >= lastId) {
         lastId = id + 1
       }
     }
-    setItem({ ...item, consumers: value, id: lastId });
+    setItem({ ...item, consumers: newConsumers, id: lastId, consumers_names: newConsumers.map(({name}) => name).join(", ")  });
+    let options = [...userOptions, {id:0, name: "Todos"}]
+    setConsumerOptions(options.filter((item) => !newConsumers.includes(item)))
   };
 
   const handleChangePayer = (e, value) => {
@@ -249,6 +287,7 @@ function ExpenseCreate() {
   };
 
   const handleSaveExpense = () => {
+    setSaving(true)
     let data = {
       ...inputStates,
       date: `${inputStates.date.$y}-${(inputStates.date.$M + 1)
@@ -283,6 +322,8 @@ function ExpenseCreate() {
       loadActions('').then((json) => {
         dispatch(setActions(json))
       })
+      setSaving(false)
+      navigate("/inicio")
     });
   };
 
@@ -290,18 +331,29 @@ function ExpenseCreate() {
 
   useEffect(() => {
     console.log(inputStates);
-    if (inputStates.name.trim() == "" || inputStates.description.trim() == "") {
-      setFieldsValid(false);
-    } else {
-      setFieldsValid(true);
+    let expenseCost = parseFloat(inputStates.cost.replace(".", "").replace(",", "."))
+    let validations = {
+      name: validateTextField(inputStates.name, true),
+      description: validateTextField(inputStates.description),
+      cost: validateCurrency(inputStates.cost),
+      date: inputStates.date || null,
+      regarding: inputStates.regarding || null,
+      items: inputStates.items.length > 0 && calculateTotalValueOfArray(inputStates.items.map(({price}) => price)) == expenseCost,
+      payments: inputStates.payments.length > 0 && calculateTotalValueOfArray(inputStates.payments.map(({value}) => value)) == expenseCost,
+      validators: true
     }
+    setInputValidation(
+      validations
+    )
+    console.log(validations)
+    setFieldsValid(Object.values(validations).every(item => item))
   }, [inputStates]);
 
   useEffect(() => {
     console.log(payment);
   }, [payment]);
   return (
-    <div id="expenseEdit">
+    <div id="expenseEdit" className="grow">
       <AppBar position="sticky">
         <Toolbar>
           <BackButton />
@@ -318,6 +370,7 @@ function ExpenseCreate() {
                 color="inherit"
                 variant="outlined"
                 onClick={handleSaveExpense}
+                disabled={!fieldsValid || saving}
               >
                 Salvar
               </Button>
@@ -332,14 +385,11 @@ function ExpenseCreate() {
             label="Nome"
             variant="outlined"
             size="medium"
-            error={inputStates.name.trim() == "" ? true : false}
-            helperText={
-              inputStates.name.trim() == "" ? "Não pode ser vazio" : ""
-            }
             value={inputStates.name}
             onChange={handleChangeName}
             fullWidth
             sx={{ margin: "10px 0px" }}
+            required
           />
           <TextField
             id="outlined-basic"
@@ -347,10 +397,6 @@ function ExpenseCreate() {
             variant="outlined"
             multiline
             rows={3}
-            error={inputStates.description.trim() == "" ? true : false}
-            helperText={
-              inputStates.description.trim() == "" ? "Não pode ser vazio" : ""
-            }
             value={inputStates.description}
             onChange={handleChangeDescription}
             size="medium"
@@ -362,6 +408,7 @@ function ExpenseCreate() {
             label="Data"
             value={inputStates.date}
             onChange={(value) => handleChangeDate(value)}
+            required
           />
           <TextField
             id="outlined-basic"
@@ -377,33 +424,32 @@ function ExpenseCreate() {
                 <InputAdornment position="start">R$</InputAdornment>
               ),
             }}
+            required
           />
           <Autocomplete
             disablePortal
             id="combo-box-demo"
-            options={regardingState.userRegardings.map((item) => ({
+            options={regardingState.userRegardings.filter((item) => !item.is_closed).map((item) => ({
               id: item.id,
               label: item.name,
             }))}
             renderInput={(params) => (
-              <TextField {...params} label="Referência" />
+              <TextField {...params} label="Referência" required/>
             )}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             size="medium"
             value={inputStates.regarding}
             onChange={handleChangeRegarding}
             sx={{ margin: "10px 0px" }}
+            required
           />
           <Autocomplete
                     multiple
                     id="tags-standard"
-                    options={userOptions.map((item) => ({
-                      id: item.id,
-                      label: item.name,
-                    }))}
-                    value={item.validators}
+                    options={validatorOptions}
                     onChange={handleChangeValidators}
-                    getOptionLabel={(option) => option.label}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    getOptionLabel={(option) => option.name}
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -428,7 +474,6 @@ function ExpenseCreate() {
         </IconButton>*/}
         </div>
 
-        <AppBar position="static">
           <Tabs
             value={value}
             onChange={handleChange}
@@ -476,13 +521,14 @@ function ExpenseCreate() {
                     onChange={(e) => setItem({ ...item, name: e.target.value })}
                     fullWidth
                     sx={{ margin: "10px 0px" }}
+                    required
                   />
                   <TextField
                     id="outlined-basic"
                     label="Preço"
                     value={item.price}
                     onChange={(e) =>
-                      setItem({ ...item, price: e.target.value })
+                      setItem({ ...item, price: moneyMask(e.target.value) })
                     }
                     variant="outlined"
                     size="medium"
@@ -493,17 +539,15 @@ function ExpenseCreate() {
                         <InputAdornment position="start">R$</InputAdornment>
                       ),
                     }}
+                    required
                   />
                   <Autocomplete
                     multiple
                     id="tags-standard"
-                    options={userOptions.map((item) => ({
-                      id: item.id,
-                      label: item.name,
-                    }))}
-                    value={item.consumers}
+                    options={consumerOptions}
                     onChange={handleChangeConsumers}
-                    getOptionLabel={(option) => option.label}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    getOptionLabel={(option) => option.name}
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -512,6 +556,7 @@ function ExpenseCreate() {
                         variant="outlined"
                       />
                     )}
+                    required
                   />
                   <Box className="flex flex-row justify-between mt-[10px]">
                     <Button
@@ -535,10 +580,14 @@ function ExpenseCreate() {
                 </>
               }
             />
-
+            
+            {"items" in inputStates && inputStates.items.length > 0 ?
+            <>
+            {inputValidation.items ? "" :
+            <span className="text-[red] text-sm">A soma dos itens deve ser igual ao valor da despesa</span> }
             <List>
-              {"items" in inputStates &&
-                inputStates.items.map((item) => (
+              
+                {inputStates.items.map((item) => (
                   <Item
                     key={item.id}
                     item={item}
@@ -546,7 +595,12 @@ function ExpenseCreate() {
                     onDelete={handleDeleteItem}
                   />
                 ))}
+                
             </List>
+            </>
+            : (
+              <NoData message="Nenhum item adicionado" />
+            )}
           </TabPanel>
           <TabPanel value={value} index={1}>
             <div className="flex flex-row justify-between w-full items-center">
@@ -615,7 +669,7 @@ function ExpenseCreate() {
                     label="Preço"
                     value={payment.value}
                     onChange={(e) =>
-                      setPayment({ ...payment, value: e.target.value })
+                      setPayment({ ...payment, value: moneyMask(e.target.value) })
                     }
                     variant="outlined"
                     size="medium"
@@ -650,10 +704,13 @@ function ExpenseCreate() {
                 </>
               }
             />
-
+            {"payments" in inputStates && inputStates.payments.length > 0 ?
+            <>
+            {inputValidation.payments ? "" :
+            <span className="text-[red] text-sm">A soma dos pagamentos deve ser igual ao valor da despesa</span> }
             <List>
-              {"items" in inputStates &&
-                inputStates.payments.map((item) => (
+              
+                {inputStates.payments.map((item) => (
                   <PaymentItem
                     key={item.id}
                     payment={item}
@@ -661,22 +718,14 @@ function ExpenseCreate() {
                     onDelete={handleDeletePayment}
                   />
                 ))}
+                
             </List>
+            </>
+            : (
+              <NoData message="Nenhum item adicionado" />
+            )}
           </TabPanel>
-        </AppBar>
       </div>
-      {Object.keys(message) && (
-        <AlertToast
-          severity={message.severity}
-          title={message.title}
-          message={message.body}
-          open={open}
-          onClose={() => {
-            setOpen(false);
-            setMessage({});
-          }}
-        />
-      )}
     </div>
   );
 }

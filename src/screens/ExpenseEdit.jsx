@@ -49,7 +49,7 @@ function TabPanel(props) {
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       {...other}
-      className="bg-white text-black min-h-[calc(100vh-110px)]"
+      className="bg-white text-black grow"
     >
       {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
@@ -334,7 +334,7 @@ function ExpenseEdit() {
     console.log(payment);
   }, [payment]);
   return (
-    <div id="expenseEdit">
+    <div id="expenseEdit" className="min-h-screen">
       <AppBar position="sticky">
         <Toolbar>
           <BackButton />
@@ -414,7 +414,7 @@ function ExpenseEdit() {
           <Autocomplete
             disablePortal
             id="combo-box-demo"
-            options={regardingState.userRegardings.map((item) => ({
+            options={regardingState.userRegardings.filter((item) => !item.is_closed).map((item) => ({
               id: item.id,
               label: item.name,
             }))}
@@ -442,7 +442,6 @@ function ExpenseEdit() {
         </IconButton>*/}
         </div>
 
-        <AppBar position="static">
           <Tabs
             value={value}
             onChange={handleChange}
@@ -677,7 +676,6 @@ function ExpenseEdit() {
                 ))}
             </List>
           </TabPanel>
-        </AppBar>
       </div>
       {Object.keys(message) && (
         <AlertToast

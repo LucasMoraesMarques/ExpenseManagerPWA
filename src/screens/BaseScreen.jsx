@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { BottomNavigation, BottomNavigationAction, SpeedDial, SpeedDialIcon, SpeedDialAction } from '@mui/material';
@@ -12,7 +12,9 @@ import RegardingList from "../screens/RegardingList";
 import ExpenseList from "../screens/ExpenseList";
 import Stats from "../screens/Stats";
 import GroupsIcon from '@mui/icons-material/Groups';
-
+import { useSelector, useDispatch } from "react-redux";
+import { setMessages } from '../redux/slices/messageSlice';
+import Message from '../components/Message';
 
 const actions = [
   { icon: <GroupsIcon />, name: 'Grupo', route: "/criar-grupo"},
@@ -25,11 +27,44 @@ const screens = [<Home/>,<RegardingList/>,<ExpenseList/>,<Stats/>]
 function BaseScreen() {
   const [screen, setScreen] = useState(0);
   const navigate = useNavigate();
+  const messageState = useSelector((state) => state.message);
+  const dispatch = useDispatch();
+
+  
+  const addMessage = () => {
+    dispatch(setMessages([{
+      id: Math.random(),
+      severity: "success",
+      title: "Sucesso!",
+      body: `Mensagem 1 adicionada com sucesso!`,
+    }, {
+      id: Math.random(),
+      severity: "error",
+      title: "Sucesso!",
+      body: `Mensagem 1 adicionada com sucesso!`,
+    }, {
+      id: Math.random(),
+      severity: "success",
+      title: "Sucesso!",
+      body: `Mensagem 2 adicionada com sucesso!`,
+    },
+    {
+      id: Math.random(),
+      severity: "warning",
+      title: "Sucesso!",
+      body: `Mensagem 2 adicionada com sucesso!`,
+    }]))
+    
+  }
+
+  
+
 
   return (
     <div className="text-gray-60 h-full">
       <Header />
       <div className='w-[95%] mx-auto'>
+      <button onClick={() => addMessage()}>dfg</button>
           {screens[screen]}
       </div>
      
@@ -66,6 +101,7 @@ function BaseScreen() {
         <BottomNavigationAction label="Despesas" icon={<AttachMoneyIcon />} />
         <BottomNavigationAction label="Estatísticas" icon={<BarChartIcon />} />
       </BottomNavigation>
+      <Message/>
     </div>
   );
 }
