@@ -315,6 +315,7 @@ function ExpenseCreate() {
             body: "Despesa adicionada com sucesso!",
           })
         );
+        navigate("/inicio");
       } else {
         dispatch(
           addMessage({
@@ -328,7 +329,6 @@ function ExpenseCreate() {
         dispatch(setActions(json));
       });
       setSaving(false);
-      navigate("/inicio");
     });
   };
 

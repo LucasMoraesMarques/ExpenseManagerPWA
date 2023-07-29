@@ -37,6 +37,7 @@ import { loadRegardings } from "../services/regardings";
 import { setRegardings } from "../redux/slices/regardingSlice";
 import { loadActions } from '../services/actions';
 import { setActions } from '../redux/slices/actionSlice';
+import { addMessage } from "../redux/slices/messageSlice";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -57,7 +58,6 @@ function TabPanel(props) {
 
 function ExpenseDetail() {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [open, setOpen] = useState(false);
   const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
   const navigate = useNavigate();
   const [value, setValue] = useState(0);
@@ -67,7 +67,6 @@ function ExpenseDetail() {
   const [filteredItems, setFilteredItems] = useState([]);
   const [search, setSearch] = useState("");
   const dispatch = useDispatch();
-  const [message, setMessage] = useState({});
 
 
 
@@ -107,20 +106,19 @@ function ExpenseDetail() {
         let newExpenses = expenseState.userExpenses.filter((item) => item.id != expense.id)
         dispatch(setExpenses([...newExpenses]))
         loadRegardings('').then((data) => dispatch(setRegardings([...data])))
-        setMessage({
+        dispatch(addMessage({
           severity: "success",
           title: "Sucesso!",
           body: "Despesa removida com sucesso!",
-        });
+        }));
       }
       else{
-        setMessage({
+        dispatch(addMessage({
           severity: "error",
           title: "Erro!",
           body: "Tivemos problemas ao deletar a despesa. Tente novamente!",
-        });
+        }));
       }
-      setOpen(true)
       setOpenConfirmationModal(false)
       loadActions('').then((json) => {
         dispatch(setActions(json))
@@ -279,18 +277,6 @@ function ExpenseDetail() {
           </>
         }
       />
-      {Object.keys(message) && (
-        <AlertToast
-          severity={message.severity}
-          title={message.title}
-          message={message.body}
-          open={open}
-          onClose={() => {
-            setOpen(false);
-            setMessage({});
-          }}
-        />
-      )}
     </div>
   );
 }

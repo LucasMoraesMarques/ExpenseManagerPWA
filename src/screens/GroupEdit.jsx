@@ -31,6 +31,7 @@ import AlertToast from "../components/AlertToast";
 import BackButton from "../components/BackButton";
 import { loadActions } from '../services/actions';
 import { setActions } from '../redux/slices/actionSlice';
+import { addMessage } from "../redux/slices/messageSlice";
 
 function GroupEdit() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -47,8 +48,6 @@ function GroupEdit() {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [memberSearch, setMemberSearch] = useState("");
-  const [message, setMessage] = useState({});
-  const [open, setOpen] = useState(false);
   const [fieldsValid, setFieldsValid] = useState(false)
   const dispatch = useDispatch();
   const handleMenu = (event) => {
@@ -100,19 +99,17 @@ function GroupEdit() {
           console.log(newGroups);
           newGroups[index] = {...newGroups[index], ...inputStates};
           dispatch(setGroups(newGroups));
-          setMessage({
+          dispatch(addMessage({
             severity: "success",
             title: "Sucesso!",
             body: "Grupo editado com sucesso!",
-          });
-          setOpen(true);
+          }))
         } else {
-          setMessage({
+          dispatch(addMessage({
             severity: "error",
             title: "Erro!",
             body: "Tivemos problemas ao atualizar os dados. Tente novamente!",
-          });
-          setOpen(true);
+          }))
         }
       });
     } else {
@@ -121,19 +118,17 @@ function GroupEdit() {
           setGroup({ ...data });
           loadGroups('').then((newGroups)=>dispatch(setGroups(newGroups)))
           ;
-          setMessage({
+          dispatch(addMessage({
             severity: "success",
             title: "Sucesso!",
             body: "Grupo adicionado com sucesso!",
-          });
-          setOpen(true);
+          }))
         } else {
-          setMessage({
+          dispatch(addMessage({
             severity: "error",
             title: "Erro!",
             body: "Tivemos problemas ao criar o grupo. Tente novamente!",
-          });
-          setOpen(true);
+          }))
         }
       });
     }
@@ -193,10 +188,6 @@ function GroupEdit() {
       setFieldsValid(true)
     }
   }, [inputStates]);
-
-  useEffect(() => {
-console.log(message)
-  }, [message])
 
   return (
     <div>
@@ -330,18 +321,6 @@ console.log(message)
           })}
         </List>
       </div>
-      {Object.keys(message) && (
-        <AlertToast
-          severity={message.severity}
-          title={message.title}
-          message={message.body}
-          open={open}
-          onClose={() => {
-            setOpen(false);
-            setMessage({});
-          }}
-        />
-      )}
     </div>
   );
 }

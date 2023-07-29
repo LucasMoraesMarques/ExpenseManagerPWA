@@ -38,6 +38,7 @@ import AlertToast from "../components/AlertToast";
 import ConfirmationModal from "../components/ConfirmationModal";
 import { loadActions } from '../services/actions';
 import { setActions } from '../redux/slices/actionSlice';
+import { addMessage } from "../redux/slices/messageSlice";
 
 const groups = [
   { label: "Group 1", id: 1 },
@@ -53,9 +54,7 @@ function ExpenseList({ regarding = null , showRegardingName=true}) {
   const [filteredExpenses, setFilteredExpenses] = useState([]);
   const [search, setSearch] = useState("");
   const [edit, setEdit] = useState(false);
-  const [open, setOpen] = useState(false);
   const [deleteIds, setDeleteIds] = useState([]);
-  const [message, setMessage] = useState({});
 
 
   const handleCheckbox = (id) => {
@@ -81,21 +80,20 @@ function ExpenseList({ regarding = null , showRegardingName=true}) {
         setEdit(false)
         dispatch(setExpenses([...newExpenses]))
         loadRegardings('').then((data) => dispatch(setRegardings([...data])))
-        setMessage({
+        dispatch(addMessage({
           severity: "success",
           title: "Sucesso!",
           body: "Despesas removidas com sucesso!",
-        });
+        }))
 
       }
       else{
-        setMessage({
+        dispatch(addMessage({
           severity: "error",
           title: "Erro!",
           body: "Tivemos problemas ao deletar as despesas. Tente novamente!",
-        });
+        }))
       }
-      setOpen(true)
       setOpenConfirmationModal(false)
       loadActions('').then((json) => {
         dispatch(setActions(json))
@@ -333,18 +331,6 @@ function ExpenseList({ regarding = null , showRegardingName=true}) {
         )}
       </List>
       <div className="mt-[50px]"></div>
-      {Object.keys(message) && (
-        <AlertToast
-          severity={message.severity}
-          title={message.title}
-          message={message.body}
-          open={open}
-          onClose={() => {
-            setOpen(false);
-            setMessage({});
-          }}
-        />
-      )}
       <CustomModal
         open={openConfirmationModal}
         onClose={() => setOpenConfirmationModal(false)}

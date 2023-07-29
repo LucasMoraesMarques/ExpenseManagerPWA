@@ -28,6 +28,8 @@ import { loadRegardings } from "../services/regardings";
 import { setRegardings } from "../redux/slices/regardingSlice";
 import { loadActions } from '../services/actions';
 import { setActions } from '../redux/slices/actionSlice';
+import { addMessage } from "../redux/slices/messageSlice";
+
 
 function GroupDetail() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -36,8 +38,6 @@ function GroupDetail() {
   const groupState = useSelector((state) => state.group);
   const dispatch = useDispatch();
   const [group, setGroup] = useState({});
-  const [message, setMessage] = useState({});
-  const [open, setOpen] = useState(false);
   const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
 
   const handleMenu = (event) => {
@@ -51,12 +51,11 @@ function GroupDetail() {
 
   const copyGroupCode = (code) => {
     navigator.clipboard.writeText(code);
-    setOpen(true)
-    setMessage({
+    dispatch(addMessage({
       severity:"success",
       title: '',
       body: "Código do grupo copiado com sucesso!"
-    })
+    }))
 
   }
 
@@ -66,20 +65,19 @@ function GroupDetail() {
         let newGroups = groupState.userGroups.filter((item) => item.id != group.id)
         dispatch(setGroups([...newGroups]))
         loadRegardings('').then((data) => dispatch(setRegardings([...data])))
-        setMessage({
+        dispatch(addMessage({
           severity: "success",
           title: "Sucesso!",
           body: "Grupo removido com sucesso!",
-        });
+        }))
       }
       else{
-        setMessage({
+        dispatch(addMessage({
           severity: "error",
           title: "Erro!",
           body: "Tivemos problemas ao deletar o grupo. Tente novamente!",
-        });
+        }))
       }
-      setOpen(true)
       setOpenConfirmationModal(false)
       loadActions('').then((json) => {
         dispatch(setActions(json))
@@ -196,18 +194,6 @@ function GroupDetail() {
           </IconButton>
         </Toolbar>
       </AppBar>
-      {Object.keys(message) && (
-        <AlertToast
-          severity={message.severity}
-          title={message.title}
-          message={message.body}
-          open={open}
-          onClose={() => {
-            setOpen(false);
-            setMessage({});
-          }}
-        />
-      )}
       <CustomModal
         open={openConfirmationModal}
         onClose={() => setOpenConfirmationModal(false)}

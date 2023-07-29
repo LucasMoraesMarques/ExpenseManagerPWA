@@ -26,7 +26,7 @@ import {ReactComponent as LoginSVG} from '../assets/img/login.svg';
 import { signInWithGoogle } from '../services/firebase';
 import { useSelector, useDispatch } from "react-redux";
 import { setCurrentUser } from "../redux/slices/userSlice";
-import AlertToast from "../components/AlertToast";
+import { addMessage } from "../redux/slices/messageSlice";
 import CircularProgress from '@mui/material/CircularProgress';
 
 
@@ -40,8 +40,6 @@ function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch()
   const user = useSelector(state => state.user)
-  const [message, setMessage] = useState({});
-  const [open, setOpen] = useState(false);
 
   const login = async userInfo => {
     setLoading(true);
@@ -67,8 +65,7 @@ function Login() {
         try {
           console.log(json)
           dispatch(setCurrentUser({...json.user, api_token: json.api_token}));
-          setMessage({title: 'Alerta', body:'Login realizado com sucesso!', severity:'success'});
-          setOpen(true)
+          dispatch(addMessage({title: 'Alerta', body:'Login realizado com sucesso!', severity:'success'}))
           setTimeout(() => navigate('/'), 2000);
         } catch (error) {
           setLoading(false);
@@ -78,8 +75,7 @@ function Login() {
       } else {
         setLoading(false);
         setLoginWithGoogle(false);
-        setMessage({title: 'Alerta', body:json.detail, severity:'warning'});
-        setOpen(true)
+        dispatch(addMessage({title: 'Alerta', body:json.detail, severity:'warning'}))
       }
     } catch (error) {
       setLoading(false);
@@ -198,18 +194,6 @@ function Login() {
         <span className="my-3">Ainda não tem uma conta? <Link to='/registrar' className="text-blue-600">Registre-se aqui</Link> </span>
        
       </div>
-      {Object.keys(message) && (
-        <AlertToast
-          severity={message.severity}
-          title={message.title}
-          message={message.body}
-          open={open}
-          onClose={() => {
-            setOpen(false);
-            setMessage({});
-          }}
-        />
-      )}
     </div>
   );
 }

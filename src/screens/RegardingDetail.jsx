@@ -32,10 +32,11 @@ import { deleteRegarding, loadRegardings } from "../services/regardings";
 import { setRegardings } from "../redux/slices/regardingSlice";
 import ConfirmationModal from "../components/ConfirmationModal";
 import CustomModal from "../components/CustomModal";
-import AlertToast from "../components/AlertToast";
 import { loadActions } from '../services/actions';
 import { setActions } from '../redux/slices/actionSlice';
 import DebtItem from "../components/DebtItem";
+import { addMessage } from "../redux/slices/messageSlice";
+
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -57,8 +58,6 @@ function TabPanel(props) {
 function RegardingDetail() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
-  const [message, setMessage] = useState({});
-  const [open, setOpen] = useState(false);
   let { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -83,20 +82,19 @@ function RegardingDetail() {
     deleteRegarding('', regarding.id).then((flag) => {
       if(flag){
         loadRegardings('').then((data) => dispatch(setRegardings([...data])))
-        setMessage({
+        dispatch(addMessage({
           severity: "success",
           title: "Sucesso!",
           body: "Referência removida com sucesso!",
-        });
+        }))
       }
       else{
-        setMessage({
+        dispatch(addMessage({
           severity: "error",
           title: "Erro!",
           body: "Tivemos problemas ao deletar a referência. Tente novamente!",
-        });
+        }))
       }
-      setOpen(true)
       setOpenConfirmationModal(false)
       loadActions('').then((json) => {
         dispatch(setActions(json))
@@ -324,18 +322,6 @@ function RegardingDetail() {
           </TabPanel>
         </AppBar>
       </div>
-      {Object.keys(message) && (
-        <AlertToast
-          severity={message.severity}
-          title={message.title}
-          message={message.body}
-          open={open}
-          onClose={() => {
-            setOpen(false);
-            setMessage({});
-          }}
-        />
-      )}
       <CustomModal
         open={openConfirmationModal}
         onClose={() => setOpenConfirmationModal(false)}

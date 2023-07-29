@@ -31,7 +31,8 @@ import PermIdentityOutlinedIcon from "@mui/icons-material/PermIdentityOutlined";
 import WalletOutlinedIcon from "@mui/icons-material/WalletOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import BackButton from "../components/BackButton";
-import AlertToast from "../components/AlertToast";
+import { addMessage } from "../redux/slices/messageSlice";
+import { useSelector, useDispatch } from "react-redux";
 
 const modalStyle = {
   position: "absolute",
@@ -64,14 +65,12 @@ function TabPanel(props) {
 function Account() {
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
-  const [message, setMessage] = useState({});
-  const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
 
 
   const logout = () => {
     localStorage.removeItem('persist:root')
-    setMessage({title: '', body:'Você saiu da sua conta!', severity:'success'});
-    setOpen(true)
+    dispatch(addMessage({title: '', body:'Você saiu da sua conta!', severity:'success'}));
     setTimeout(() => navigate("/boas-vindas"), 2000);
   }
   return (
@@ -116,18 +115,6 @@ function Account() {
           </ListItem>
         </List>
       </div>
-      {Object.keys(message) && (
-        <AlertToast
-          severity={message.severity}
-          title={message.title}
-          message={message.body}
-          open={open}
-          onClose={() => {
-            setOpen(false);
-            setMessage({});
-          }}
-        />
-      )}
     </div>
   );
 }

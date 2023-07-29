@@ -37,6 +37,8 @@ import NoData from "../components/NoData";
 import { addMessage } from "../redux/slices/messageSlice";
 import { loadValidations } from '../services/validations';
 import { setValidations } from '../redux/slices/validationSlice';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 
 
 function TabPanel(props) {
@@ -74,6 +76,7 @@ function ExpenseEdit() {
     items: [],
     payments: [],
     validators: [],
+    revalidate: false
   });
   const [inputValidation, setInputValidation] = useState({
     name: "",
@@ -128,6 +131,10 @@ function ExpenseEdit() {
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+
+  const handleRevalidate = (e) => {
+    setInputStates({...inputStates, revalidate:e.target.checked})
+  }
 
   const handleChangeRegarding = (e, value) => {
     if (Object.keys(value).length > 0) {
@@ -296,6 +303,7 @@ function ExpenseEdit() {
         .toString()
         .padStart(2, 0)}-${inputStates.date.$D.toString().padStart(2, 0)}`,
       regarding: inputStates.regarding.id,
+      validators: []
     };
     console.log(data);
     editExpense("", id, data).then(({ flag, data }) => {
@@ -325,6 +333,7 @@ function ExpenseEdit() {
             body: "Despesa editada com sucesso!",
           })
         );
+        navigate(`/inicio/`);
       } else {
         dispatch(
           addMessage({
@@ -338,7 +347,6 @@ function ExpenseEdit() {
         dispatch(setActions(json));
       });
       setSaving(false);
-      navigate(`/inicio/`);
     });
   };
 
@@ -365,6 +373,8 @@ function ExpenseEdit() {
         regarding: { id: regarding.id, label: regarding.name },
         items: data.items,
         payments: data.payments,
+        validators: data.validations.map(({validator}) => ({id:validator.id, name:validator.full_name})),
+        revalidate: false
       });
       let groupId = regarding.expense_group;
       let selectedGroup = groupState.userGroups.find(
@@ -419,7 +429,7 @@ function ExpenseEdit() {
         <Toolbar>
           <BackButton />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Adicionar Despesa
+            Editar Despesa
           </Typography>
           {true && (
             <div>
@@ -493,7 +503,7 @@ function ExpenseEdit() {
             }}
             required
           />
-          <Autocomplete
+          {/*<Autocomplete
             disablePortal
             id="combo-box-demo"
             options={regardingState.userRegardings
@@ -511,8 +521,12 @@ function ExpenseEdit() {
             onChange={handleChangeRegarding}
             sx={{ margin: "10px 0px" }}
             required
-          />
-          <Autocomplete
+            />*/}
+            <FormControlLabel required control={<Checkbox checked={inputStates.revalidate || false}
+  onChange={handleRevalidate}
+  inputProps={{ 'aria-label': 'controlled' }}/>} label="Revalidar despesa após alterações" />
+
+          {/*<Autocomplete
             multiple
             id="tags-standard"
             options={validatorOptions}
@@ -528,7 +542,7 @@ function ExpenseEdit() {
               />
             )}
           />
-          {/*<IconButton
+          <IconButton
           color="primary"
           aria-label="upload picture"
           component="label"

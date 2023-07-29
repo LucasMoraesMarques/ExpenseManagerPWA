@@ -23,14 +23,12 @@ import BackButton from "../components/BackButton";
 import { useSelector, useDispatch } from "react-redux";
 import { editUser } from "../services/user";
 import { setCurrentUser } from "../redux/slices/userSlice";
-import AlertToast from "../components/AlertToast";
+import { addMessage } from "../redux/slices/messageSlice";
 
 function ProfileEdit() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState({});
   const userState = useSelector((state) => state.user);
 
   const [inputStates, setInputStates] = useState({
@@ -71,20 +69,18 @@ function ProfileEdit() {
           setCurrentUser(newUser)
         );
 
-        setMessage({
+        dispatch(addMessage({
           severity: "success",
           title: "Sucesso!",
           body: "Dados pessoais atualizados com sucesso!",
-        });
-        setOpen(true);
+        }))
         setOpenModal(false);
       } else {
-        setMessage({
+        dispatch(addMessage({
           severity: "error",
           title: "Erro!",
           body: "Tivemos problemas ao atualizar seus dados. Tente novamente!",
-        });
-        setOpen(true);
+        }))
         setOpenModal(false);
       }
     });
@@ -172,18 +168,6 @@ function ProfileEdit() {
         />
        
       </div>
-      {Object.keys(message) && (
-        <AlertToast
-          severity={message.severity}
-          title={message.title}
-          message={message.body}
-          open={open}
-          onClose={() => {
-            setOpen(false);
-            setMessage({});
-          }}
-        />
-      )}
     </div>
   );
 }

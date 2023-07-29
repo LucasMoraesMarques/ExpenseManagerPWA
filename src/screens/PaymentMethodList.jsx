@@ -29,6 +29,7 @@ import { useSelector, useDispatch } from "react-redux";
 import AlertToast from "../components/AlertToast";
 import { setWallet } from "../redux/slices/userSlice";
 import ConfirmationModal from "../components/ConfirmationModal";
+import { addMessage } from "../redux/slices/messageSlice";
 
 const PAYMENT_METHOD_TYPES = [
   { id: "DEBIT", label: "Cartão de Débito" },
@@ -41,8 +42,6 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
   const userState = useSelector((state) => state.user);
-  const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState({});
   const dispatch = useDispatch();
 
   const [inputStates, setInputStates] = useState({
@@ -98,20 +97,18 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
           })
         );
 
-        setMessage({
+        dispatch(addMessage({
           severity: "success",
           title: "Sucesso!",
           body: "Método de pagamento adicionado com sucesso!",
-        });
-        setOpen(true);
+        }))
         setOpenModal(false);
       } else {
-        setMessage({
+        dispatch(addMessage({
           severity: "error",
           title: "Erro!",
           body: "Tivemos problemas ao criar o método. Tente novamente!",
-        });
-        setOpen(true);
+        }))
         setOpenModal(false);
       }
     });
@@ -133,20 +130,18 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
               payment_methods: [...newPaymentsMethods],
             })
           );
-          setMessage({
+          dispatch(addMessage({
             severity: "success",
             title: "Sucesso!",
             body: "Método de pagamento deletado com sucesso!",
-          });
-          setOpen(true);
+          }))
           setOpenModal(false);
         } else {
-          setMessage({
+          dispatch(addMessage({
             severity: "error",
             title: "Erro!",
             body: "Tivemos problemas ao deletar o método. Tente novamente!",
-          });
-          setOpen(true);
+          }))
           setOpenModal(false);
         }
       });
@@ -267,18 +262,6 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
           ))}
         </List>
       </div>
-      {Object.keys(message) && (
-        <AlertToast
-          severity={message.severity}
-          title={message.title}
-          message={message.body}
-          open={open}
-          onClose={() => {
-            setOpen(false);
-            setMessage({});
-          }}
-        />
-      )}
     </div>
   );
 }

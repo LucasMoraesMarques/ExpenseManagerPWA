@@ -67,12 +67,19 @@ function RecentActionDetail() {
         {action.type == "UPDATE" ? (
           <>
             <h5 className="font-bold">Alterações </h5>
-            <List>
+            <dl className="ml-[10px]">
               {action.changes_json &&
                 Object.keys(action.changes_json).map((key) => {
-                  return <p>{action.changes_json[key]}</p>;
+                  return (<>
+                  <dt className="font-bold capitalize">{key}</dt>
+                    {action.changes_json[key].split("\n").map((change) => {
+                      return change ? <dd className="ml-[20px]">&#8594;{change}</dd> : ""
+                    })}
+                  </>
+                    
+                  )
                 })}
-            </List>
+            </dl>
           </>
         ) : (
           <></>

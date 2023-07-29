@@ -35,20 +35,19 @@ import BackButton from "../components/BackButton";
 import NoData from "../components/NoData";
 import { createGroup, joinGroup, loadGroups } from "../services/groups";
 import { setGroups } from "../redux/slices/groupSlice";
-import AlertToast from "../components/AlertToast";
+import { addMessage } from "../redux/slices/messageSlice";
+
+
 const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },]
 function GroupList() {
-  const [openModal, setOpenModal] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
   const groupState = useSelector((state) => state.group);
   const [filteredGroups, setFilteredGroups] = useState([]);
   const [search, setSearch] = useState("");
   const [hashId, setHashId] = useState("")
-  const [message, setMessage] = useState({});
-  const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
 
   const handleMenu = (event) => {
@@ -63,19 +62,17 @@ function GroupList() {
     joinGroup('', hashId).then(({flag, message}) => {
       if (flag) {
         loadGroups('').then((newGroups)=>dispatch(setGroups(newGroups)))
-        setMessage({
+        dispatch(addMessage({
           severity: "success",
           title: "Sucesso!",
           body: message,
-        });
-        setOpen(true);
+        }))
       } else {
-        setMessage({
+        dispatch(addMessage({
           severity: "error",
           title: "Erro!",
           body: message,
-        });
-        setOpen(true);
+        }))
       }
     })
   }
@@ -206,17 +203,6 @@ function GroupList() {
           </IconButton>
         </Toolbar>
       </AppBar>
-      {Object.keys(message) && (
-        <AlertToast
-          severity={message.severity}
-          title={message.title}
-          message={message.body}
-          open={open}
-          onClose={() => {
-            setOpen(false);
-            setMessage({});
-          }}/>)
-        }
     </div>
   );
 }
