@@ -39,6 +39,7 @@ import ConfirmationModal from "../components/ConfirmationModal";
 import { loadActions } from '../services/actions';
 import { setActions } from '../redux/slices/actionSlice';
 import { addMessage } from "../redux/slices/messageSlice";
+import { useOutletContext } from "react-router-dom";
 
 const groups = [
   { label: "Group 1", id: 1 },
@@ -55,6 +56,7 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
   const [search, setSearch] = useState("");
   const [edit, setEdit] = useState(false);
   const [deleteIds, setDeleteIds] = useState([]);
+  const {user} = useOutletContext()
 
 
   const handleCheckbox = (id) => {
@@ -73,13 +75,13 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
 
   const handleRemoveSelected = async () => {
     console.log(deleteIds)
-    deleteExpenses('', deleteIds).then((flag) => {
+    deleteExpenses(user.api_token, deleteIds).then((flag) => {
       if(flag){
         let newExpenses = expenseState.userExpenses.filter((item) => !deleteIds.includes(item.id))
         setDeleteIds([])
         setEdit(false)
         dispatch(setExpenses([...newExpenses]))
-        loadRegardings('').then((data) => dispatch(setRegardings([...data])))
+        loadRegardings(user.api_token).then((data) => dispatch(setRegardings([...data])))
         dispatch(addMessage({
           severity: "success",
           title: "Sucesso!",
@@ -95,7 +97,7 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
         }))
       }
       setOpenConfirmationModal(false)
-      loadActions('').then((json) => {
+      loadActions(user.api_token).then((json) => {
         dispatch(setActions(json))
       })
     })

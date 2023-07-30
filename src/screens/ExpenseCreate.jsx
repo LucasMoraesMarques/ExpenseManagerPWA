@@ -37,6 +37,7 @@ import NoData from "../components/NoData";
 import { addMessage } from "../redux/slices/messageSlice";
 import { loadValidations } from '../services/validations';
 import { setValidations } from '../redux/slices/validationSlice';
+import { useOutletContext } from "react-router-dom";
 
 
 function TabPanel(props) {
@@ -105,6 +106,7 @@ function ExpenseCreate() {
   const dispatch = useDispatch();
   const [value, setValue] = useState(0);
   const [saving, setSaving] = useState(false);
+  const {user} = useOutletContext()
 
   const handleChangeName = (e) => {
     setInputStates({ ...inputStates, name: e.target.value });
@@ -296,16 +298,16 @@ function ExpenseCreate() {
       regarding: inputStates.regarding.id,
     };
     console.log(data);
-    createExpense("", data).then(({ flag, data }) => {
+    createExpense(user.api_token, data).then(({ flag, data }) => {
       if (flag) {
         setExpense({ ...data, ...inputStates });
-        loadRegardings("").then((newRegardings) =>
+        loadRegardings(user.api_token).then((newRegardings) =>
           dispatch(setRegardings(newRegardings))
         );
-        loadExpenses("").then((newExpenses) =>
+        loadExpenses(user.api_token).then((newExpenses) =>
           dispatch(setExpenses(newExpenses))
         );
-        loadValidations("").then((json) => {
+        loadValidations(user.api_token).then((json) => {
           dispatch(setValidations(json))
         })
         dispatch(
@@ -325,7 +327,7 @@ function ExpenseCreate() {
           })
         );
       }
-      loadActions("").then((json) => {
+      loadActions(user.api_token).then((json) => {
         dispatch(setActions(json));
       });
       setSaving(false);

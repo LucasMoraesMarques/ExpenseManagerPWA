@@ -32,6 +32,7 @@ import BackButton from "../components/BackButton";
 import { loadActions } from '../services/actions';
 import { setActions } from '../redux/slices/actionSlice';
 import { addMessage } from "../redux/slices/messageSlice";
+import { useOutletContext } from "react-router-dom";
 
 function GroupEdit() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -50,6 +51,8 @@ function GroupEdit() {
   const [memberSearch, setMemberSearch] = useState("");
   const [fieldsValid, setFieldsValid] = useState(false)
   const dispatch = useDispatch();
+  const {user} = useOutletContext()
+
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -90,7 +93,7 @@ function GroupEdit() {
     };
     console.log(data);
     if (id) {
-      editGroup("", id, data).then(({ flag, data }) => {
+      editGroup(user.api_token, id, data).then(({ flag, data }) => {
         if (flag) {
           setGroup({ ...data });
           console.log(groupState.userGroups);
@@ -116,7 +119,7 @@ function GroupEdit() {
       createGroup("", data).then(({flag, data}) =>{
         if (flag) {
           setGroup({ ...data });
-          loadGroups('').then((newGroups)=>dispatch(setGroups(newGroups)))
+          loadGroups(user.api_token).then((newGroups)=>dispatch(setGroups(newGroups)))
           ;
           dispatch(addMessage({
             severity: "success",
@@ -132,7 +135,7 @@ function GroupEdit() {
         }
       });
     }
-    loadActions('').then((json) => {
+    loadActions(user.api_token).then((json) => {
       dispatch(setActions(json))
     })
   };
@@ -175,7 +178,7 @@ function GroupEdit() {
         members: data.members,
       });
     }
-    loadUsers("").then((json) => {
+    loadUsers(user.api_token).then((json) => {
       setUsers([...json]);
     });
   }, []);

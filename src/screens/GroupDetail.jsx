@@ -29,6 +29,7 @@ import { setRegardings } from "../redux/slices/regardingSlice";
 import { loadActions } from '../services/actions';
 import { setActions } from '../redux/slices/actionSlice';
 import { addMessage } from "../redux/slices/messageSlice";
+import { useOutletContext } from "react-router-dom";
 
 
 function GroupDetail() {
@@ -39,6 +40,8 @@ function GroupDetail() {
   const dispatch = useDispatch();
   const [group, setGroup] = useState({});
   const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
+  const {user} = useOutletContext()
+
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -60,11 +63,11 @@ function GroupDetail() {
   }
 
   const handleRemove = async () => {
-    deleteGroup('', group.id).then((flag) => {
+    deleteGroup(user.api_token, group.id).then((flag) => {
       if(flag){
         let newGroups = groupState.userGroups.filter((item) => item.id != group.id)
         dispatch(setGroups([...newGroups]))
-        loadRegardings('').then((data) => dispatch(setRegardings([...data])))
+        loadRegardings(user.api_token).then((data) => dispatch(setRegardings([...data])))
         dispatch(addMessage({
           severity: "success",
           title: "Sucesso!",
@@ -79,7 +82,7 @@ function GroupDetail() {
         }))
       }
       setOpenConfirmationModal(false)
-      loadActions('').then((json) => {
+      loadActions(user.api_token).then((json) => {
         dispatch(setActions(json))
       })
       if(flag){

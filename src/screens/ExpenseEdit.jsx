@@ -39,6 +39,7 @@ import { loadValidations } from '../services/validations';
 import { setValidations } from '../redux/slices/validationSlice';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import { useOutletContext } from "react-router-dom";
 
 
 function TabPanel(props) {
@@ -110,6 +111,7 @@ function ExpenseEdit() {
   const dispatch = useDispatch();
   const [value, setValue] = useState(0);
   const [saving, setSaving] = useState(false);
+  const {user} = useOutletContext()
 
   const handleChangeName = (e) => {
     setInputStates({ ...inputStates, name: e.target.value });
@@ -306,7 +308,7 @@ function ExpenseEdit() {
       validators: []
     };
     console.log(data);
-    editExpense("", id, data).then(({ flag, data }) => {
+    editExpense(user.api_token, id, data).then(({ flag, data }) => {
       console.log(flag, data);
       if (flag) {
         let newExpense = {
@@ -317,13 +319,13 @@ function ExpenseEdit() {
           )}-${data.date.slice(0, 4)}`,
         };
         setExpense({ ...inputStates, ...newExpense });
-        loadRegardings("").then((newRegardings) =>
+        loadRegardings(user.api_token).then((newRegardings) =>
           dispatch(setRegardings(newRegardings))
         );
-        loadExpenses("").then((newExpenses) =>
+        loadExpenses(user.api_token).then((newExpenses) =>
           dispatch(setExpenses(newExpenses))
         );
-        loadValidations("").then((json) => {
+        loadValidations(user.api_token).then((json) => {
           dispatch(setValidations(json))
         })
         dispatch(

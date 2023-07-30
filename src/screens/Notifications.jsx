@@ -33,6 +33,8 @@ import { setValidations } from "../redux/slices/validationSlice";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import NoData from "../components/NoData";
+import { useOutletContext } from "react-router-dom";
+
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -61,6 +63,7 @@ function Notifications() {
   const [notificationDetail, setNotificationDetail] = useState({});
   const [selectedChip, setSelectedChip] = useState("Todas");
   const [filteredValidations, setFilteredValidations] = useState([]);
+  const {user} = useOutletContext()
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -73,7 +76,7 @@ function Notifications() {
   const deactivateNotification = (notification) => {
     setOpenModal(true);
     setNotificationDetail(notification);
-    editNotifications("", notification.id, { is_active: false }).then(
+    editNotifications(user.api_token, notification.id, { is_active: false }).then(
       ({ flag, data }) => {
         console.log(data, flag);
         if (flag) {
@@ -102,7 +105,7 @@ function Notifications() {
         .replaceAll("/", "-");
     }
     console.log(newValidation);
-    editValidation("", validation.id, newValidation).then(({ flag, data }) => {
+    editValidation(user.api_token, validation.id, newValidation).then(({ flag, data }) => {
       console.log(data, flag);
       if (flag) {
         let index = validationState.userValidations.findIndex(
@@ -224,9 +227,9 @@ function Notifications() {
               color="error"
               className="absolute top-[-40px] left-[calc((100vw/2)-40px)]"
             />
+            {notificationState.userNotifications.length > 0 ?
             <List>
-              {notificationState.userNotifications.length > 0 &&
-                notificationState.userNotifications.map((item) => {
+                {notificationState.userNotifications.map((item) => {
                   return (
                     <NotificationItem
                       key={item.id}
@@ -234,8 +237,9 @@ function Notifications() {
                       onClick={deactivateNotification}
                     />
                   );
-                })}
+                })} 
             </List>
+            : <NoData message="Nenhuma notificação encontrada" />}
           </TabPanel>
 
           <TabPanel value={value} index={1}>

@@ -1,5 +1,6 @@
 
 export const loadNotifications = async (apiToken) => {
+  console.log(`Token ${apiToken}`)
   try {
     const response = await fetch(process.env.REACT_APP_API_ROOT_URL + 'notifications/', {
       method: 'GET',

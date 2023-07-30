@@ -35,6 +35,7 @@ import { loadActions } from "../services/actions";
 import { setActions } from "../redux/slices/actionSlice";
 import { addMessage } from "../redux/slices/messageSlice";
 import { validateTextField } from "../services/utils";
+import { useOutletContext } from "react-router-dom";
 
 const REGARDING_STATES = [
   { label: "Em andamento", id: 0 },
@@ -64,6 +65,8 @@ function RegardingEdit() {
   const [fieldsValid, setFieldsValid] = useState(false);
   const [saving, setSaving] = useState(false);
   const dispatch = useDispatch();
+  const {user} = useOutletContext()
+
 
   const handleChangeName = (e) => {
     setInputStates({ ...inputStates, name: e.target.value });
@@ -109,7 +112,7 @@ function RegardingEdit() {
     };
     console.log(data);
     if (id) {
-      editRegarding("", id, data).then(({ flag, data }) => {
+      editRegarding(user.api_token, id, data).then(({ flag, data }) => {
         if (flag) {
           let newRegarding = {
             ...data,
@@ -151,10 +154,10 @@ function RegardingEdit() {
         }
       });
     } else {
-      createRegarding("", data).then(({ flag, data }) => {
+      createRegarding(user.api_token, data).then(({ flag, data }) => {
         if (flag) {
           setRegarding({ ...inputStates, is_closed: false });
-          loadRegardings("").then((newRegardings) =>
+          loadRegardings(user.api_token).then((newRegardings) =>
             dispatch(setRegardings(newRegardings))
           );
           dispatch(
@@ -175,7 +178,7 @@ function RegardingEdit() {
         }
       });
     }
-    loadActions("").then((json) => {
+    loadActions(user.api_token).then((json) => {
       dispatch(setActions(json));
       setSaving(false);
       navigate("/inicio");

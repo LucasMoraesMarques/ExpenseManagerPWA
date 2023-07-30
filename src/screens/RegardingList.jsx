@@ -68,7 +68,7 @@ function RegardingList() {
   }, []);
 
   return (
-    <div className="w-[95vw] mx-auto">
+    <div className="w-[95vw] mx-auto grow">
       <div className='flex flex-row justify-between'>
       <TextField
           id="outlined-basic"

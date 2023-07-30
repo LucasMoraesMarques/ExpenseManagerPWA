@@ -30,6 +30,8 @@ import { loadUsers } from "../services/user";
 import { createGroup, editGroup, loadGroups } from "../services/groups";
 import { setGroups } from "../redux/slices/groupSlice";
 import { useSelector } from "react-redux";
+import { useOutletContext } from "react-router-dom";
+
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -61,7 +63,8 @@ function AddMember() {
   const [group, setGroup] = useState({});
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
-  
+  const {user} = useOutletContext()
+
   const copyGroupCode = (code) => {
     navigator.clipboard.writeText(code);
     setOpenToast(true)
@@ -83,7 +86,7 @@ function AddMember() {
       let data = groupState.userGroups[index];
       setGroup({ ...data });
     }
-    loadUsers("").then((json) => {
+    loadUsers(user.api_token).then((json) => {
       setUsers([...json]);
     });
   }, [])

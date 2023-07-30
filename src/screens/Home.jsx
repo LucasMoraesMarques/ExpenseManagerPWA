@@ -20,6 +20,8 @@ import { setExpenseID, setExpenses } from "../redux/slices/expenseSlice";
 import { setValidationID, setValidations } from "../redux/slices/validationSlice";
 import { createGroup, deleteGroup, editGroup, loadGroupById, loadGroups } from "../services/groups";
 import { createExpense, editExpense } from "../services/expenses";
+import { useOutletContext } from "react-router-dom";
+import NoData from "../components/NoData";
 
 
 const groups = [
@@ -33,6 +35,8 @@ function Home() {
   const expenseState = useSelector((state) => state.expense);
   const actionState = useSelector((state) => state.action);
   const [numberOfItems, setNumberOfItems] = useState(0)
+  const {user} = useOutletContext()
+
 
   useEffect(() => {
     let count = 0
@@ -45,6 +49,9 @@ function Home() {
     
   }, [expenseState.userExpenses])
 
+  useEffect(()=> {
+console.log(user)
+  }, [])
 
 
   return (
@@ -72,12 +79,13 @@ function Home() {
             <Link to="/grupos">Ver todos</Link>
           </span>
         </div>
-
+        {groupState.userGroups.length > 0 ?
         <List component={Stack} direction="row" className="overflow-y-scroll">
-        {groupState.userGroups.length > 0 && groupState.userGroups.map((item) => {
+         {groupState.userGroups.map((item) => {
             return <GroupItem variant="rounded" key={item.id} group={item} />;
           })}
         </List>
+        : <NoData message="Nenhum grupo encontrado" />}
       </div>
       <div>
         
@@ -94,9 +102,9 @@ function Home() {
 
         <List>
           {
-        actionState.groupsActions.length > 0 && actionState.groupsActions.slice(0,5).map((item) => {
+        actionState.groupsActions.length > 0 ? actionState.groupsActions.slice(0,5).map((item) => {
             return <RecentAction variant="rounded" key={item.id} action={item} />;
-          })}
+          }) : <NoData message="Nenhuma atividade recente encontrada" />}
         </List>
       </div>
     </div>

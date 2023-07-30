@@ -164,7 +164,8 @@ function Login() {
           fullWidth
           sx={{ margin: "10px 0px" }}
           type={showPassword ? 'text' : 'password'}
-            endAdornment={
+          InputProps={{
+            endAdornment:
               <InputAdornment position="end">
                 <IconButton
                   aria-label="toggle password visibility"
@@ -175,7 +176,7 @@ function Login() {
                   {showPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>
-            }
+            }}
         />
         <Button variant="contained" className="w-full" disabled={!formFilled} onClick={() => login({})}>
         {loading && !loginWithGoogle ? <span><CircularProgress size={20} sx={{color: 'white'}}/> Entrando ...</span> : <span>Entrar</span>}

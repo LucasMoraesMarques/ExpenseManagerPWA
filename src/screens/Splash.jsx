@@ -44,7 +44,7 @@ function Splash() {
     })
     loadUsers(apiToken).then((json) => {
       dispatch(setUsers(json))
-      dispatch(setWallet(json[0].wallet))
+      dispatch(setWallet(userState.currentUser.wallet))
     })
     loadActions(apiToken).then((json) => {
       dispatch(setActions(json))

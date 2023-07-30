@@ -36,6 +36,7 @@ import NoData from "../components/NoData";
 import { createGroup, joinGroup, loadGroups } from "../services/groups";
 import { setGroups } from "../redux/slices/groupSlice";
 import { addMessage } from "../redux/slices/messageSlice";
+import { useOutletContext } from "react-router-dom";
 
 
 const groups = [
@@ -49,6 +50,8 @@ function GroupList() {
   const [search, setSearch] = useState("");
   const [hashId, setHashId] = useState("")
   const dispatch = useDispatch();
+  const {user} = useOutletContext()
+
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -59,9 +62,9 @@ function GroupList() {
   };
 
   const handleJoinGroup = async () => {
-    joinGroup('', hashId).then(({flag, message}) => {
+    joinGroup(user.api_token, hashId).then(({flag, message}) => {
       if (flag) {
-        loadGroups('').then((newGroups)=>dispatch(setGroups(newGroups)))
+        loadGroups(user.api_token).then((newGroups)=>dispatch(setGroups(newGroups)))
         dispatch(addMessage({
           severity: "success",
           title: "Sucesso!",

@@ -36,6 +36,8 @@ import { loadActions } from '../services/actions';
 import { setActions } from '../redux/slices/actionSlice';
 import DebtItem from "../components/DebtItem";
 import { addMessage } from "../redux/slices/messageSlice";
+import { useOutletContext } from "react-router-dom";
+import NoData from "../components/NoData";
 
 
 function TabPanel(props) {
@@ -64,6 +66,8 @@ function RegardingDetail() {
   const [value, setValue] = useState(0);
   const regardingState = useSelector((state) => state.regarding);
   const [regarding, setRegarding] = useState({});
+  const {user} = useOutletContext()
+
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -79,9 +83,9 @@ function RegardingDetail() {
   };
 
   const handleRemove = async () => {
-    deleteRegarding('', regarding.id).then((flag) => {
+    deleteRegarding(user.api_token, regarding.id).then((flag) => {
       if(flag){
-        loadRegardings('').then((data) => dispatch(setRegardings([...data])))
+        loadRegardings(user.api_token).then((data) => dispatch(setRegardings([...data])))
         dispatch(addMessage({
           severity: "success",
           title: "Sucesso!",
@@ -96,7 +100,7 @@ function RegardingDetail() {
         }))
       }
       setOpenConfirmationModal(false)
-      loadActions('').then((json) => {
+      loadActions(user.api_token).then((json) => {
         dispatch(setActions(json))
       })
       if(flag){
@@ -201,28 +205,28 @@ function RegardingDetail() {
                 <Grid item xs={6}>
                   <DashItem
                     title="Total Compartilhado Completo"
-                    value={"R$ " + regarding.consumer_total.shared}
+                    value={"R$ " + regarding.personal_total.shared}
                     helpText={"Soma dos itens em que todos os membros são consumidores"}
                   />
                 </Grid>
                 <Grid item xs={6}>
                   <DashItem
                     title="Total Compartilhado Parcial"
-                    value={"R$ " + regarding.consumer_total.partial_shared}
+                    value={"R$ " + regarding.personal_total.partial_shared}
                     helpText={"Soma dos itens em que alguém dividiu algo com você"}
                   />
                 </Grid>
                 <Grid item xs={6}>
                   <DashItem
                     title="Total Individual"
-                    value={"R$ " + regarding.consumer_total.individual}
+                    value={"R$ " + regarding.personal_total.individual}
                     helpText={"Soma dos itens em que você é o único consumidor"}
                   />
                 </Grid>
                 <Grid item xs={6}>
                   <DashItem
                     title="Saldo Compartilhado"
-                    value={"R$ " + regarding.consumer_total.balance}
+                    value={"R$ " + regarding.personal_total.balance}
                     helpText={"Saldo relativo ao total pago do valor compartilhado em relação à parcela esperada devido ao peso do membro"}
                   />
                 </Grid>
@@ -231,18 +235,20 @@ function RegardingDetail() {
             
             <h5 className="font-bold mt-2">Débitos individuais</h5>
             <List>
-            {"total_member_vs_member" in regarding && Object.keys(regarding.total_member_vs_member).map((member1) => {
+            {regarding.has_expenses && Object.keys(regarding.total_member_vs_member).length > 0 ?
+            Object.keys(regarding.total_member_vs_member).map((member1) => {
               let data = regarding.total_member_vs_member[member1]
               return Object.keys(data).map((member2) => {
                 let value = data[member2]
                 return  <DebtItem key={member1 + member2} payer={member2} receiver={member1} debt={value}/>
               })
-            })}
+            }) : <NoData message="Nenhum débito encontrado" />
+            }
             </List>
-            {"general_total" in regarding && (
+            <h5 className="font-bold">Detalhes de Pagamento</h5>
+            {regarding.has_expenses && Object.keys(regarding.general_total).length > 0 ?(
               <>
                 <Box className="w-[95%] mx-auto my-3">
-                  <h5 className="font-bold">Detalhes de Pagamento</h5>
                   <Box className="w-[75%] mx-auto my-3">
                     <PieChart
                       data={{
@@ -315,7 +321,7 @@ function RegardingDetail() {
                   </Box>
                 </Box>
               </>
-            )}
+            ) : <NoData message="Nenhum pagamento encontrado" />}
           </TabPanel>
           <TabPanel value={value} index={1}>
             <ExpenseList regarding={regarding.id} showRegardingName={false} showDeleteIcon={!regarding.is_closed}/>

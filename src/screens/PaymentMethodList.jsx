@@ -30,6 +30,7 @@ import AlertToast from "../components/AlertToast";
 import { setWallet } from "../redux/slices/userSlice";
 import ConfirmationModal from "../components/ConfirmationModal";
 import { addMessage } from "../redux/slices/messageSlice";
+import { useOutletContext } from "react-router-dom";
 
 const PAYMENT_METHOD_TYPES = [
   { id: "DEBIT", label: "Cartão de Débito" },
@@ -43,6 +44,8 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
   const navigate = useNavigate();
   const userState = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const {user} = useOutletContext()
+
 
   const [inputStates, setInputStates] = useState({
     type: "",
@@ -81,7 +84,7 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
     }
 
     console.log(paymentMethod);
-    createPaymentMethod("", paymentMethod).then(({ flag, data }) => {
+    createPaymentMethod(user.api_token, paymentMethod).then(({ flag, data }) => {
       console.log(flag, data);
       if (flag) {
         let newPaymentMethod = {
@@ -118,7 +121,7 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
       (item) => item.id == id
     );
     if (index != -1) {
-      deletePaymentMethod("", id).then((flag) => {
+      deletePaymentMethod(user.api_token, id).then((flag) => {
         console.log(flag);
         if (flag) {
           let newPaymentsMethods = [
@@ -253,7 +256,7 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
         />
 
         <List>
-          {userState.wallet.payment_methods.map((method) => (
+          {userState.wallet && userState.wallet.payment_methods.map((method) => (
             <PaymentMethodItem
               key={method.id}
               method={method}

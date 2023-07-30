@@ -64,3 +64,9 @@ export const calculateTotalValueOfArray = (array) => {
   }
   return sum
 }
+
+export const validateEmail = (email) => {
+  let emailRegex =
+      /^([0-9a-zA-Z]+([_.-]?[0-9a-zA-Z]+)*@[0-9a-zA-Z]+[0-9,a-z,A-Z,.,-]*(.){1}[a-zA-Z]{2,4})+$/;
+  return emailRegex.test(email)
+}

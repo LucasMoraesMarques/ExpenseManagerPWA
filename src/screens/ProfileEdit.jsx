@@ -59,7 +59,7 @@ function ProfileEdit() {
 
   const handleSaveUser = () => {
     console.log(inputStates)
-    editUser("", userState.currentUser.id, inputStates).then(({ flag, data }) => {
+    editUser(userState.currentUser.api_token, userState.currentUser.id, inputStates).then(({ flag, data }) => {
       console.log(flag, data);
       if (flag) {
         let newUser = {

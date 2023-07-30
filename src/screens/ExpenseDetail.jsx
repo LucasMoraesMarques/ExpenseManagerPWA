@@ -40,6 +40,8 @@ import { setActions } from '../redux/slices/actionSlice';
 import { addMessage } from "../redux/slices/messageSlice";
 import Popover from "@mui/material/Popover";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
+import { useOutletContext } from "react-router-dom";
+
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -71,6 +73,7 @@ function ExpenseDetail() {
   const [search, setSearch] = useState("");
   const dispatch = useDispatch();
   const open = Boolean(anchorEl);
+  const {user} = useOutletContext()
 
 
   const handleChange = (event, newValue) => {
@@ -104,11 +107,11 @@ function ExpenseDetail() {
   };
 
   const handleRemove = async () => {
-    deleteExpense('', expense.id).then((flag) => {
+    deleteExpense(user.api_token, expense.id).then((flag) => {
       if(flag){
         let newExpenses = expenseState.userExpenses.filter((item) => item.id != expense.id)
         dispatch(setExpenses([...newExpenses]))
-        loadRegardings('').then((data) => dispatch(setRegardings([...data])))
+        loadRegardings(user.api_token).then((data) => dispatch(setRegardings([...data])))
         dispatch(addMessage({
           severity: "success",
           title: "Sucesso!",
@@ -123,7 +126,7 @@ function ExpenseDetail() {
         }));
       }
       setOpenConfirmationModal(false)
-      loadActions('').then((json) => {
+      loadActions(user.api_token).then((json) => {
         dispatch(setActions(json))
       })
       if(flag){
