@@ -318,7 +318,7 @@ function RegardingDetail() {
             )}
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <ExpenseList regarding={regarding.id} showRegardingName={false}/>
+            <ExpenseList regarding={regarding.id} showRegardingName={false} showDeleteIcon={!regarding.is_closed}/>
           </TabPanel>
         </AppBar>
       </div>

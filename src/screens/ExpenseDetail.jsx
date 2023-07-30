@@ -38,7 +38,8 @@ import { setRegardings } from "../redux/slices/regardingSlice";
 import { loadActions } from '../services/actions';
 import { setActions } from '../redux/slices/actionSlice';
 import { addMessage } from "../redux/slices/messageSlice";
-
+import Popover from "@mui/material/Popover";
+import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -63,11 +64,13 @@ function ExpenseDetail() {
   const [value, setValue] = useState(0);
   let { id } = useParams();
   const expenseState = useSelector((state) => state.expense);
+  const regardingState = useSelector((state) => state.regarding);
   const [expense, setExpense] = useState({});
+  const [regarding, setRegarding] = useState({})
   const [filteredItems, setFilteredItems] = useState([]);
   const [search, setSearch] = useState("");
   const dispatch = useDispatch();
-
+  const open = Boolean(anchorEl);
 
 
   const handleChange = (event, newValue) => {
@@ -133,9 +136,13 @@ function ExpenseDetail() {
     let index = expenseState.userExpenses.findIndex((item) => item.id == id);
     console.log(id, index);
     if (index != -1) {
-      setExpense({ ...expenseState.userExpenses[index] });
+      let filteredExpense = { ...expenseState.userExpenses[index] }
+      setExpense(filteredExpense);
       setFilteredItems([...expenseState.userExpenses[index].items]);
       console.log(expenseState.userExpenses[index]);
+      setRegarding(regardingState.userRegardings.find(
+        (item) => item.id == filteredExpense.regarding
+      ))
     }
   }, []);
   return (
@@ -146,7 +153,7 @@ function ExpenseDetail() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Detalhes da Despesa
           </Typography>
-          {true && (
+          {regarding && !regarding.is_closed ? (
             <div>
               <IconButton
                 size="large"
@@ -177,7 +184,22 @@ function ExpenseDetail() {
                 <MenuItem onClick={() => setOpenConfirmationModal(true)}>Deletar</MenuItem>
               </Menu>
             </div>
-          )}
+          ) :
+          <IconButton className="text-white" size="large"><HelpOutlineOutlinedIcon
+          onClick={handleMenu}
+          className="text-white"
+        />
+        <Popover
+        open={open}
+        anchorEl={anchorEl}
+        onClose={()=>setAnchorEl(false)}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+      >
+        <p className="text-center">Para editar essa despesa a referência deve estar em andamento.</p>
+      </Popover></IconButton>}
         </Toolbar>
       </AppBar>
       <div className="">

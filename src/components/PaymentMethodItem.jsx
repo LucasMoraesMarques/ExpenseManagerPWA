@@ -12,6 +12,7 @@ import CustomModal from "../components/CustomModal";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import ConfirmationModal from "../components/ConfirmationModal";
+import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 
 
 const METHODS = {
@@ -30,8 +31,15 @@ function PaymentMethodItem({ key, method, onDelete = () => {} }) {
       secondaryAction={
         <div>
           <IconButton onClick={() => setOpenModal(true)}>
-            <DisabledByDefaultIcon sx={{ color: "red" }} />
+            {method.has_payments ?
+            <HelpOutlineOutlinedIcon
+            sx={{ color: "orange" }}
+          /> :
+          <DisabledByDefaultIcon sx={{ color: "red" }} />
+
+            }
           </IconButton>
+         
         </div>
       }
     >
@@ -50,11 +58,20 @@ function PaymentMethodItem({ key, method, onDelete = () => {} }) {
         onClose={() => setOpenModal(false)}
         children={
           <>
+          {method.has_payments ?
+          <ConfirmationModal
+          title="Alerta"
+          message={`Esse método tem ${method.number_of_payments} pagamentos associados. Para deletá-lo, remova os pagamentos primeiro.`}
+          onCancel={() => setOpenModal(false)}
+          confirmButtonText="OK"
+        />:
             <ConfirmationModal
               message={`Você realmente deseja deletar o método de pagamento ${method.description}?`}
               onCancel={() => setOpenModal(false)}
               onConfirm={() => onDelete(method.id)}
+
             />
+          }
           </>
         }
       />

@@ -46,7 +46,7 @@ function ExpenseItem({
       disableGutters
       onClick={edit ? null : () => navigate(`/despesa/${expense.id}`)}
     >
-      {edit && <Checkbox onClick={onCheck} checked={isChecked} size="small" />}
+      {edit ? (expense.regarding_is_closed ? <LockOutlinedIcon sx={{ color: 'red' }} size="small"/> : <Checkbox onClick={onCheck} checked={isChecked} size="small" />) : ""}
       <ListItemButton className="flex flex-row justify-center items-start">
         <ListItemText
           primary={

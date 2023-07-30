@@ -46,7 +46,7 @@ const groups = [
 ];
 
 
-function ExpenseList({ regarding = null , showRegardingName=true}) {
+function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon=true}) {
   const [openModal, setOpenModal] = useState(false);
   const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
   const dispatch = useDispatch();
@@ -101,10 +101,6 @@ function ExpenseList({ regarding = null , showRegardingName=true}) {
     })
   }
 
-  useEffect(() => {
-    console.log(deleteIds)
-
-  }, [deleteIds])
 
   const handleChangeSearch = (e) => {
     let value = e.target.value;
@@ -314,7 +310,7 @@ function ExpenseList({ regarding = null , showRegardingName=true}) {
             <Button onClick={() => {setEdit(false);setDeleteIds([])}}>Cancelar</Button>
             <Button onClick={() => setOpenConfirmationModal(true)}>Remover</Button>
           </div>
-        ) : ( filteredExpenses.length > 0 &&
+        ) : ( filteredExpenses.length > 0 && showDeleteIcon &&
           <IconButton onClick={() => setEdit(true)}>
             <DeleteIcon sx={{ color: "red" }} />
           </IconButton>

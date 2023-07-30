@@ -359,6 +359,16 @@ function ExpenseEdit() {
       let regarding = regardingState.userRegardings.find(
         (item) => item.id == data.regarding
       );
+      if (regarding.is_closed) {
+        dispatch(
+          addMessage({
+            severity: "error",
+            title: "Erro!",
+            body: "A referência dessa despesa está finalizada. Para editar, mude o status da referência!",
+          })
+        );
+        navigate("/inicio/")
+      }
       setExpense({ ...data });
       setInputStates({
         name: data.name,

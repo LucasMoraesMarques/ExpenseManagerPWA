@@ -8,6 +8,8 @@ const ConfirmationModal = ({
   message = "Você confirma a ação?",
   onCancel = () => {},
   onConfirm = () => {},
+  confirmButtonText = "Confirmar",
+  cancelButtonText = "Cancelar",
 }) => {
   return (
     <div>
@@ -22,10 +24,10 @@ const ConfirmationModal = ({
       <span>{message}</span>
       <Box className="flex flex-row justify-between mt-[10px]">
         <Button variant="outlined" onClick={onCancel}>
-          Cancelar
+          {cancelButtonText}
         </Button>
         <Button variant="contained" onClick={onConfirm}>
-          Confirmar
+          {confirmButtonText}
         </Button>
       </Box>
     </div>
