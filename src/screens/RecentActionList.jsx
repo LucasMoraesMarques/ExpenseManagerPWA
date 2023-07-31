@@ -94,7 +94,7 @@ function RecentActionList() {
         </Toolbar>
       </AppBar>
       <div className="w-[95vw] mx-auto">
-        <div className="flex flex-row justify-between">
+        <div className="">
           <TextField
             id="outlined-basic"
             label="Pesquisa"
@@ -225,6 +225,7 @@ function RecentActionList() {
           />
         </Stack>
 
+        <div className='overflow-y-scroll max-h-[calc(100vh-240px)]' >
         <List>
           {filteredActions.length > 0 ? (
             filteredActions.map((item) => {
@@ -234,6 +235,8 @@ function RecentActionList() {
             <NoData message="Nenhuma ação encontrada" />
           )}
         </List>
+        </div>
+      
       </div>
     </div>
   );

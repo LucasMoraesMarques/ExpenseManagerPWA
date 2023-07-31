@@ -69,7 +69,7 @@ function RegardingList() {
 
   return (
     <div className="w-[95vw] mx-auto grow">
-      <div className='flex flex-row justify-between'>
+      <div>
       <TextField
           id="outlined-basic"
           label="Pesquisa"
@@ -79,7 +79,7 @@ function RegardingList() {
           onChange={handleChangeSearch}
           size="medium"
           fullWidth
-          sx={{ margin: "10px 0px" }}
+          sx={{ margin: "10px 0px"}}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -158,8 +158,6 @@ function RegardingList() {
             </div>
           }
         />
-      </div>
-      
         <span className="font-bold text-lg">
         {search ? `Resultados de "${search}"` : ""}
       </span>
@@ -168,6 +166,8 @@ function RegardingList() {
           Mostrando {filteredRegardings.length} referências
         </span>
       </div>
+      </div>
+      <div className='overflow-y-scroll max-h-[calc(100vh-220px)]' >
 
       <List>
         {filteredRegardings.length > 0 ? (
@@ -178,6 +178,7 @@ function RegardingList() {
           <NoData message="Nenhuma referência encontrada" />
         )}
       </List>
+      </div>
       </div>
   )
 }

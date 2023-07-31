@@ -90,7 +90,7 @@ console.log(user)
       <div>
         
       </div>
-      <div className="mb-[50px]">
+      <div>
         <div className="flex flex-row justify-between w-full">
         <span className="font-bold text-xl">
             Atividades Recentes
@@ -100,12 +100,13 @@ console.log(user)
           </span>
         </div>
 
-        <List>
+        <List >
           {
         actionState.groupsActions.length > 0 ? actionState.groupsActions.slice(0,5).map((item) => {
             return <RecentAction variant="rounded" key={item.id} action={item} />;
           }) : <NoData message="Nenhuma atividade recente encontrada" />}
         </List>
+        <div style={{height: '50px'}}></div>
       </div>
     </div>
   );

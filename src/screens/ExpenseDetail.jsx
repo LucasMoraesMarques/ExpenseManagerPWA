@@ -43,7 +43,7 @@ import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import { useOutletContext } from "react-router-dom";
 
 function TabPanel(props) {
-  const { children, value, index, ...other } = props;
+  const { children, value, index, padding, ...other } = props;
 
   return (
     <div
@@ -54,7 +54,7 @@ function TabPanel(props) {
       {...other}
       className="bg-white text-black min-h-[calc(100vh-105px)]"
     >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      {value === index && <Box sx={{ p: padding }}>{children}</Box>}
     </div>
   );
 }
@@ -219,7 +219,7 @@ function ExpenseDetail() {
             <Tab label="Geral" />
             <Tab label="Items" />
           </Tabs>
-          <TabPanel value={value} index={0} className="text-black">
+          <TabPanel value={value} index={0} className="text-black" padding={3}>
             <h5 className="font-bold">Nome</h5>
             <span className="ml-[10px] text-sm">{expense.name}</span>
             <h5 className="font-bold">Descrição</h5>
@@ -259,8 +259,8 @@ function ExpenseDetail() {
                 })}
             </List>
           </TabPanel>
-          <TabPanel value={value} index={1}>
-            <div className="flex flex-row justify-between">
+          <TabPanel value={value} index={1} padding={1}>
+            <div className="">
               <TextField
                 id="outlined-basic"
                 label="Pesquisa"
@@ -279,13 +279,23 @@ function ExpenseDetail() {
                   ),
                 }}
               />
+              <span className="font-bold text-lg">
+        {search ? `Resultados de "${search}"` : ""}
+      </span>
+      <div className="flex flew-row justify-between items-center">
+        <span className="text-sm">
+          Mostrando {filteredItems.length} items
+        </span>
+      </div>
             </div>
+            <div className='overflow-y-scroll max-h-[calc(100vh-220px)]' >
             <List>
               {filteredItems.length > 0 &&
                 filteredItems.map((item) => {
                   return <Item key={item.id} item={item} />;
                 })}
             </List>
+            </div>
           </TabPanel>
         </AppBar>
       </div>

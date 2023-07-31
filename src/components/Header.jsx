@@ -5,11 +5,13 @@ import { AppBar, IconButton, Toolbar } from "@mui/material";
 import { Link } from "react-router-dom";
 import Badge from "@mui/material/Badge";
 import { useSelector } from "react-redux";
+import { useOutletContext } from "react-router-dom";
 
 function Header() {
   const notificationState = useSelector((state) => state.notification);
   const validationState = useSelector((state) => state.validation);
   const [count, setCount] = useState(0);
+  const {user} = useOutletContext()
 
   useEffect(() => {
     let activeNotifications = notificationState.userNotifications.filter(
@@ -22,7 +24,7 @@ function Header() {
   }, [notificationState, validationState]);
   return (
     <AppBar position="sticky">
-      <Toolbar className="flex justify-between">
+      <Toolbar className="flex justify-between mx-2">
         <div className="flex flex-row justify-center items-center">
           <Link to="/conta">
             <IconButton
@@ -37,11 +39,11 @@ function Header() {
             </IconButton>
           </Link>
 
-          <p>Olá user!</p>
+          <p>Olá, {user ? user.full_name : 'user'}!</p>
         </div>
         <Link to="/notificacoes">
-          <IconButton edge="end" sx={{ color: "white" }} aria-label="menu">
-            <Badge badgeContent={count} color="error">
+          <IconButton  sx={{ color: "white" }} aria-label="menu">
+            <Badge badgeContent={count} color="error" sx={{top:'0px'}}>
               <NotificationsNoneIcon sx={{ height: "30px", width: "30px" }} />
             </Badge>
           </IconButton>

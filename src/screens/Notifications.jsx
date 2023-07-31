@@ -61,7 +61,7 @@ function Notifications() {
   const notificationState = useSelector((state) => state.notification);
   const validationState = useSelector((state) => state.validation);
   const [notificationDetail, setNotificationDetail] = useState({});
-  const [selectedChip, setSelectedChip] = useState("Todas");
+  const [selectedChip, setSelectedChip] = useState("Abertas");
   const [filteredValidations, setFilteredValidations] = useState([]);
   const {user} = useOutletContext()
 
@@ -204,6 +204,26 @@ function Notifications() {
         </Toolbar>
       </AppBar>
       <div id="notifications" >
+        <div>
+        <Badge
+              badgeContent={validationState.userValidations.filter(
+                (item) => item.is_active
+              ).length}
+              color="error"
+              className="absolute top-[80px] left-[calc(100vw-30px)]"
+              sx={{position:'absolute'}}
+            />
+            <Badge
+              badgeContent={
+                notificationState.userNotifications.filter(
+                  (item) => item.is_active
+                ).length
+              }
+              color="error"
+              className="absolute top-[80px] left-[calc((100vw/2)-40px)]"
+              sx={{position:'absolute'}}
+            />
+        </div>
         <AppBar position="static">
           <Tabs
             value={value}
@@ -218,16 +238,9 @@ function Notifications() {
             <Tab label="Validações" />
           </Tabs>
           <TabPanel value={value} index={0} className="text-black">
-            <Badge
-              badgeContent={
-                notificationState.userNotifications.filter(
-                  (item) => item.is_active
-                ).length
-              }
-              color="error"
-              className="absolute top-[-40px] left-[calc((100vw/2)-40px)]"
-            />
-            {notificationState.userNotifications.length > 0 ?
+            
+            <div className='overflow-y-scroll max-h-[calc(100vh-240px)]' >
+        {notificationState.userNotifications.length > 0 ?
             <List>
                 {notificationState.userNotifications.map((item) => {
                   return (
@@ -240,17 +253,13 @@ function Notifications() {
                 })} 
             </List>
             : <NoData message="Nenhuma notificação encontrada" />}
+        </div>
+           
           </TabPanel>
 
           <TabPanel value={value} index={1}>
-            <Badge
-              badgeContent={validationState.userValidations.filter(
-                (item) => item.is_active
-              ).length}
-              color="error"
-              className="absolute top-[-40px] left-[calc(100vw-40px)]"
-            />
-            <Stack direction="row" spacing={1}>
+            
+            <Stack direction="row" spacing={1} sx={{marginTop: '10px'}}>
               <Chip
                 label="Todas"
                 color="primary"
@@ -283,6 +292,7 @@ function Notifications() {
 
               />
             </Stack>
+            <div className='overflow-y-scroll max-h-[calc(100vh-150px)]' >
             <List>
               {filteredValidations.length > 0 ?
                 filteredValidations.map((item) => {
@@ -295,6 +305,7 @@ function Notifications() {
                   );
                 }) : <NoData message="Nenhuma validação encontrada"/>}
             </List>
+            </div>
           </TabPanel>
         </AppBar>
       </div>

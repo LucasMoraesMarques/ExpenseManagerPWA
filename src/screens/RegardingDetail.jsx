@@ -41,7 +41,7 @@ import NoData from "../components/NoData";
 
 
 function TabPanel(props) {
-  const { children, value, index, ...other } = props;
+  const { children, value, index, padding, ...other } = props;
 
   return (
     <div
@@ -52,7 +52,7 @@ function TabPanel(props) {
       {...other}
       className="bg-white text-black min-h-[calc(100vh-110px)]"
     >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      {value === index && <Box sx={{ p: padding }}>{children}</Box>}
     </div>
   );
 }
@@ -175,7 +175,7 @@ function RegardingDetail() {
             <Tab label="Geral" />
             <Tab label="Despesas" />
           </Tabs>
-          <TabPanel value={value} index={0} className="text-black">
+          <TabPanel value={value} index={0} padding={3} className="text-black">
             <h5 className="font-bold">Nome </h5>
             <span className="ml-[10px] text-sm">{regarding.name}</span>
             <h5 className="font-bold mt-2">Descrição</h5>
@@ -323,7 +323,7 @@ function RegardingDetail() {
               </>
             ) : <NoData message="Nenhum pagamento encontrado" />}
           </TabPanel>
-          <TabPanel value={value} index={1}>
+          <TabPanel value={value} index={1} padding={1}>
             <ExpenseList regarding={regarding.id} showRegardingName={false} showDeleteIcon={!regarding.is_closed}/>
           </TabPanel>
         </AppBar>

@@ -138,7 +138,7 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
 
   return (
     <div className="">
-      <div className="flex flex-row justify-between">
+      <div>
         <TextField
           id="outlined-basic"
           label="Pesquisa"
@@ -148,7 +148,7 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
           onChange={handleChangeSearch}
           size="medium"
           fullWidth
-          sx={{ margin: "10px 0px" }}
+          sx={{ marginTop: "10px" }}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -298,9 +298,7 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
             </div>
           }
         />
-      </div>
-
-      <span className="font-bold text-lg">
+        <span className="font-bold text-lg">
         {search ? `Resultados de "${search}"` : ""}
       </span>
       <div className="flex flew-row justify-between items-center">
@@ -318,7 +316,10 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
           </IconButton>
         )}
       </div>
+      </div>
 
+      
+      <div className='overflow-y-scroll max-h-[calc(100vh-230px)]' >
       <List>
         {filteredExpenses.length > 0 ? (
           filteredExpenses.map((item) => {
@@ -328,7 +329,8 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
           <NoData message="Nenhuma despesa encontrada" />
         )}
       </List>
-      <div className="mt-[50px]"></div>
+      </div>
+      
       <CustomModal
         open={openConfirmationModal}
         onClose={() => setOpenConfirmationModal(false)}
