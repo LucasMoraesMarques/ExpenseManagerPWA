@@ -70,3 +70,11 @@ export const validateEmail = (email) => {
       /^([0-9a-zA-Z]+([_.-]?[0-9a-zA-Z]+)*@[0-9a-zA-Z]+[0-9,a-z,A-Z,.,-]*(.){1}[a-zA-Z]{2,4})+$/;
   return emailRegex.test(email)
 }
+
+
+export const dateInRange = (date, start=new Date(), end=new Date()) =>{
+  console.log('d s e')
+  console.log(date, start, end)
+  console.log( (date >= start) && (date <= end))
+  return (date >= start) && (date <= end)
+}
