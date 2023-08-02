@@ -36,7 +36,8 @@ function BaseScreen(props) {
       <SpeedDial
   ariaLabel="SpeedDial basic example"
   icon={<SpeedDialIcon />}
-  style={{position:'fixed', bottom: '40px', margin: '0px auto'}}
+  //style={{position:'fixed', bottom: '40px', margin: '0px auto'}}
+        sx={{ position: 'fixed', bottom: 60, left: window.innerWidth / 2  - 50}}
   className='mx-auto w-full'
 >
 {actions.map((action) => (
@@ -64,7 +65,7 @@ function BaseScreen(props) {
           icon={<CalendarMonthIcon />}
         />
         <BottomNavigationAction label="Despesas" icon={<AttachMoneyIcon />} />
-        <BottomNavigationAction label="Estatísticas" icon={<BarChartIcon />} />
+        {/*<BottomNavigationAction label="Estatísticas" icon={<BarChartIcon />} />*/}
       </BottomNavigation>
     </div>
   );
