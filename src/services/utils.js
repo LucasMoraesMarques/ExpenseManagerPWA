@@ -73,8 +73,9 @@ export const validateEmail = (email) => {
 
 
 export const dateInRange = (date, start=new Date(), end=new Date()) =>{
-  console.log('d s e')
-  console.log(date, start, end)
-  console.log( (date >= start) && (date <= end))
   return (date >= start) && (date <= end)
+}
+
+export const priceInRange = (price, start=0, end=0) =>{
+  return (price >= start) && (price <= end)
 }

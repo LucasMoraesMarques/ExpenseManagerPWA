@@ -34,6 +34,7 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import NoData from "../components/NoData";
 import { useOutletContext } from "react-router-dom";
+import Pagination from '@mui/material/Pagination';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -64,6 +65,10 @@ function Notifications() {
   const [selectedChip, setSelectedChip] = useState("Abertas");
   const [filteredValidations, setFilteredValidations] = useState([]);
   const {user} = useOutletContext()
+  const [validationPage, setValidationPage] = useState(1)
+  const [validationSliceRange, setValidationSliceRange] = useState({start:0, end:50})
+  const [notificationPage, setNotificationPage] = useState(1)
+  const [notificationSliceRange, setNotificationSliceRange] = useState({start:0, end:50})
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -150,10 +155,51 @@ function Notifications() {
     ]);
   };
 
+  const handleValidationPagination = (e, value) => {
+    setValidationPage(value)
+    let start = 50 * (value - 1)
+    let end = 50 * (value)
+    if( end > filteredValidations.length){
+      end = filteredValidations.length
+    }
+    setValidationSliceRange({
+      start: start,
+      end: end
+    })
+
+  }
+
+  const handleNotificationPagination = (e, value) => {
+    setNotificationPage(value)
+    let start = 50 * (value - 1)
+    let end = 50 * (value)
+    if( end > notificationState.userNotifications.length){
+      end = notificationState.userNotifications.length
+    }
+    setNotificationSliceRange({
+      start: start,
+      end: end
+    })
+
+  }
+
   useEffect(() => {
     setFilteredValidations([...validationState.userValidations]);
     handleSelectChip(selectedChip)
   }, [validationState]);
+
+  useEffect(() => {
+    handleValidationPagination(null, 1)
+  }, [filteredValidations])
+
+  useEffect(() => {
+    handleNotificationPagination(null, 1)
+  }, [notificationState.userNotifications])
+
+  useEffect(() => {
+    handleValidationPagination(null, 1)
+    handleNotificationPagination(null, 1)
+  }, [])
 
   return (
     <div className="h-screen">
@@ -238,8 +284,14 @@ function Notifications() {
             <Tab label="Validações" />
           </Tabs>
           <TabPanel value={value} index={0} className="text-black">
-            
+          <span className="text-sm">
+          Mostrando {notificationSliceRange.end != 0 ? notificationSliceRange.start+1 : 0} a {notificationSliceRange.end} de {notificationState.userNotifications.length} notificações
+        </span>
+        {notificationState.userNotifications.length > 50 ? 
+        <Pagination count={Math.ceil(notificationState.userNotifications.length / 50)} page={notificationPage} onChange={handleNotificationPagination} />
+        : <></>}
             <div className='overflow-y-scroll max-h-[calc(100vh-240px)]' >
+        
         {notificationState.userNotifications.length > 0 ?
             <List>
                 {notificationState.userNotifications.map((item) => {
@@ -292,10 +344,17 @@ function Notifications() {
 
               />
             </Stack>
+            <span className="text-sm">
+          Mostrando {validationSliceRange.end != 0 ? validationSliceRange.start+1 : 0} a {validationSliceRange.end} de {filteredValidations.length} validações
+        </span>
+        {filteredValidations.length > 50 ?
+        <Pagination count={Math.ceil(filteredValidations.length / 50)} page={validationPage} onChange={handleValidationPagination} />
+        : <></>}
+
             <div className='overflow-y-scroll max-h-[calc(100vh-150px)]' >
             <List>
               {filteredValidations.length > 0 ?
-                filteredValidations.map((item) => {
+                filteredValidations.slice(validationSliceRange.start, validationSliceRange.end).map((item) => {
                   return (
                     <ValidationItem
                       key={item.id}

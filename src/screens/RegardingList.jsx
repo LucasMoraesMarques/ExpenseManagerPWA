@@ -30,6 +30,7 @@ import NoData from "../components/NoData";
 import dayjs, { Dayjs } from "dayjs";
 import { dateInRange } from "../services/utils";
 import { Badge, Checkbox, FormControlLabel } from "@mui/material";
+import Pagination from '@mui/material/Pagination';
 
 const allStatus = [
   { name: "Em andamento", id: 1 },
@@ -55,6 +56,8 @@ function RegardingList() {
   const [groupStatusOptions, setGroupStatusOptions] = useState([]);
   const [filtersValid, setFiltersValid] = useState(false);
   const [filtersFilled, setFiltersFilled] = useState(false);
+  const [page, setPage] = useState(1)
+  const [sliceRange, setSliceRange] = useState({start:0, end:50})
 
   const handleChangeSearch = (value) => {
     setSearch(value);
@@ -68,7 +71,7 @@ function RegardingList() {
       name: item.name,
     }));
     if (value.length > 0) {
-      if (value.some((item) => item.id == 3)) {
+      if (value.some((item) => item.id == 0)) {
         newGroups = [...allUserGroups];
       } else {
         newGroups = [...value];
@@ -76,7 +79,7 @@ function RegardingList() {
     }
     let options = [...allUserGroups];
     if (!(newGroups.length == allUserGroups.length)) {
-      options.push({ id: 3, name: "Todos" });
+      options.push({ id: 0, name: "Todos" });
     }
     console.log(options);
     setFilterStates({ ...filterStates, groups: newGroups });
@@ -201,6 +204,20 @@ function RegardingList() {
     setOpenModal(false);
   };
 
+  const handlePagination = (e, value) => {
+    setPage(value)
+    let start = 50 * (value - 1)
+    let end = 50 * (value)
+    if( end > filteredRegardings.length){
+      end = filteredRegardings.length
+    }
+    setSliceRange({
+      start: start,
+      end: end
+    })
+
+  }
+
   useEffect(() => {
     setFilteredRegardings([...regardingState.userRegardings]);
     console.log(regardingState.userRegardings);
@@ -218,6 +235,10 @@ function RegardingList() {
   useEffect(() => {
     applyFilters();
   }, [search]);
+
+  useEffect(() => {
+    handlePagination(null, 1)
+  }, [filteredRegardings])
 
   return (
     <div className="w-[95vw] mx-auto grow">
@@ -377,10 +398,14 @@ function RegardingList() {
           {search ? `Resultados de "${search}"` : ""}
         </span>
         <div className="flex flew-row justify-between items-center">
-          <span className="text-sm">
-            Mostrando {filteredRegardings.length} referências
-          </span>
+        <span className="text-sm">
+          Mostrando {sliceRange.end != 0 ? sliceRange.start+1 : 0} a {sliceRange.end} de {filteredRegardings.length} referências
+        </span>
+        
         </div>
+        {filteredRegardings.length > 50 ? 
+      <Pagination count={Math.ceil(filteredRegardings.length / 50)} page={page} onChange={handlePagination} />
+      : <></>}
       </div>
       <div className="overflow-y-scroll max-h-[calc(100vh-220px)]">
         <List>

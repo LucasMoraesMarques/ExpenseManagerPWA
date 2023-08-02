@@ -33,6 +33,8 @@ import Toolbar from "@mui/material/Toolbar";
 import BackButton from "../components/BackButton";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
+import Pagination from '@mui/material/Pagination';
+
 const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },
@@ -44,6 +46,8 @@ function RecentActionList() {
   const [filteredActions, setFilteredActions] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedChip, setSelectedChip] = useState("Todas");
+  const [actionPage, setActionPage] = useState(1)
+  const [actionSliceRange, setActionSliceRange] = useState({start:0, end:50})
 
   const filterActions = () => {
     let upperValue = search ? search.toUpperCase() : "";
@@ -82,6 +86,24 @@ function RecentActionList() {
   useEffect(() => {
     filterActions()
   }, [selectedChip, search]);
+
+  const handleActionPagination = (e, value) => {
+    setActionPage(value)
+    let start = 50 * (value - 1)
+    let end = 50 * (value)
+    if( end > filteredActions.length){
+      end = filteredActions.length
+    }
+    setActionSliceRange({
+      start: start,
+      end: end
+    })
+
+  }
+
+  useEffect(() => {
+    handleActionPagination(null, 1)
+  }, [filteredActions])
 
   return (
     <div>
@@ -188,15 +210,6 @@ function RecentActionList() {
           />
         </div>
 
-        
-        <div className="flex flex-col py-2">
-        <span className="font-bold text-lg">
-          {search ? `Resultados de "${search}"` : ""}
-        </span>
-          <span className="text-sm">
-            Mostrando {filteredActions.length} ações
-          </span>
-        </div>
         <Stack direction="row" spacing={1}>
           <Chip
             label="Todas"
@@ -224,11 +237,25 @@ function RecentActionList() {
             onClick={() => setSelectedChip("Exclusão")}
           />
         </Stack>
+        <div className="flex flex-col py-2">
+        <span className="font-bold text-lg">
+          {search ? `Resultados de "${search}"` : ""}
+        </span>
+        <span className="text-sm">
+          Mostrando {actionSliceRange.end != 0 ? actionSliceRange.start+1 : 0} a {actionSliceRange.end} de {filteredActions.length} ações
+        </span>
+        {filteredActions.length > 50 ?
+        <Pagination count={Math.ceil(filteredActions.length / 50)} page={actionPage} onChange={handleActionPagination} />
+        : <></>}
+        </div>
+        
+
+        
 
         <div className='overflow-y-scroll max-h-[calc(100vh-240px)]' >
         <List>
           {filteredActions.length > 0 ? (
-            filteredActions.map((item) => {
+            filteredActions.slice(actionSliceRange.start, actionSliceRange.end).map((item) => {
               return <RecentAction key={item.id} action={item} />;
             })
           ) : (
