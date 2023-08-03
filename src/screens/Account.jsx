@@ -33,6 +33,9 @@ import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import BackButton from "../components/BackButton";
 import { addMessage } from "../redux/slices/messageSlice";
 import { useSelector, useDispatch } from "react-redux";
+import { persistor } from "../redux/store";
+import { stringAvatar } from "../services/utils";
+import { useOutletContext } from "react-router-dom";
 
 const modalStyle = {
   position: "absolute",
@@ -66,12 +69,18 @@ function Account() {
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const {user} = useOutletContext()
 
   const logout = () => {
-    localStorage.removeItem('persist:root')
-    dispatch(addMessage({title: '', body:'Você saiu da sua conta!', severity:'success'}));
-    setTimeout(() => navigate("/boas-vindas"), 2000);
+    persistor.pause();
+    persistor.flush().then(() => {
+      return persistor.purge();
+    }).then(() => {
+      localStorage.removeItem("persist:root")
+      dispatch(addMessage({title: '', body:'Você saiu da sua conta!', severity:'success'}));
+      setTimeout(() => navigate("/boas-vindas"), 2000);
+    })
+
   }
   return (
     <div className="min-h-screen">
@@ -84,8 +93,8 @@ function Account() {
         </Toolbar>
       </AppBar>
       <div className="flex flex-col justify-center w-full h-[200px] items-center">
-        <Avatar sx={{ bgcolor: "orange", width: 100, height: 100 }}>LM</Avatar>
-        <span className="font-bold text-xl">Lucas</span>
+      <Avatar children={stringAvatar(user.full_name).children} sx={{width: 100, height: 100, ...stringAvatar(user.full_name).sx, fontSize:30}} size={60} />
+        <span className="text-xl">{user.full_name}</span>
       </div>
       <div className="w-[95%] mx-auto">
         <List>

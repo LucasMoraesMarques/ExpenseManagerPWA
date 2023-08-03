@@ -22,8 +22,7 @@ import { createGroup, deleteGroup, editGroup, loadGroupById, loadGroups } from "
 import { createExpense, editExpense } from "../services/expenses";
 import { useOutletContext } from "react-router-dom";
 import NoData from "../components/NoData";
-
-
+import EastIcon from '@mui/icons-material/East';
 const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },
@@ -71,12 +70,12 @@ console.log(user)
             <DashItem title="Items" value={numberOfItems}/>
           </Grid>
         </Grid>
-        <div className="flex flex-row justify-between w-full">
+        <div className="flex flex-row justify-between w-full items-center">
           <span className="font-bold text-xl">
             Grupos
           </span>
           <span className="align-middle">
-            <Link to="/grupos">Ver todos</Link>
+            <Link to="/grupos"><EastIcon/></Link>
           </span>
         </div>
         {groupState.userGroups.length > 0 ?
@@ -91,12 +90,12 @@ console.log(user)
         
       </div>
       <div>
-        <div className="flex flex-row justify-between w-full">
+        <div className="flex flex-row justify-between w-full items-center">
         <span className="font-bold text-xl">
             Atividades Recentes
           </span>
           <span className="align-middle">
-            <Link to="/historico-de-acoes">Ver todos</Link>
+            <Link to="/historico-de-acoes"><EastIcon/></Link>
           </span>
         </div>
 

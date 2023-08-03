@@ -28,7 +28,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { setCurrentUser } from "../redux/slices/userSlice";
 import { addMessage } from "../redux/slices/messageSlice";
 import CircularProgress from '@mui/material/CircularProgress';
-
+import { persistor } from "../redux/store";
 
 function Login() {
   const [showPassword, setShowPassword] = React.useState(false);
@@ -66,7 +66,7 @@ function Login() {
           console.log(json)
           dispatch(setCurrentUser({...json.user, api_token: json.api_token}));
           dispatch(addMessage({title: 'Alerta', body:'Login realizado com sucesso!', severity:'success'}))
-          setTimeout(() => navigate('/'), 2000);
+          setTimeout(() => navigate('/'), 3000);
         } catch (error) {
           setLoading(false);
           setLoginWithGoogle(false);
@@ -121,6 +121,11 @@ function Login() {
   useEffect(()=> {
     console.log("effect", user)
   }, [user])
+
+  useEffect(() => {
+    persistor.persist()
+
+  }, [])
 
 
   return (

@@ -22,10 +22,87 @@ import RecentActionList from "./screens/RecentActionList";
 import RecentActionDetail from "./screens/RecentActionDetail";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MessageQueue from "./components/MessageQueue";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useState, useEffect } from "react";
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
+import Button from '@mui/material/Button';
+import { useNavigate } from "react-router-dom";
+import { setGroups } from './redux/slices/groupSlice';
+import { loadGroups } from './services/groups';
+import { setRegardings } from './redux/slices/regardingSlice';
+import { loadRegardings } from './services/regardings';
+import { loadExpenses } from './services/expenses';
+import { loadNotifications } from './services/notifications';
+import { loadValidations } from './services/validations';
+import { loadUsers } from './services/user';
+import { setExpenses } from './redux/slices/expenseSlice';
+import { setValidations } from './redux/slices/validationSlice';
+import { setNotifications } from './redux/slices/notificationSlice';
+import { setUsers, setCurrentUser } from './redux/slices/userSlice';
+import { loadActions } from './services/actions';
+import { setActions } from './redux/slices/actionSlice';
+import { addMessage } from './redux/slices/messageSlice';
 
 function App() {
   const userState = useSelector((state) => state.user);
+  const [open, setOpen] = useState(false);
+  let currentUser = userState.currentUser
+  let apiToken = null
+  console.log(currentUser)
+  if(Object.keys(currentUser).length > 0){
+    apiToken = currentUser.api_token
+  }
+  const dispatch = useDispatch()
+
+  const loadResources = async () => {
+    console.log('token ', apiToken)
+    if(!apiToken){
+      setOpen(false)
+      return false
+    }
+    loadGroups(apiToken).then((json) => {
+      dispatch(setGroups(json))
+    }).then(async () => {
+      return loadRegardings(apiToken).then((json) => {
+        dispatch(setRegardings(json))
+      })
+    }).then(async () => {
+      return loadExpenses(apiToken).then((json) => {
+        dispatch(setExpenses(json))
+      })
+    }).then(async () => {
+      return loadNotifications(apiToken).then((json) => {
+        dispatch(setNotifications(json))
+      })
+    }).then(async () => {
+      return loadValidations(apiToken).then((json) => {
+        dispatch(setValidations(json))
+      })
+    }).then(async () => {
+      return loadUsers(apiToken).then((json) => {
+        dispatch(setUsers(json))
+        let newCurrentUser = json.filter((user) => user.id ==currentUser.id)[0]
+        dispatch(setCurrentUser({...newCurrentUser, api_token: apiToken}))
+      })
+    }).then(async () => {
+      return loadActions(apiToken).then((json) => {
+        dispatch(setActions(json))
+      })
+    }).then(()=>{
+      setOpen(false)
+    }).catch((e) => {
+      console.log(e)
+      dispatch(addMessage({title: 'Erro', body:"Erro ao carregar os dados. Tente novamente!", severity:'error'}))
+    })
+    
+  }
+
+  useEffect(() => {
+      //setOpen(true)
+      //loadResources()
+      //setTimeout(()=> setOpen(false), 2000)
+}, []);
 
   return (
     <>
@@ -61,6 +138,17 @@ function App() {
         </Routes>
       </BrowserRouter>
       <MessageQueue />
+<Backdrop
+  sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+  open={open}
+  
+>
+<div className="flex flex-col items-center">
+<CircularProgress color="inherit" />
+  <span>Atualizando os dados ...</span>
+  </div>
+  
+</Backdrop>
     </>
   );
 }

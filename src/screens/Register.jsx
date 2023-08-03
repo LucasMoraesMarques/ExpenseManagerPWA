@@ -29,6 +29,8 @@ import { setCurrentUser } from "../redux/slices/userSlice";
 import { addMessage } from "../redux/slices/messageSlice";
 import CircularProgress from '@mui/material/CircularProgress';
 import { validateEmail, validateTextField } from "../services/utils";
+import { persistor } from "../redux/store";
+
 const groups = [
   { label: "Group 1", id: 1 },
   { label: "Group 2", id: 2 },
@@ -140,6 +142,11 @@ function Register() {
         
     )
   }, [firstName, lastName, email, password1, password2]);
+
+  useEffect(() => {
+    persistor.persist()
+
+  }, [])
 
 
   return (

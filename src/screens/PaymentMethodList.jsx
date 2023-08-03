@@ -27,10 +27,11 @@ import dayjs, { Dayjs } from "dayjs";
 import { createPaymentMethod, deletePaymentMethod } from "../services/payments";
 import { useSelector, useDispatch } from "react-redux";
 import AlertToast from "../components/AlertToast";
-import { setWallet } from "../redux/slices/userSlice";
+import { setCurrentUser } from "../redux/slices/userSlice";
 import ConfirmationModal from "../components/ConfirmationModal";
 import { addMessage } from "../redux/slices/messageSlice";
 import { useOutletContext } from "react-router-dom";
+import NoData from "../components/NoData";
 
 const PAYMENT_METHOD_TYPES = [
   { id: "DEBIT", label: "Cartão de Débito" },
@@ -50,7 +51,7 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
   const [inputStates, setInputStates] = useState({
     type: "",
     description: "",
-    wallet: 1,
+    wallet: "",
     limit: "",
     compensation_day: "",
   });
@@ -76,7 +77,7 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
     let paymentMethod = {
       type: inputStates.type.id,
       description: inputStates.description,
-      wallet: inputStates.wallet,
+      wallet: user.wallet.id,
     };
     if (paymentMethod.type == "CREDIT") {
       paymentMethod.compensation_day = inputStates.compensation_day;
@@ -87,18 +88,12 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
     createPaymentMethod(user.api_token, paymentMethod).then(({ flag, data }) => {
       console.log(flag, data);
       if (flag) {
-        let newPaymentMethod = {
-          ...data,
-        };
-        dispatch(
-          setWallet({
-            ...userState.wallet,
-            payment_methods: [
-              ...userState.wallet.payment_methods,
-              newPaymentMethod,
-            ],
-          })
-        );
+      
+        let newPaymentsMethods = [
+          ...user.wallet.payment_methods, data
+        ];
+        let newWallet = {id:user.wallet.id, payment_methods:newPaymentsMethods}
+      dispatch(setCurrentUser({...user, wallet:newWallet}));
 
         dispatch(addMessage({
           severity: "success",
@@ -117,7 +112,7 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
     });
   };
   const handleDeletePaymentMethod = (id) => {
-    let index = userState.wallet.payment_methods.findIndex(
+    let index = user.wallet.payment_methods.findIndex(
       (item) => item.id == id
     );
     if (index != -1) {
@@ -125,14 +120,12 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
         console.log(flag);
         if (flag) {
           let newPaymentsMethods = [
-            ...userState.wallet.payment_methods.filter((item) => item.id != id),
+            ...user.wallet.payment_methods.filter((item) => item.id != id),
           ];
-          dispatch(
-            setWallet({
-              ...userState.wallet,
-              payment_methods: [...newPaymentsMethods],
-            })
-          );
+          let newWallet = {id:user.wallet.id, payment_methods:newPaymentsMethods}
+        dispatch(setCurrentUser({...user, wallet:newWallet}));
+         
+          
           dispatch(addMessage({
             severity: "success",
             title: "Sucesso!",
@@ -254,9 +247,9 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
             </>
           }
         />
-
+  {user.wallet && user.wallet.payment_methods.length > 0 ?
         <List>
-          {userState.wallet && userState.wallet.payment_methods.map((method) => (
+          {user.wallet.payment_methods.map((method) => (
             <PaymentMethodItem
               key={method.id}
               method={method}
@@ -264,6 +257,7 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
             />
           ))}
         </List>
+        : <NoData message="Nenhum método de pagamento encontrado"/>}
       </div>
     </div>
   );

@@ -79,3 +79,20 @@ export const dateInRange = (date, start=new Date(), end=new Date()) =>{
 export const priceInRange = (price, start=0, end=0) =>{
   return (price >= start) && (price <= end)
 }
+
+export const phoneMask = (phone) => {
+  if(phone){
+    return phone.replace(/\D/g, '')
+    .replace(/^(\d)/, '($1')
+    .replace(/^(\(\d{2})(\d)/, '$1) $2')
+    .replace(/(\d{5})(\d{1,4})/, '$1-$2')
+    .replace(/(-\d{4})\d+?$/, '$1');
+  }
+  return phone
+  
+}
+
+export const validatePhone = (phone) => {
+  let phoneRegex = /^\(\d{2}\) \d{5}-\d{4}$/
+  return phoneRegex.test(phone)
+}

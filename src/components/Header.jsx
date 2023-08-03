@@ -24,7 +24,7 @@ function Header() {
   }, [notificationState, validationState]);
   return (
     <AppBar position="sticky">
-      <Toolbar className="flex justify-between mx-2">
+      <Toolbar className="flex justify-between">
         <div className="flex flex-row justify-center items-center">
           <Link to="/conta">
             <IconButton

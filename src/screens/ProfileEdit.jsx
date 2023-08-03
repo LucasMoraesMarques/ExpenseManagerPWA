@@ -24,6 +24,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { editUser } from "../services/user";
 import { setCurrentUser } from "../redux/slices/userSlice";
 import { addMessage } from "../redux/slices/messageSlice";
+import { phoneMask, validateEmail, validatePhone, validateTextField } from "../services/utils";
 
 function ProfileEdit() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -39,6 +40,13 @@ function ProfileEdit() {
   });
 
   const dispatch = useDispatch();
+  const [fieldsValid, setFieldsValid] = useState(false);
+  const [fieldsValidation, setFieldsValidation] = useState({
+    first_name: false,
+    last_name: false,
+    email: false,
+    phone: false,
+  })
 
 
   const handleChangeFirstName = (e) => {
@@ -64,6 +72,7 @@ function ProfileEdit() {
       if (flag) {
         let newUser = {
           ...data,
+          api_token:userState.currentUser.api_token
         };
         dispatch(
           setCurrentUser(newUser)
@@ -89,6 +98,21 @@ function ProfileEdit() {
   useEffect(() => {
     let user = userState.currentUser
     console.log(user)
+    let newFieldsValidation = {
+      first_name: validateTextField(inputStates.first_name),
+      last_name: validateTextField(inputStates.last_name),
+      email: validateEmail(inputStates.email),
+      phone: validatePhone(phoneMask(inputStates.phone)),
+    }
+    setFieldsValidation(newFieldsValidation)
+    setFieldsValid(
+      Object.values(newFieldsValidation).every((item) => item)
+    );
+  }, [inputStates])
+
+  useEffect(() => {
+    let user = userState.currentUser
+    console.log(user)
     setInputStates({
       first_name: user.first_name,
       last_name: user.last_name,
@@ -96,6 +120,7 @@ function ProfileEdit() {
       phone: user.phone
     })
   }, [])
+
   return (
     <div>
       <AppBar position="sticky">
@@ -114,6 +139,7 @@ function ProfileEdit() {
                 color="inherit"
                 variant="outlined"
                 onClick={handleSaveUser}
+                disabled={!fieldsValid}
               >
                 Salvar
               </Button>
@@ -128,6 +154,8 @@ function ProfileEdit() {
           label="Nome"
           value={inputStates.first_name}
           onChange={handleChangeFirstName}
+          error={fieldsValidation.first_name ? false : true}
+          helperText={fieldsValidation.first_name ? "" : "Não pode ficar em branco"}
           variant="outlined"
           size="medium"
           fullWidth
@@ -138,6 +166,8 @@ function ProfileEdit() {
           label="Sobrenome"
           value={inputStates.last_name}
           onChange={handleChangeLastName}
+          error={fieldsValidation.last_name ? false : true}
+          helperText={fieldsValidation.last_name ? "" : "Não pode ficar em branco"}
           variant="outlined"
           size="medium"
           fullWidth
@@ -145,22 +175,28 @@ function ProfileEdit() {
         />
         <TextField
           id="outlined-basic"
-          label="Email"
+          label={userState.currentUser.google_id ? 'Email (Registrado com o email do google)': 'Email'}
           variant="outlined"
           value={inputStates.email}
           onChange={handleChangeEmail}
+          error={fieldsValidation.email ? false : true}
+          helperText={fieldsValidation.email ? "" : "Email inválido"}
           type="email"
           rows={3}
           size="medium"
           fullWidth
+          disabled={userState.currentUser.google_id}
           sx={{ margin: "10px 0px" }}
         />
+        
         <TextField
           id="outlined-basic"
           label="Telefone"
           variant="outlined"
-          value={inputStates.phone}
+          value={phoneMask(inputStates.phone)}
           onChange={handleChangePhone}
+          error={fieldsValidation.phone ? false : true}
+          helperText={fieldsValidation.phone ? "" : "Telefone inválido"}
           rows={3}
           size="medium"
           fullWidth
