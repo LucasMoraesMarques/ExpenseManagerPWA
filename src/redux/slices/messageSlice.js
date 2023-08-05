@@ -12,6 +12,7 @@ export const messageSlice = createSlice({
       state.messages = action.payload
     },
     addMessage: (state, action) => {
+      console.log('here2', action)
       state.messages = [...state.messages, action.payload]
     }
   },

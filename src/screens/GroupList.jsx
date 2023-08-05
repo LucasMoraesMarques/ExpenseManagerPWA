@@ -37,20 +37,40 @@ import { createGroup, joinGroup, loadGroups } from "../services/groups";
 import { setGroups } from "../redux/slices/groupSlice";
 import { addMessage } from "../redux/slices/messageSlice";
 import { useOutletContext } from "react-router-dom";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import InvitationItem from "../components/InvitationItem";
 
+function TabPanel(props) {
+  const { children, value, index, padding, ...other } = props;
 
-const groups = [
-  { label: "Group 1", id: 1 },
-  { label: "Group 2", id: 2 },]
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+      className="bg-white text-black min-h-[calc(100vh-105px)]"
+    >
+      {value === index && <Box sx={{ p: padding }}>{children}</Box>}
+    </div>
+  );
+}
 function GroupList() {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [value, setValue] = useState(0);
   const navigate = useNavigate();
   const groupState = useSelector((state) => state.group);
   const [filteredGroups, setFilteredGroups] = useState([]);
   const [search, setSearch] = useState("");
-  const [hashId, setHashId] = useState("")
+  const [hashId, setHashId] = useState("");
   const dispatch = useDispatch();
-  const {user} = useOutletContext()
+  const { user } = useOutletContext();
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
 
 
   const handleMenu = (event) => {
@@ -62,23 +82,29 @@ function GroupList() {
   };
 
   const handleJoinGroup = async () => {
-    joinGroup(user.api_token, hashId).then(({flag, message}) => {
+    joinGroup(user.api_token, hashId).then(({ flag, message }) => {
       if (flag) {
-        loadGroups(user.api_token).then((newGroups)=>dispatch(setGroups(newGroups)))
-        dispatch(addMessage({
-          severity: "success",
-          title: "Sucesso!",
-          body: message,
-        }))
+        loadGroups(user.api_token).then((newGroups) =>
+          dispatch(setGroups(newGroups))
+        );
+        dispatch(
+          addMessage({
+            severity: "success",
+            title: "Sucesso!",
+            body: message,
+          })
+        );
       } else {
-        dispatch(addMessage({
-          severity: "error",
-          title: "Erro!",
-          body: message,
-        }))
+        dispatch(
+          addMessage({
+            severity: "error",
+            title: "Erro!",
+            body: message,
+          })
+        );
       }
-    })
-  }
+    });
+  };
 
   const handleChangeSearch = (e) => {
     let value = e.target.value;
@@ -88,7 +114,9 @@ function GroupList() {
     let newGroups = groupState.userGroups.filter((item) => {
       for (let word of words) {
         word = word.trim();
-        let condition = item.name.toUpperCase().includes(word) || item.description.toUpperCase().includes(word);
+        let condition =
+          item.name.toUpperCase().includes(word) ||
+          item.description.toUpperCase().includes(word);
         if (condition) {
           return true;
         }
@@ -100,11 +128,13 @@ function GroupList() {
   useEffect(() => {
     setFilteredGroups([...groupState.userGroups]);
   }, [groupState.userGroups]);
+
+
   return (
     <div className="">
       <AppBar position="sticky">
         <Toolbar>
-          <BackButton/>
+          <BackButton />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Grupos
           </Typography>
@@ -142,70 +172,115 @@ function GroupList() {
           )}
         </Toolbar>
       </AppBar>
-      <div className=" w-[95%] mx-auto h-[calc(100vh-150px)]">
-        <div className="flex flex-row justify-between">
-          <TextField
-            id="outlined-basic"
-            label="Pesquisa"
-            placeholder="Filtre os grupos por nome"
-            variant="outlined"
-            value={search}
-            onChange={handleChangeSearch}
-            size="medium"
-            fullWidth
-            sx={{ margin: "10px 0px" }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </div>
-        <span className="font-bold text-lg">
-        {search ? `Resultados de "${search}"` : ""}
-      </span>
-      <div className="flex flew-row justify-between items-center">
-        <span className="text-sm">
-          Mostrando {filteredGroups.length} grupos
-        </span>
-      </div>
+      <div className="">
+        <AppBar position="static">
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            className="bg-[#e2e2e2] text-[#000]"
+            textColor="inherit"
+            indicatorColor="primary"
+            variant="fullWidth"
+            aria-label="full width tabs example"
+          >
+            <Tab label="Seus grupos" />
+            <Tab label="Convites" />
+          </Tabs>
+          <TabPanel value={value} index={0} className="text-black" padding={1}>
+            <div className="overflow-y-scroll mx-auto max-h-[calc(100vh-220px)]">
+              <div className="flex flex-row justify-between">
+                <TextField
+                  id="outlined-basic"
+                  label="Pesquisa"
+                  placeholder="Filtre os grupos por nome"
+                  variant="outlined"
+                  value={search}
+                  onChange={handleChangeSearch}
+                  size="medium"
+                  fullWidth
+                  sx={{ margin: "10px 0px" }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <SearchIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </div>
+              <span className="font-bold text-lg">
+                {search ? `Resultados de "${search}"` : ""}
+              </span>
+              <div className="flex flew-row justify-between items-center">
+                <span className="text-sm">
+                  Mostrando {filteredGroups.length} grupos
+                </span>
+              </div>
 
-      <List sx={{maxHeight: '90%', overflow: 'auto'}}>
-        {filteredGroups.length > 0 ? (
-          filteredGroups.map((item) => {
-            return <GroupItem variant="full" key={item.id} group={item} />;
-          })
-        ) : (
-          <NoData message="Nenhum grupo encontrado" />
+              <List sx={{ maxHeight: "90%", overflow: "auto" }}>
+                {filteredGroups.length > 0 ? (
+                  filteredGroups.map((item) => {
+                    return (
+                      <GroupItem variant="full" key={item.id} group={item} />
+                    );
+                  })
+                ) : (
+                  <NoData message="Nenhum grupo encontrado" />
+                )}
+              </List>
+            </div>
+            <AppBar
+              position="fixed"
+              color="transparent"
+              sx={{ top: "auto", bottom: 0 }}
+            >
+              <Toolbar>
+                <IconButton color="inherit" aria-label="open drawer">
+                  <TagIcon />
+                </IconButton>
+                <TextField
+                  id="outlined-basic"
+                  label="Entre em um grupo pelo código"
+                  size="medium"
+                  fullWidth
+                  sx={{ margin: "10px 0px" }}
+                  placeholder="Digite o código do grupo"
+                  value={hashId}
+                  onChange={(e) => setHashId(e.target.value)}
+                />
+                <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
+                  disabled={hashId && hashId.trim().length > 0 ? false : true}
+                >
+                  <LoginOutlinedIcon onClick={handleJoinGroup} />
+                </IconButton>
+              </Toolbar>
+            </AppBar>
+          </TabPanel>
+          <TabPanel value={value} index={1} padding={1}>
+          <div className="overflow-y-scroll mx-auto max-h-[calc(100vh-220px)]">
+          {user.invitations_received.length > 0 ?
+          (<List>
+           {user.invitations_received.map((item) => {
+            return (
+              <InvitationItem
+                key={item.id}
+                invitation={item}
+                edit={true}
+              />
+            );
+          })}
+        </List>)
+        : (
+          <NoData message="Nenhum convite encontrado" />
         )}
-      </List>
+
+            </div>
+           
+            </TabPanel>
+        </AppBar>
       </div>
-      <AppBar
-        position="fixed"
-        color="transparent"
-        sx={{ top: "auto", bottom: 0 }}
-      >
-        <Toolbar>
-          <IconButton color="inherit" aria-label="open drawer">
-            <TagIcon />
-          </IconButton>
-          <TextField
-            id="outlined-basic"
-            label="Entre em um grupo pelo código"
-            size="medium"
-            fullWidth
-            sx={{ margin: "10px 0px" }}
-            placeholder="Digite o código do grupo"
-            value={hashId}
-            onChange={(e) => setHashId(e.target.value)}
-          />
-          <IconButton color="inherit" aria-label="open drawer" disabled={hashId && hashId.trim().length > 0 ? false : true}>
-            <LoginOutlinedIcon onClick={handleJoinGroup}/>
-          </IconButton>
-        </Toolbar>
-      </AppBar>
     </div>
   );
 }

@@ -209,13 +209,16 @@ function ExpenseCreate() {
     let newPayment = {
       id: lastId,
       ...payment,
-      payment_status: "VALIDATION",
+      payment_status: "AWAITING",
       payment_method: paymentMethodOptions.find(
         (item) => item.id == payment.payment_method.id
       ),
       payer: payer,
       payer_name: payer.full_name,
     };
+    if(['DEBIT', 'CASH'].includes(newPayment.payment_method.type)){
+      newPayment.payment_status = 'PAID'
+    } 
     console.log("new payment", newPayment);
     setInputStates({
       ...inputStates,

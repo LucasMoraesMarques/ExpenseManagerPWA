@@ -71,7 +71,7 @@ function RecentActionDetail() {
               {action.changes_json &&
                 Object.keys(action.changes_json).map((key) => {
                   return (<>
-                  <dt className="font-bold capitalize">{key}</dt>
+                  <dt className="font-bold capitalize">{action.changes_json[key] ? key : ''}</dt>
                     {action.changes_json[key].split("\n").map((change) => {
                       return change ? <dd className="ml-[20px]">&#8594;{change}</dd> : ""
                     })}

@@ -33,9 +33,14 @@ import { loadActions } from '../services/actions';
 import { setActions } from '../redux/slices/actionSlice';
 import { addMessage } from "../redux/slices/messageSlice";
 import { useOutletContext } from "react-router-dom";
-
+import DeleteIcon from "@mui/icons-material/Delete";
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import InvitationMember from "../components/InvitationMember";
+import ConfirmationModal from "../components/ConfirmationModal";
+import InvitationItem from "../components/InvitationItem";
+import NoData from "../components/NoData";
+import Membership from "../components/Membership";
 function GroupEdit() {
-  const [anchorEl, setAnchorEl] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
   let { id = null } = useParams();
@@ -45,6 +50,8 @@ function GroupEdit() {
     name: "",
     description: "",
     members: [],
+    memberships: [],
+    invitations: []
   });
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -52,14 +59,10 @@ function GroupEdit() {
   const [fieldsValid, setFieldsValid] = useState(false)
   const dispatch = useDispatch();
   const {user} = useOutletContext()
+  const [deleteMode, setDeleteMode] = useState(false);
+  const [deleteIds, setDeleteIds] = useState([]);
+  const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
 
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   const handleChangeName = (e) => {
     setInputStates({ ...inputStates, name: e.target.value });
@@ -68,22 +71,51 @@ function GroupEdit() {
   const handleChangeDescription = (e) => {
     setInputStates({ ...inputStates, description: e.target.value });
   };
-
-  const handleAddMember = (user) => {
-    console.log("members", user);
-    let members = [...inputStates.members];
-    let index = members.findIndex((item) => item.id == user.id);
-    if (index == -1) {
-      members.push(user);
+  
+  const handleChangeMembership = (newMembership) => {
+    let index = inputStates.memberships.findIndex((member) => member.id == newMembership.id)
+    let newMemberships = [...inputStates.memberships]
+    if(index != -1){
+      newMemberships[index] = newMembership
+      setInputStates({...inputStates, memberships:newMemberships})
     }
-    setFilteredUsers(filteredUsers.filter((item) => item.id != user.id));
+  }
 
-    setInputStates({ ...inputStates, members: [...members] });
+  const handleInviteUser = (invitedUser) => {
+    console.log("members", invitedUser);
+    let members = [...inputStates.members];
+    let index = members.findIndex((item) => item.id == invitedUser.id);
+    let invitation = {}
+    if (index == -1) {
+      let lastInvitation = inputStates.invitations.at(-1)
+      let lastId = 0
+      if(inputStates.invitations.length > 0){
+        lastId = lastInvitation.id
+      }
+      let sendBy = members.filter((member) => member.id == user.id)[0]
+      let now = new Date()
+      invitation = {
+        id: lastId + 1,
+        sent_by: {id: sendBy.id, full_name: sendBy.full_name},
+        invited: {id: invitedUser.id, full_name: invitedUser.full_name},
+        created_at: `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth()+1).toString().padStart(2, '0')}/${now.getFullYear()}`,
+        status: "Pendente",
+        create: true,
+        expense_group: group.id,
+        group_name: group.name
+      }
+      setFilteredUsers(filteredUsers.filter((item) => item.id != invitedUser.id));
+
+    setInputStates({ ...inputStates, invitations: [...inputStates.invitations, invitation]});
+    }
+    
   };
-  const handleRemoveMember = (user) => {
-    console.log("members", user);
-    let members = [...inputStates.members.filter((item) => item.id != user.id)];
-    setInputStates({ ...inputStates, members: [...members] });
+  const handleRemoveMember = (membershipToRemove) => {
+    console.log("members", membershipToRemove);
+    let members = [...inputStates.members.filter((item) => item.id != membershipToRemove.user.id)];
+    let memberships = [...inputStates.memberships.filter((item) => item.id != membershipToRemove.id)];
+    console.log(members, memberships)
+    setInputStates({ ...inputStates, members: [...members], memberships: [...memberships] });
   };
 
   const handleSaveGroup = () => {
@@ -150,7 +182,9 @@ function GroupEdit() {
       let words = upperValue.split(" ");
       let newUsers = users.filter((item) => {
         let condition1 =
-          inputStates.members.filter((user) => user.id == item.id).length == 0;
+          inputStates.members.filter((user) => user.id == item.id).length == 0 &&
+          inputStates.invitations.filter((invitation) => invitation.invited.id == item.id).length == 0;
+
         for (let word of words) {
           word = word.trim();
           let condition2 =
@@ -166,6 +200,19 @@ function GroupEdit() {
     }
   };
 
+  const handleCheckbox = (id) => {
+    let index = deleteIds.indexOf(id)
+    console.log(id, index, deleteIds)
+    if(index != -1){
+      setDeleteIds(deleteIds.filter((item) => item != id))
+    }
+    else{
+      let newIds = [...deleteIds]
+      newIds.push(id)
+      setDeleteIds([...newIds])
+    }
+  }
+
   useEffect(() => {
     let index = groupState.userGroups.findIndex((item) => item.id == id);
     console.log(id, index);
@@ -176,6 +223,8 @@ function GroupEdit() {
         name: data.name,
         description: data.description,
         members: data.members,
+        memberships: data.memberships,
+        invitations: data.invitations
       });
     }
     loadUsers(user.api_token).then((json) => {
@@ -190,6 +239,7 @@ function GroupEdit() {
     } else{
       setFieldsValid(true)
     }
+    console.log(inputStates)
   }, [inputStates]);
 
   return (
@@ -218,7 +268,7 @@ function GroupEdit() {
           )}
         </Toolbar>
       </AppBar>
-      <div className="w-[90vw] mx-auto">
+      <div className="w-[90vw] mx-auto overflow-y-scroll">
         <TextField
           id="outlined-basic"
           label="Nome"
@@ -248,11 +298,24 @@ function GroupEdit() {
 
         <div className="flex flex-row justify-between w-full items-center">
           <span className="font-bold text-xl">Membros</span>
-          <span className="rounded-[50%] bg-slate-300 align-middle">
+          
+          {deleteMode ? (
+          <div className="flex">
+            <Button onClick={() => {setDeleteMode(false);setDeleteIds([])}} size="small">Cancelar</Button>
+          </div>
+        ) : (
+        <div className="flex">
             <IconButton onClick={() => setOpenModal(true)}>
-              <AddIcon />
-            </IconButton>
-          </span>
+              <PersonAddIcon />
+          </IconButton>
+          {"members" in group && group.members.length > 0  ? <IconButton onClick={() => setDeleteMode(true)}>
+            <DeleteIcon sx={{ color: "red" }} />
+          </IconButton> : <></>}
+          
+        </div>
+          
+        )}
+          
         </div>
         <CustomModal
           open={openModal}
@@ -265,12 +328,12 @@ function GroupEdit() {
                 component="h2"
                 sx={{ fontWeight: "bold" }}
               >
-                Adicionar Membro(s)
+                Convidar usuários
               </Typography>
               <div className="w-[90%] mx-auto">
                 <TextField
                   id="outlined-basic"
-                  label="Valor"
+                  label="Nome ou email"
                   variant="outlined"
                   size="medium"
                   value={memberSearch}
@@ -291,12 +354,10 @@ function GroupEdit() {
                 <List>
                   {filteredUsers.map((item) => {
                     return (
-                      <Member
-                        variant="full"
+                      <InvitationMember
                         key={item.id}
                         member={item}
-                        add={true}
-                        onAdd={() => handleAddMember(item)}
+                        onAdd={() => handleInviteUser(item)}
                       />
                     );
                   })}
@@ -306,23 +367,50 @@ function GroupEdit() {
                 <Button variant="outlined" onClick={() => setOpenModal(false)}>
                   Fechar
                 </Button>
-              </Box>
-            </>
-          }
-        />
+              </Box> </>
+              }/>
+        {"memberships" in inputStates && inputStates.memberships.length > 0 ?
         <List>
-          {inputStates.members.map((item) => {
+          {inputStates.memberships.map((item) => {
             return (
-              <Member
+              <Membership
                 variant="full"
                 key={item.id}
-                member={item}
+                membership={item}
                 edit={true}
-                onEdit={() => handleRemoveMember(item)}
+                deleteMode={deleteMode}
+                isChecked={deleteIds.includes(item.id)}
+                onEdit={handleChangeMembership}
+                onDelete={() => handleRemoveMember(item)}
+                onCheck={() => handleCheckbox(item.id)} 
               />
             );
           })}
         </List>
+        : (
+          <NoData message="Nenhum membro encontrado" />
+        )}
+        {"invitations" in inputStates && inputStates.invitations.length > 0 &&
+        <>
+        <div className="flex flex-row justify-between w-full items-center">
+          <span className="font-bold text-xl">Convites</span>
+
+          
+        </div>
+        <List>
+           {inputStates.invitations.map((item) => {
+            return (
+              <InvitationItem
+                key={item.id}
+                invitation={item}
+                edit={false}
+              />
+            );
+          })}
+        </List>
+        </>
+        
+        }
       </div>
     </div>
   );

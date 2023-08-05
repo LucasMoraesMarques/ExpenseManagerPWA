@@ -30,6 +30,7 @@ import { loadActions } from '../services/actions';
 import { setActions } from '../redux/slices/actionSlice';
 import { addMessage } from "../redux/slices/messageSlice";
 import { useOutletContext } from "react-router-dom";
+import InvitationItem from "../components/InvitationItem";
 
 
 function GroupDetail() {
@@ -147,7 +148,7 @@ function GroupDetail() {
       </AppBar>
 
       {Object.keys(group).length > 0 ? (
-        <div className="w-[95%] mx-auto mt-3">
+        <div className="w-[95%] mx-auto mt-3 overflow-y-scroll max-h-[calc(100vh-150px)]">
           <h5 className="font-bold">Nome</h5>
           <span className="ml-[10px] text-sm">{group.name}</span>
           <h5 className="font-bold">Descrição</h5>
@@ -168,9 +169,30 @@ function GroupDetail() {
           
             {"members" in group && group.members.length > 0 ?
             (<List>
-              {group.members.map((item) => <Member variant="full" key={item.id} member={item} />)}
+              {group.memberships.map((item) => <Member variant="full" key={item.id} member={{...item, ...item.user}} />)}
               </List>) : <NoData message="Esse grupo não tem membros"/>
               }
+           {"invitations" in group && group.invitations.length > 0 &&
+        <>
+        <div className="flex flex-row justify-between w-full items-center">
+          <span className="font-bold">Convites</span>
+
+          
+        </div>
+        <List>
+           {group.invitations.map((item) => {
+            return (
+              <InvitationItem
+                key={item.id}
+                invitation={item}
+                edit={false}
+              />
+            );
+          })}
+        </List>
+        </>
+        
+        }
           
         </div>
       ) : (

@@ -19,7 +19,7 @@ function AlertToast({ severity, title, message, open, onClose }) {
   useEffect(() => {
     const timer = setInterval(() => {
       setProgress((oldProgress) => {
-        console.log(oldProgress)
+        //console.log(oldProgress)
         if (oldProgress >= 100) {
           clearInterval(timer);
         }

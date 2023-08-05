@@ -63,26 +63,28 @@ function Splash() {
         dispatch(setActions(json))
       })
     }).then(()=>{
-      redirect()
+      console.log("here1")
+      navigate("/inicio", {fromSplash: true})
+      setTimeout(() => dispatch(addMessage({title: 'Success', body:`Bem vindo(a), ${userState.currentUser.full_name}!`, severity:'success'}))
+      , 2000);
     }).catch((e) => {
       dispatch(addMessage({title: 'Erro', body:"Erro ao carregar os dados. Tente novamente!", severity:'error'}))
-      setTimeout(() => navigate("/boas-vindas"), 2000);
+      setTimeout(() => navigate("/boas-vindas"), 1000);
 
     })
     
   }
 
 
-  const redirect = () => {
-    //setLoadingText('Tudo certo!')
-    setTimeout(() => {
-      navigate("/inicio")
-      dispatch(addMessage({title: 'Success', body:`Bem vindo(a), ${userState.currentUser.full_name}!`, severity:'success'}))
-    }, 3000)
-  }
-
   useEffect(()=> {
-    loadResources()
+    let condition = true
+    if(condition){
+      loadResources()
+    }
+    return () => {
+      condition = false
+    }
+    
   }, [])
   return (
     <div className='flex flex-col justify-center items-center h-screen bg-cyan-700'>

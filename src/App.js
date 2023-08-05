@@ -99,8 +99,8 @@ function App() {
   }
 
   useEffect(() => {
-      //setOpen(true)
-      //loadResources()
+      setOpen(true)
+      loadResources()
       //setTimeout(()=> setOpen(false), 2000)
 }, []);
 
