@@ -31,6 +31,7 @@ import { setActions } from '../redux/slices/actionSlice';
 import { addMessage } from "../redux/slices/messageSlice";
 import { useOutletContext } from "react-router-dom";
 import InvitationItem from "../components/InvitationItem";
+import { setReload } from "../redux/slices/configSlice";
 
 
 function GroupDetail() {
@@ -68,12 +69,13 @@ function GroupDetail() {
       if(flag){
         let newGroups = groupState.userGroups.filter((item) => item.id != group.id)
         dispatch(setGroups([...newGroups]))
-        loadRegardings(user.api_token).then((data) => dispatch(setRegardings([...data])))
         dispatch(addMessage({
           severity: "success",
           title: "Sucesso!",
           body: "Grupo removido com sucesso!",
         }))
+        navigate('/inicio')
+        dispatch(setReload(true))
       }
       else{
         dispatch(addMessage({
@@ -83,12 +85,6 @@ function GroupDetail() {
         }))
       }
       setOpenConfirmationModal(false)
-      loadActions(user.api_token).then((json) => {
-        dispatch(setActions(json))
-      })
-      if(flag){
-        setTimeout(() => navigate('/inicio'), 1000)
-      }
 
     })
   }

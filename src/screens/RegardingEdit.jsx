@@ -36,6 +36,7 @@ import { setActions } from "../redux/slices/actionSlice";
 import { addMessage } from "../redux/slices/messageSlice";
 import { validateTextField } from "../services/utils";
 import { useOutletContext } from "react-router-dom";
+import { setReload } from "../redux/slices/configSlice";
 
 const REGARDING_STATES = [
   { label: "Em andamento", id: 0 },
@@ -132,10 +133,6 @@ function RegardingEdit() {
           let index = regardingState.userRegardings.findIndex(
             (item) => item.id == id
           );
-          let newRegardings = [...regardingState.userRegardings];
-
-          newRegardings[index] = { ...newRegardings[index], ...newRegarding };
-          dispatch(setRegardings(newRegardings));
           dispatch(
             addMessage({
               severity: "success",
@@ -143,6 +140,8 @@ function RegardingEdit() {
               body: "Referência editada com sucesso!",
             })
           );
+          navigate(`/inicio`)
+          dispatch(setReload(true))
         } else {
           dispatch(
             addMessage({
@@ -157,9 +156,6 @@ function RegardingEdit() {
       createRegarding(user.api_token, data).then(({ flag, data }) => {
         if (flag) {
           setRegarding({ ...inputStates, is_closed: false });
-          loadRegardings(user.api_token).then((newRegardings) =>
-            dispatch(setRegardings(newRegardings))
-          );
           dispatch(
             addMessage({
               severity: "success",
@@ -167,6 +163,8 @@ function RegardingEdit() {
               body: "Referência adicionada com sucesso!",
             })
           );
+          navigate('/inicio')
+          dispatch(setReload(true))
         } else {
           dispatch(
             addMessage({
@@ -178,11 +176,6 @@ function RegardingEdit() {
         }
       });
     }
-    loadActions(user.api_token).then((json) => {
-      dispatch(setActions(json));
-      setSaving(false);
-      navigate("/inicio");
-    });
   };
 
   useEffect(() => {

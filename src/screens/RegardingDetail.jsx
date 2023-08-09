@@ -38,6 +38,7 @@ import DebtItem from "../components/DebtItem";
 import { addMessage } from "../redux/slices/messageSlice";
 import { useOutletContext } from "react-router-dom";
 import NoData from "../components/NoData";
+import { setReload } from "../redux/slices/configSlice";
 
 
 function TabPanel(props) {
@@ -85,12 +86,13 @@ function RegardingDetail() {
   const handleRemove = async () => {
     deleteRegarding(user.api_token, regarding.id).then((flag) => {
       if(flag){
-        loadRegardings(user.api_token).then((data) => dispatch(setRegardings([...data])))
         dispatch(addMessage({
           severity: "success",
           title: "Sucesso!",
           body: "Referência removida com sucesso!",
         }))
+        navigate('/inicio')
+        dispatch(setReload(true))
       }
       else{
         dispatch(addMessage({
@@ -100,12 +102,6 @@ function RegardingDetail() {
         }))
       }
       setOpenConfirmationModal(false)
-      loadActions(user.api_token).then((json) => {
-        dispatch(setActions(json))
-      })
-      if(flag){
-        setTimeout(() => navigate('/inicio'), 1000)
-      }
     })
   }
 
@@ -183,7 +179,7 @@ function RegardingDetail() {
             <h5 className="font-bold mt-2">Intervalo de duração</h5>
             <span className="ml-[10px] text-sm">
               {" "}
-              {regarding.start_date} - {regarding.end_date}
+              {regarding.start_date} a {regarding.end_date}
             </span>
             <h5 className="font-bold mt-2">Status</h5>
             <span className="ml-[10px] text-sm">

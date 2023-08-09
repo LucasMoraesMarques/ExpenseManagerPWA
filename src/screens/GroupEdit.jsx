@@ -40,6 +40,7 @@ import ConfirmationModal from "../components/ConfirmationModal";
 import InvitationItem from "../components/InvitationItem";
 import NoData from "../components/NoData";
 import Membership from "../components/Membership";
+import { setReload } from "../redux/slices/configSlice";
 function GroupEdit() {
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
@@ -92,7 +93,7 @@ function GroupEdit() {
       if(inputStates.invitations.length > 0){
         lastId = lastInvitation.id
       }
-      let sendBy = members.filter((member) => member.id == user.id)[0]
+      let sendBy = user
       let now = new Date()
       invitation = {
         id: lastId + 1,
@@ -139,6 +140,8 @@ function GroupEdit() {
             title: "Sucesso!",
             body: "Grupo editado com sucesso!",
           }))
+          navigate(`/inicio`)
+          dispatch(setReload(true))
         } else {
           dispatch(addMessage({
             severity: "error",
@@ -148,16 +151,16 @@ function GroupEdit() {
         }
       });
     } else {
-      createGroup("", data).then(({flag, data}) =>{
+      createGroup(user.api_token, data).then(({flag, data}) =>{
         if (flag) {
           setGroup({ ...data });
-          loadGroups(user.api_token).then((newGroups)=>dispatch(setGroups(newGroups)))
-          ;
           dispatch(addMessage({
             severity: "success",
             title: "Sucesso!",
             body: "Grupo adicionado com sucesso!",
           }))
+          navigate(`/inicio`)
+          dispatch(setReload(true))
         } else {
           dispatch(addMessage({
             severity: "error",
@@ -167,9 +170,6 @@ function GroupEdit() {
         }
       });
     }
-    loadActions(user.api_token).then((json) => {
-      dispatch(setActions(json))
-    })
   };
 
   const handleChangeMemberSearch = (e) => {
@@ -226,6 +226,21 @@ function GroupEdit() {
         memberships: data.memberships,
         invitations: data.invitations
       });
+    } else{
+      let currentUserMembership = {
+        "id": 1,
+        "user": {
+            "id": 1,
+            "first_name": "Lucas",
+            "last_name": "Moraes",
+            "full_name": "Lucas Moraes"
+        },
+        "level": "Leitor",
+    }
+    setInputStates({ ...inputStates,
+      members: [currentUserMembership.user],
+      memberships: [currentUserMembership],
+    })
     }
     loadUsers(user.api_token).then((json) => {
       setUsers([...json]);
@@ -369,6 +384,9 @@ function GroupEdit() {
                 </Button>
               </Box> </>
               }/>
+              {!id ?  <span className="text-[red] text-xs">
+                  Você será adicionado como Administrador do grupo
+                </span>: ""}
         {"memberships" in inputStates && inputStates.memberships.length > 0 ?
         <List>
           {inputStates.memberships.map((item) => {
@@ -382,7 +400,8 @@ function GroupEdit() {
                 isChecked={deleteIds.includes(item.id)}
                 onEdit={handleChangeMembership}
                 onDelete={() => handleRemoveMember(item)}
-                onCheck={() => handleCheckbox(item.id)} 
+                onCheck={() => handleCheckbox(item.id)}
+                groupCreator={!id ? true : false}
               />
             );
           })}

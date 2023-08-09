@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -52,6 +52,7 @@ function Membership({
   onEdit = () => {},
   onDelete = () => {},
   onCheck = () => {},
+  groupCreator = false
 }) {
   const [openModal, setOpenModal] = useState(false);
   const [inputStates, setInputStates] = useState({
@@ -72,6 +73,12 @@ function Membership({
     setOpenModal(false)
     onDelete()
   }
+
+  useEffect(() => {
+    if(groupCreator){
+      setInputStates({level: { id: 1, name: "Administrador" }})
+    }
+  }, [])
   console.log(membership);
   if (membership) {
     let member = membership.user
@@ -107,6 +114,7 @@ function Membership({
                   variant="outlined"
                 />
               )}
+              disabled={groupCreator}
             />
           ) : (
             <Tooltip title={membershipLevels[membership.level].tooltip}>

@@ -40,6 +40,7 @@ import { useOutletContext } from "react-router-dom";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import InvitationItem from "../components/InvitationItem";
+import { setReload } from "../redux/slices/configSlice";
 
 function TabPanel(props) {
   const { children, value, index, padding, ...other } = props;
@@ -84,9 +85,6 @@ function GroupList() {
   const handleJoinGroup = async () => {
     joinGroup(user.api_token, hashId).then(({ flag, message }) => {
       if (flag) {
-        loadGroups(user.api_token).then((newGroups) =>
-          dispatch(setGroups(newGroups))
-        );
         dispatch(
           addMessage({
             severity: "success",
@@ -94,6 +92,7 @@ function GroupList() {
             body: message,
           })
         );
+        dispatch(setReload(true))
       } else {
         dispatch(
           addMessage({

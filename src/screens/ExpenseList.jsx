@@ -44,6 +44,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { dateInRange, moneyMask, priceInRange } from "../services/utils";
 import { Badge, Checkbox, FormControlLabel } from "@mui/material";
 import Pagination from '@mui/material/Pagination';
+import { setReload } from "../redux/slices/configSlice";
 
 const groups = [
   { label: "Group 1", id: 1 },
@@ -63,6 +64,7 @@ const allValidationStatus = [
 ];
 
 function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon=true}) {
+  const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
   const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
   const dispatch = useDispatch();
@@ -456,13 +458,12 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
         setDeleteIds([])
         setEdit(false)
         dispatch(setExpenses([...newExpenses]))
-        loadRegardings(user.api_token).then((data) => dispatch(setRegardings([...data])))
         dispatch(addMessage({
           severity: "success",
           title: "Sucesso!",
           body: "Despesas removidas com sucesso!",
         }))
-
+        dispatch(setReload(true))
       }
       else{
         dispatch(addMessage({
@@ -472,9 +473,6 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
         }))
       }
       setOpenConfirmationModal(false)
-      loadActions(user.api_token).then((json) => {
-        dispatch(setActions(json))
-      })
     })
   }
 

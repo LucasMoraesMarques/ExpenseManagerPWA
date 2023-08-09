@@ -38,6 +38,7 @@ import { addMessage } from "../redux/slices/messageSlice";
 import { loadValidations } from '../services/validations';
 import { setValidations } from '../redux/slices/validationSlice';
 import { useOutletContext } from "react-router-dom";
+import { setReload } from "../redux/slices/configSlice";
 
 
 function TabPanel(props) {
@@ -304,15 +305,6 @@ function ExpenseCreate() {
     createExpense(user.api_token, data).then(({ flag, data }) => {
       if (flag) {
         setExpense({ ...data, ...inputStates });
-        loadRegardings(user.api_token).then((newRegardings) =>
-          dispatch(setRegardings(newRegardings))
-        );
-        loadExpenses(user.api_token).then((newExpenses) =>
-          dispatch(setExpenses(newExpenses))
-        );
-        loadValidations(user.api_token).then((json) => {
-          dispatch(setValidations(json))
-        })
         dispatch(
           addMessage({
             severity: "success",
@@ -321,6 +313,7 @@ function ExpenseCreate() {
           })
         );
         navigate("/inicio");
+        dispatch(setReload(true))
       } else {
         dispatch(
           addMessage({
@@ -330,9 +323,6 @@ function ExpenseCreate() {
           })
         );
       }
-      loadActions(user.api_token).then((json) => {
-        dispatch(setActions(json));
-      });
       setSaving(false);
     });
   };

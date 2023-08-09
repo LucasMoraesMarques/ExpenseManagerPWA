@@ -43,9 +43,11 @@ import { setUsers, setCurrentUser } from './redux/slices/userSlice';
 import { loadActions } from './services/actions';
 import { setActions } from './redux/slices/actionSlice';
 import { addMessage } from './redux/slices/messageSlice';
+import { setReload } from "./redux/slices/configSlice";
 
 function App() {
   const userState = useSelector((state) => state.user);
+  const configState = useSelector((state) => state.config);
   const [open, setOpen] = useState(false);
   let currentUser = userState.currentUser
   let apiToken = null
@@ -94,15 +96,23 @@ function App() {
     }).catch((e) => {
       console.log(e)
       dispatch(addMessage({title: 'Erro', body:"Erro ao carregar os dados. Tente novamente!", severity:'error'}))
+    }).finally(() => {
+      dispatch(setReload(false))
     })
-    
   }
 
   useEffect(() => {
+    dispatch(setReload(true))
+  }, [])
+
+  useEffect(() => {
+    if(configState.reload){
       setOpen(true)
       loadResources()
+    }
+      
       //setTimeout(()=> setOpen(false), 2000)
-}, []);
+}, [configState.reload]);
 
   return (
     <>

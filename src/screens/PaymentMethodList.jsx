@@ -32,6 +32,7 @@ import ConfirmationModal from "../components/ConfirmationModal";
 import { addMessage } from "../redux/slices/messageSlice";
 import { useOutletContext } from "react-router-dom";
 import NoData from "../components/NoData";
+import { setReload } from "../redux/slices/configSlice";
 
 const PAYMENT_METHOD_TYPES = [
   { id: "DEBIT", label: "Cartão de Débito" },
@@ -100,6 +101,7 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
           title: "Sucesso!",
           body: "Método de pagamento adicionado com sucesso!",
         }))
+        dispatch(setReload(true))
         setOpenModal(false);
       } else {
         dispatch(addMessage({
@@ -124,13 +126,12 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
           ];
           let newWallet = {id:user.wallet.id, payment_methods:newPaymentsMethods}
         dispatch(setCurrentUser({...user, wallet:newWallet}));
-         
-          
           dispatch(addMessage({
             severity: "success",
             title: "Sucesso!",
             body: "Método de pagamento deletado com sucesso!",
           }))
+          dispatch(setReload(true))
           setOpenModal(false);
         } else {
           dispatch(addMessage({

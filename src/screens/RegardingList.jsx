@@ -50,7 +50,6 @@ function RegardingList() {
     startDate: "",
     endDate: "",
     status: "",
-    hasExpenses: true,
   });
   const [groupOptions, setGroupOptions] = useState([]);
   const [groupStatusOptions, setGroupStatusOptions] = useState([]);
@@ -162,17 +161,11 @@ function RegardingList() {
           filterRegardingInRange(regarding)
         );
       }
-      newRegardings = newRegardings.filter(
-        (regarding) => regarding.has_expenses == filterStates.hasExpenses
-      );
     }
     newRegardings = filterBySearch(search, newRegardings);
     setFilteredRegardings([...newRegardings]);
   };
 
-  const handleChangeHasExpenses = (e) => {
-    setFilterStates({ ...filterStates, hasExpenses: e.target.checked });
-  };
 
   const resetOptions = () => {
     let groups = groupState.userGroups.map((item) => ({
@@ -190,7 +183,6 @@ function RegardingList() {
       startDate: "",
       endDate: "",
       status: "",
-      hasExpenses: true,
     });
     applyFilters(false);
     resetOptions();
@@ -368,7 +360,7 @@ function RegardingList() {
                   />
                 )}
               />
-              <FormControlLabel
+              {/*<FormControlLabel
                 required
                 control={
                   <Checkbox
@@ -378,7 +370,7 @@ function RegardingList() {
                   />
                 }
                 label="Possui despesas"
-              />
+              />*/}
               <Box className="flex flex-row justify-between mt-[10px] w-full">
                 <Button variant="outlined" onClick={resetFilters}>
                   Limpar

@@ -40,6 +40,7 @@ import { setValidations } from '../redux/slices/validationSlice';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import { useOutletContext } from "react-router-dom";
+import { setReload } from "../redux/slices/configSlice";
 
 
 function TabPanel(props) {
@@ -322,15 +323,6 @@ function ExpenseEdit() {
           )}-${data.date.slice(0, 4)}`,
         };
         setExpense({ ...inputStates, ...newExpense });
-        loadRegardings(user.api_token).then((newRegardings) =>
-          dispatch(setRegardings(newRegardings))
-        );
-        loadExpenses(user.api_token).then((newExpenses) =>
-          dispatch(setExpenses(newExpenses))
-        );
-        loadValidations(user.api_token).then((json) => {
-          dispatch(setValidations(json))
-        })
         dispatch(
           addMessage({
             severity: "success",
@@ -339,6 +331,7 @@ function ExpenseEdit() {
           })
         );
         navigate(`/inicio/`);
+        dispatch(setReload(true))
       } else {
         dispatch(
           addMessage({
@@ -348,9 +341,6 @@ function ExpenseEdit() {
           })
         );
       }
-      loadActions("").then((json) => {
-        dispatch(setActions(json));
-      });
       setSaving(false);
     });
   };

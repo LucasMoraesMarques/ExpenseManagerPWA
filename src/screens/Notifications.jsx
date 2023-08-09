@@ -35,6 +35,7 @@ import Stack from "@mui/material/Stack";
 import NoData from "../components/NoData";
 import { useOutletContext } from "react-router-dom";
 import Pagination from '@mui/material/Pagination';
+import { setReload } from "../redux/slices/configSlice";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -129,6 +130,7 @@ function Notifications() {
           )}` : "",
         };
         dispatch(setValidations(newValidations));
+        dispatch(setReload(true))
       } else {
       }
     });

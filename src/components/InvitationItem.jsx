@@ -68,26 +68,16 @@ function InvitationItem({
                 title: "Sucesso!",
                 body: `Você entrou no grupo ${invitation.group_name}!`,
               }))
-              setTimeout(() => {
-                window.location.reload()
-              }, 1000);
             }
             else{
-              loadGroups(apiToken).then((json) => {
-                dispatch(setGroups(json))
-              }).then(async () => {
-                return loadUsers(apiToken).then((json) => {
-                  dispatch(setUsers(json))
-                  let currentUser = json.filter((user) => user.id ==userState.currentUser.id)[0]
-                  dispatch(setCurrentUser({...currentUser, api_token: apiToken}))
-                })
-              })
               dispatch(addMessage({
                 severity: "info",
                 title: "Alerta!",
                 body: `Convite rejeitado!`,
               }))
             }
+            navigate('/inicio')
+            dispatch(setReload(true))
           } else {
             dispatch(addMessage({
               severity: "error",

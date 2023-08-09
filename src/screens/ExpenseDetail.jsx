@@ -41,6 +41,7 @@ import { addMessage } from "../redux/slices/messageSlice";
 import Popover from "@mui/material/Popover";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import { useOutletContext } from "react-router-dom";
+import { setReload } from "../redux/slices/configSlice";
 
 function TabPanel(props) {
   const { children, value, index, padding, ...other } = props;
@@ -111,12 +112,13 @@ function ExpenseDetail() {
       if(flag){
         let newExpenses = expenseState.userExpenses.filter((item) => item.id != expense.id)
         dispatch(setExpenses([...newExpenses]))
-        loadRegardings(user.api_token).then((data) => dispatch(setRegardings([...data])))
         dispatch(addMessage({
           severity: "success",
           title: "Sucesso!",
           body: "Despesa removida com sucesso!",
         }));
+        navigate('/inicio')
+        dispatch(setReload(true))
       }
       else{
         dispatch(addMessage({
@@ -126,12 +128,7 @@ function ExpenseDetail() {
         }));
       }
       setOpenConfirmationModal(false)
-      loadActions(user.api_token).then((json) => {
-        dispatch(setActions(json))
-      })
-      if(flag){
-        setTimeout(() => navigate('/inicio'), 1000)
-      }
+
     })
   }
 
