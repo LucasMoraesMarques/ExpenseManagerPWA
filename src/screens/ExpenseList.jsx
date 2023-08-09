@@ -1,27 +1,15 @@
 import React from "react";
 import IconButton from "@mui/material/IconButton";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState, useEffect } from "react";
-import MenuItem from "@mui/material/MenuItem";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
-import AttachmentIcon from "@mui/icons-material/Attachment";
 import InputAdornment from "@mui/material/InputAdornment";
-import FormControl from "@mui/material/FormControl";
 import List from "@mui/material/List";
-import Item from "../components/Item";
-import { Link, useNavigate, Location } from "react-router-dom";
-import AddIcon from "@mui/icons-material/Add";
+import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
 import SearchIcon from "@mui/icons-material/Search";
-import RegardingItem from "../components/RegardingItem";
-import Snackbar from "@mui/material/Snackbar";
-import MuiAlert from "@mui/material/Alert";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ExpenseItem from "../components/ExpenseItem";
 import CustomModal from "../components/CustomModal";
@@ -32,24 +20,15 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteExpenses } from "../services/expenses";
 import { setExpenses } from "../redux/slices/expenseSlice";
-import { loadRegardings } from "../services/regardings";
-import { setRegardings } from "../redux/slices/regardingSlice";
-import AlertToast from "../components/AlertToast";
 import ConfirmationModal from "../components/ConfirmationModal";
-import { loadActions } from '../services/actions';
-import { setActions } from '../redux/slices/actionSlice';
 import { addMessage } from "../redux/slices/messageSlice";
 import { useOutletContext } from "react-router-dom";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { dateInRange, moneyMask, priceInRange } from "../services/utils";
-import { Badge, Checkbox, FormControlLabel } from "@mui/material";
-import Pagination from '@mui/material/Pagination';
+import { Badge } from "@mui/material";
+import Pagination from "@mui/material/Pagination";
 import { setReload } from "../redux/slices/configSlice";
 
-const groups = [
-  { label: "Group 1", id: 1 },
-  { label: "Group 2", id: 2 },
-];
 const allPaymentStatus = [
   { name: "Em validação", id: 1 },
   { name: "Aguardando", id: 2 },
@@ -63,7 +42,11 @@ const allValidationStatus = [
   { name: "Rejeitada", id: 3 },
 ];
 
-function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon=true}) {
+function ExpenseList({
+  regarding = null,
+  showRegardingName = true,
+  showDeleteIcon = true,
+}) {
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
   const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
@@ -76,7 +59,7 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
   const [search, setSearch] = useState("");
   const [edit, setEdit] = useState(false);
   const [deleteIds, setDeleteIds] = useState([]);
-  const {user} = useOutletContext()
+  const { user } = useOutletContext();
   const [filterStates, setFilterStates] = useState({
     groups: [{ id: 0, name: "Todos" }],
     regardings: [{ id: 0, name: "Todas" }],
@@ -99,17 +82,16 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
     endDate: true,
     startPrice: true,
     endPrice: true,
-  })
+  });
   const [filtersFilled, setFiltersFilled] = useState(false);
-  const [page, setPage] = useState(1)
-  const [sliceRange, setSliceRange] = useState({start:0, end:50})
+  const [page, setPage] = useState(1);
+  const [sliceRange, setSliceRange] = useState({ start: 0, end: 50 });
 
   const handleChangeSearch = (value) => {
     setSearch(value);
   };
 
   const handleChangeGroups = (e, value) => {
-    console.log(value);
     let newGroups = [];
     let allUserGroups = groupState.userGroups.map((item) => ({
       id: item.id,
@@ -122,42 +104,35 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
         newGroups = [...value];
       }
     }
-    let groupsIds = newGroups.map((item) => item.id)
-    console.log(groupsIds)
+    let groupsIds = newGroups.map((item) => item.id);
 
     let options = [...allUserGroups];
     if (!(newGroups.length == allUserGroups.length)) {
       options.push({ id: 0, name: "Todos" });
     }
     let regardingsInGroups = regardingState.userRegardings.filter((item) => {
-      return groupsIds.includes(item.expense_group)
-    })
-    console.log(regardingsInGroups)
+      return groupsIds.includes(item.expense_group);
+    });
     let regardings = regardingsInGroups.map((item) => ({
       id: item.id,
       name: item.name,
     }));
-    regardings.push({ id: 0, name: "Todas" })
-    console.log(regardings);
+    regardings.push({ id: 0, name: "Todas" });
     setFilterStates({ ...filterStates, groups: newGroups });
     setGroupOptions(options.filter((item) => !newGroups.includes(item)));
-    setRegardingsOptions(regardings)
+    setRegardingsOptions(regardings);
   };
 
   const handleChangeRegardings = (e, value) => {
-    console.log(value);
     let newRegardings = [];
-    let groupsIds = filterStates.groups.map((item) => item.id)
-    console.log(groupsIds)
-    console.log(regardingState.userRegardings)
+    let groupsIds = filterStates.groups.map((item) => item.id);
     let regardingsInGroups = regardingState.userRegardings.filter((item) => {
-      return groupsIds.includes(item.expense_group)
-    })
+      return groupsIds.includes(item.expense_group);
+    });
     let regardings = regardingsInGroups.map((item) => ({
       id: item.id,
       name: item.name,
     }));
-    console.log(regardings)
     if (value.length > 0) {
       if (value.some((item) => item.id == 0)) {
         newRegardings = [...regardings];
@@ -169,14 +144,13 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
     if (!(newRegardings.length == regardings.length)) {
       options.push({ id: 0, name: "Todas" });
     }
-    console.log(options);
     setFilterStates({ ...filterStates, regardings: newRegardings });
-    setRegardingsOptions(options.filter((item) => !newRegardings.includes(item)));
+    setRegardingsOptions(
+      options.filter((item) => !newRegardings.includes(item))
+    );
   };
-  
 
   const handleChangeDate = (value, type) => {
-    console.log(value, type);
     if (type == "start") {
       setFilterStates({ ...filterStates, startDate: dayjs(value.$d) });
     } else if (type == "end") {
@@ -185,20 +159,16 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
   };
 
   const handleChangePaymentStatus = (e, value) => {
-    console.log(value);
     if (value) {
       let options = [...allPaymentStatus, { id: 0, name: "Todos" }];
-      console.log(options);
       setFilterStates({ ...filterStates, paymentStatus: value });
       setPaymentStatusOptions(options.filter((item) => item.id != value.id));
     }
   };
 
   const handleChangeValidationStatus = (e, value) => {
-    console.log(value);
     if (value) {
       let options = [...allValidationStatus, { id: 0, name: "Todos" }];
-      console.log(options);
       setFilterStates({ ...filterStates, validationStatus: value });
       setValidationStatusOptions(options.filter((item) => item.id != value.id));
     }
@@ -210,75 +180,80 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
       `${date.slice(3, 5)}-${date.slice(0, 2)}-${date.slice(6, 10)}`
     );
     let range = [filterStates.startDate.$d, filterStates.endDate.$d];
-    return (
-      dateInRange(date.$d, ...range)
-    );
+    return dateInRange(date.$d, ...range);
   };
 
   const filterExpensePriceInRange = (expense) => {
     let { cost } = expense;
-    cost = parseFloat(cost.replace(".", "").replace(",", "."))
-    let start = parseFloat(filterStates.startPrice.replace(".", "").replace(",", "."))
-    let end = parseFloat(filterStates.endPrice.replace(".", "").replace(",", "."))
-    let range = [start, end]
-    return (
-      priceInRange(cost, ...range)
+    cost = parseFloat(cost.replace(".", "").replace(",", "."));
+    let start = parseFloat(
+      filterStates.startPrice.replace(".", "").replace(",", ".")
     );
+    let end = parseFloat(
+      filterStates.endPrice.replace(".", "").replace(",", ".")
+    );
+    let range = [start, end];
+    return priceInRange(cost, ...range);
   };
 
-  
-
   const applyFilters = (flag = true) => {
-    console.log(filteredExpenses);
     let newExpenses = [...expenseState.userExpenses];
-    console.log(filterStates)
-    
+
     if (flag) {
-      if (filterStates.paymentStatus && filterStates.paymentStatus.name != "Todos") {
-        let value = filterStates.paymentStatus.name
+      if (
+        filterStates.paymentStatus &&
+        filterStates.paymentStatus.name != "Todos"
+      ) {
+        let value = filterStates.paymentStatus.name;
         newExpenses = newExpenses.filter(
-          (expense) => expense.payment_status.toUpperCase() == value.toUpperCase()
+          (expense) =>
+            expense.payment_status.toUpperCase() == value.toUpperCase()
         );
       }
-      if (filterStates.validationStatus && filterStates.validationStatus.name != "Todos") {
-        let value = filterStates.validationStatus.name
+      if (
+        filterStates.validationStatus &&
+        filterStates.validationStatus.name != "Todos"
+      ) {
+        let value = filterStates.validationStatus.name;
         newExpenses = newExpenses.filter(
-          (expense) => expense.validation_status.toUpperCase() == value.toUpperCase()
+          (expense) =>
+            expense.validation_status.toUpperCase() == value.toUpperCase()
         );
       }
       if (filterStates.groups.length > 0) {
-        let groupsIds = filterStates.groups.map((group) => group.id).filter((item)=> item != 0)
-        console.log(groupsIds)
-        if(groupsIds.length > 0){
+        let groupsIds = filterStates.groups
+          .map((group) => group.id)
+          .filter((item) => item != 0);
+        if (groupsIds.length > 0) {
           newExpenses = newExpenses.filter((expense) =>
-          groupsIds.includes(expense.expense_group)
-        );
+            groupsIds.includes(expense.expense_group)
+          );
         }
       }
       if (filterStates.regardings.length > 0) {
-        let regardingsIds = filterStates.regardings.map((regarding) => regarding.id).filter((item)=> item != 0)
-        if(regardingsIds.length > 0){
+        let regardingsIds = filterStates.regardings
+          .map((regarding) => regarding.id)
+          .filter((item) => item != 0);
+        if (regardingsIds.length > 0) {
           newExpenses = newExpenses.filter((expense) =>
-          regardingsIds.includes(expense.regarding)
-        );
+            regardingsIds.includes(expense.regarding)
+          );
         }
       }
       if (filterStates.payers.length > 0) {
-        let payersIds = filterStates.payers.map((payer) => payer.id).filter((item)=> item != 0)
-        if(payersIds.length > 0){
-          newExpenses = newExpenses.filter((expense) =>{
-            let payers = expense.payments.map((payment) => payment.payer.id)
-            for(let payer of payers){
-              if(!payersIds.includes(payer)){
-                return false
+        let payersIds = filterStates.payers
+          .map((payer) => payer.id)
+          .filter((item) => item != 0);
+        if (payersIds.length > 0) {
+          newExpenses = newExpenses.filter((expense) => {
+            let payers = expense.payments.map((payment) => payment.payer.id);
+            for (let payer of payers) {
+              if (!payersIds.includes(payer)) {
+                return false;
               }
             }
-            return true
-            
-            
-          }
-          
-        );
+            return true;
+          });
         }
       }
       if (filterStates.startDate && filterStates.endDate) {
@@ -286,8 +261,11 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
           filterExpenseDateInRange(expense)
         );
       }
-      if (filterStates.startPrice && 
-      (filterStates.endPrice && filterStates.endPrice != "0,00")) {
+      if (
+        filterStates.startPrice &&
+        filterStates.endPrice &&
+        filterStates.endPrice != "0,00"
+      ) {
         newExpenses = newExpenses.filter((expense) =>
           filterExpensePriceInRange(expense)
         );
@@ -298,29 +276,32 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
     }
     newExpenses = filterBySearch(search, newExpenses);
     setFilteredExpenses([...newExpenses]);
-    handlePagination(null, 1)
+    handlePagination(null, 1);
   };
 
   const getMembersOfGroups = (groups) => {
-    console.log(groups)
-    let groupsIds = groups.map((group) => group.id).filter((item)=> item != 0)
-    let newGroups = groupState.userGroups.filter((group) => groupsIds.includes(group.id))
-    let membersIds = []
-    newGroups.map((group) => membersIds.push(...group.members.map((member) => member.id)))
-    let members = userState.users.filter((user) => membersIds.includes(user.id))
-    return members
-  }
+    let groupsIds = groups.map((group) => group.id).filter((item) => item != 0);
+    let newGroups = groupState.userGroups.filter((group) =>
+      groupsIds.includes(group.id)
+    );
+    let membersIds = [];
+    newGroups.map((group) =>
+      membersIds.push(...group.members.map((member) => member.id))
+    );
+    let members = userState.users.filter((user) =>
+      membersIds.includes(user.id)
+    );
+    return members;
+  };
 
   const handleChangePayers = (e, value) => {
-    console.log(value);
     let newPayers = [];
-    let members = []
-    if(filterStates.groups.filter((group)=> group.id == 0).length > 0){
-      members = getMembersOfGroups(groupState.userGroups)
+    let members = [];
+    if (filterStates.groups.filter((group) => group.id == 0).length > 0) {
+      members = getMembersOfGroups(groupState.userGroups);
     } else {
-      members = getMembersOfGroups(filterStates.groups)
+      members = getMembersOfGroups(filterStates.groups);
     }
-    console.log(members)
     let allGroupsMembers = members.map((item) => ({
       id: item.id,
       name: item.full_name,
@@ -337,12 +318,10 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
     if (!(newPayers.length == allGroupsMembers.length)) {
       options.push({ id: 0, name: "Todos" });
     }
-    console.log(options)
 
     setFilterStates({ ...filterStates, payers: newPayers });
     setPayersOptions(options.filter((item) => !newPayers.includes(item)));
   };
-
 
   const resetOptions = () => {
     let groups = groupState.userGroups.map((item) => ({
@@ -353,7 +332,7 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
       id: item.id,
       name: item.name,
     }));
-    let members = getMembersOfGroups(groups)
+    let members = getMembersOfGroups(groups);
     let payers = members.map((item) => ({
       id: item.id,
       name: item.full_name,
@@ -361,11 +340,10 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
     let paymentStatuses = [...allPaymentStatus, { id: 5, name: "Todos" }];
     let validationStatuses = [...allValidationStatus, { id: 4, name: "Todos" }];
     setGroupOptions([...groups, { id: 0, name: "Todos" }]);
-    setRegardingsOptions([...regardings, { id: 0, name: "Todas" }])
+    setRegardingsOptions([...regardings, { id: 0, name: "Todas" }]);
     setPaymentStatusOptions([...paymentStatuses]);
-    setValidationStatusOptions([...validationStatuses])
+    setValidationStatusOptions([...validationStatuses]);
     setPayersOptions([...payers, { id: 0, name: "Todos" }]);
-
   };
 
   const resetFilters = () => {
@@ -378,13 +356,13 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
       endPrice: "",
       paymentStatus: "",
       validationStatus: "",
-      payers: [{ id: 0, name: "Todos" }]
+      payers: [{ id: 0, name: "Todos" }],
     });
     applyFilters(false);
     resetOptions();
     setFiltersFilled(false);
     setOpenModal(false);
-    handlePagination(null, 1)
+    handlePagination(null, 1);
   };
 
   const onFilter = () => {
@@ -395,27 +373,34 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
 
   useEffect(() => {
     setFilteredExpenses([...expenseState.userExpenses]);
-    console.log(regardingState.userRegardings);
     resetOptions();
   }, []);
 
   useEffect(() => {
-    console.log(filterStates);
-    let startPriceParsed = parseFloat(filterStates.startPrice.replace(".", "").replace(",", ".")) || ''
-    let endPriceParsed = parseFloat(filterStates.endPrice.replace(".", "").replace(",", ".")) || ''
+    let startPriceParsed =
+      parseFloat(filterStates.startPrice.replace(".", "").replace(",", ".")) ||
+      "";
+    let endPriceParsed =
+      parseFloat(filterStates.endPrice.replace(".", "").replace(",", ".")) ||
+      "";
     let newValidations = {
-      startDate: (!filterStates.startDate && !filterStates.endDate) || (filterStates.startDate.$d instanceof Date)
-      ,
-      endDate: (!filterStates.startDate && !filterStates.endDate) || ((filterStates.endDate.$d instanceof Date) && (filterStates.endDate.$d > filterStates.startDate.$d)) || !filterStates.startDate && filterStates.endDate.$d instanceof Date
-      ,
-      startPrice: (startPriceParsed.length == 0 && endPriceParsed.length == 0) || startPriceParsed >= 0,
-      endPrice: (startPriceParsed.length == 0 && endPriceParsed.length == 0) || (endPriceParsed > 0 && endPriceParsed > startPriceParsed),
-    }
-    setFieldsValidation(newValidations)
-    setFiltersValid(
-      Object.values(newValidations).every((item) => item)
-    );
-    console.log(newValidations)
+      startDate:
+        (!filterStates.startDate && !filterStates.endDate) ||
+        filterStates.startDate.$d instanceof Date,
+      endDate:
+        (!filterStates.startDate && !filterStates.endDate) ||
+        (filterStates.endDate.$d instanceof Date &&
+          filterStates.endDate.$d > filterStates.startDate.$d) ||
+        (!filterStates.startDate && filterStates.endDate.$d instanceof Date),
+      startPrice:
+        (startPriceParsed.length == 0 && endPriceParsed.length == 0) ||
+        startPriceParsed >= 0,
+      endPrice:
+        (startPriceParsed.length == 0 && endPriceParsed.length == 0) ||
+        (endPriceParsed > 0 && endPriceParsed > startPriceParsed),
+    };
+    setFieldsValidation(newValidations);
+    setFiltersValid(Object.values(newValidations).every((item) => item));
   }, [filterStates]);
 
   useEffect(() => {
@@ -423,59 +408,58 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
   }, [search]);
 
   const handlePagination = (e, value) => {
-    setPage(value)
-    let start = 50 * (value - 1)
-    let end = 50 * (value)
-    if( end > filteredExpenses.length){
-      end = filteredExpenses.length
+    setPage(value);
+    let start = 50 * (value - 1);
+    let end = 50 * value;
+    if (end > filteredExpenses.length) {
+      end = filteredExpenses.length;
     }
     setSliceRange({
       start: start,
-      end: end
-    })
-
-  }
+      end: end,
+    });
+  };
 
   const handleCheckbox = (id) => {
-    let index = deleteIds.indexOf(id)
-    console.log(id, index, deleteIds)
-    if(index != -1){
-      setDeleteIds(deleteIds.filter((item) => item != id))
+    let index = deleteIds.indexOf(id);
+    if (index != -1) {
+      setDeleteIds(deleteIds.filter((item) => item != id));
+    } else {
+      let newIds = [...deleteIds];
+      newIds.push(id);
+      setDeleteIds([...newIds]);
     }
-    else{
-      let newIds = [...deleteIds]
-      newIds.push(id)
-      setDeleteIds([...newIds])
-    }
-  }
-
+  };
 
   const handleRemoveSelected = async () => {
-    console.log(deleteIds)
     deleteExpenses(user.api_token, deleteIds).then((flag) => {
-      if(flag){
-        let newExpenses = expenseState.userExpenses.filter((item) => !deleteIds.includes(item.id))
-        setDeleteIds([])
-        setEdit(false)
-        dispatch(setExpenses([...newExpenses]))
-        dispatch(addMessage({
-          severity: "success",
-          title: "Sucesso!",
-          body: "Despesas removidas com sucesso!",
-        }))
-        dispatch(setReload(true))
+      if (flag) {
+        let newExpenses = expenseState.userExpenses.filter(
+          (item) => !deleteIds.includes(item.id)
+        );
+        setDeleteIds([]);
+        setEdit(false);
+        dispatch(setExpenses([...newExpenses]));
+        dispatch(
+          addMessage({
+            severity: "success",
+            title: "Sucesso!",
+            body: "Despesas removidas com sucesso!",
+          })
+        );
+        dispatch(setReload(true));
+      } else {
+        dispatch(
+          addMessage({
+            severity: "error",
+            title: "Erro!",
+            body: "Tivemos problemas ao deletar as despesas. Tente novamente!",
+          })
+        );
       }
-      else{
-        dispatch(addMessage({
-          severity: "error",
-          title: "Erro!",
-          body: "Tivemos problemas ao deletar as despesas. Tente novamente!",
-        }))
-      }
-      setOpenConfirmationModal(false)
-    })
-  }
-
+      setOpenConfirmationModal(false);
+    });
+  };
 
   const filterBySearch = (value, expenses) => {
     let upperValue = value ? value.toUpperCase() : "";
@@ -492,48 +476,48 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
           item.description.toUpperCase().includes(upperValue) ||
           item.regarding_name.toUpperCase().includes(upperValue) ||
           item.payment_status.toUpperCase().includes(upperValue) ||
-          item.validation_status.toUpperCase().includes(upperValue)
+          item.validation_status.toUpperCase().includes(upperValue);
         if (condition1 && condition2) {
           return true;
         }
       }
     });
-    return newExpenses
+    return newExpenses;
   };
 
   useEffect(() => {
-    let expenses = expenseState.userExpenses
-    if(regarding){
-      expenses = expenses.filter((item) => item.regarding == regarding)
+    let expenses = expenseState.userExpenses;
+    if (regarding) {
+      expenses = expenses.filter((item) => item.regarding == regarding);
     }
     setFilteredExpenses(expenses);
   }, [expenseState]);
 
   useEffect(() => {
-    handlePagination(null, 1)
-  }, [filteredExpenses])
+    handlePagination(null, 1);
+  }, [filteredExpenses]);
 
   return (
     <div className="">
       <div>
         <div className="flex flex-row items-center justify-center mt-[10px]">
-        <TextField
-          id="outlined-basic"
-          label="Pesquisa"
-          placeholder="Filtre as despesas por nome"
-          variant="outlined"
-          value={search}
-          onChange={(e) => handleChangeSearch(e.target.value)}
-          size="medium"
-          fullWidth
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
+          <TextField
+            id="outlined-basic"
+            label="Pesquisa"
+            placeholder="Filtre as despesas por nome"
+            variant="outlined"
+            value={search}
+            onChange={(e) => handleChangeSearch(e.target.value)}
+            size="medium"
+            fullWidth
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
           <IconButton onClick={() => setOpenModal(true)}>
             {filtersFilled ? (
               <Badge color="error" variant="dot">
@@ -544,8 +528,7 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
             )}
           </IconButton>
         </div>
-        
-        
+
         <CustomModal
           open={openModal}
           onClose={() => setOpenModal(false)}
@@ -621,12 +604,10 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
                   onChange={(value) => handleChangeDate(value, "start")}
                   slotProps={{
                     textField: {
-                      helperText:
-                        !fieldsValidation.startDate
-                          ? "Início inválido"
-                          : "",
-                      error:
-                      !fieldsValidation.startDate
+                      helperText: !fieldsValidation.startDate
+                        ? "Início inválido"
+                        : "",
+                      error: !fieldsValidation.startDate,
                     },
                   }}
                 />
@@ -637,12 +618,10 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
                   onChange={(value) => handleChangeDate(value, "end")}
                   slotProps={{
                     textField: {
-                      helperText:
-                        !fieldsValidation.endDate
-                          ? "Fim inválido"
-                          : "",
-                      error:
-                      !fieldsValidation.endDate
+                      helperText: !fieldsValidation.endDate
+                        ? "Fim inválido"
+                        : "",
+                      error: !fieldsValidation.endDate,
                     },
                   }}
                 />
@@ -660,14 +639,16 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
                   }}
                   className="w-[45%]"
                   value={filterStates.startPrice}
-                  onChange={(e) => setFilterStates({...filterStates, startPrice:moneyMask(e.target.value)})}
+                  onChange={(e) =>
+                    setFilterStates({
+                      ...filterStates,
+                      startPrice: moneyMask(e.target.value),
+                    })
+                  }
                   helperText={
-                    !fieldsValidation.startPrice
-                      ? "Início inválido"
-                      : ""}
+                    !fieldsValidation.startPrice ? "Início inválido" : ""
+                  }
                   error={!fieldsValidation.startPrice}
-                      
-                 
                 />
                 <TextField
                   id="outlined-basic"
@@ -680,12 +661,14 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
                     ),
                   }}
                   value={filterStates.endPrice}
-                  onChange={(e) => setFilterStates({...filterStates, endPrice:moneyMask(e.target.value)})}
+                  onChange={(e) =>
+                    setFilterStates({
+                      ...filterStates,
+                      endPrice: moneyMask(e.target.value),
+                    })
+                  }
                   className="w-[45%]"
-                  helperText={
-                    !fieldsValidation.endPrice
-                      ? "Fim inválido"
-                      : ""}
+                  helperText={!fieldsValidation.endPrice ? "Fim inválido" : ""}
                   error={!fieldsValidation.endPrice}
                 />
               </div>
@@ -718,7 +701,9 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
                 fullWidth
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 onChange={handleChangeValidationStatus}
-                value={filterStates.validationStatus || { id: 0, name: "Todos" }}
+                value={
+                  filterStates.validationStatus || { id: 0, name: "Todos" }
+                }
                 sx={{ margin: "10px 0px" }}
                 renderInput={(params) => (
                   <TextField
@@ -730,33 +715,33 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
                 )}
               />
               <Autocomplete
-            multiple
-            id="tags-standard"
-            filterSelectedOptions
-            size="medium"
-            fullWidth
-            options={payersOptions}
-            onChange={handleChangePayers}
-            value={filterStates.payers || [{ id: 0, name: "Todos" }]}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            getOptionLabel={(option) => option.name}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Pagantes"
-                placeholder="Selecione os pagantes"
-                variant="outlined"
+                multiple
+                id="tags-standard"
+                filterSelectedOptions
+                size="medium"
+                fullWidth
+                options={payersOptions}
+                onChange={handleChangePayers}
+                value={filterStates.payers || [{ id: 0, name: "Todos" }]}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                getOptionLabel={(option) => option.name}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Pagantes"
+                    placeholder="Selecione os pagantes"
+                    variant="outlined"
+                  />
+                )}
+                renderOption={(props, option) => {
+                  return (
+                    <li {...props} key={option.id}>
+                      {option.name}
+                    </li>
+                  );
+                }}
               />
-            )}
-            renderOption={(props, option) => {
-              return (
-                <li {...props} key={option.id}>
-                  {option.name}
-                </li>
-              );
-            }}
-          />
-             
+
               <Box className="flex flex-row justify-between mt-[10px] w-full">
                 <Button variant="outlined" onClick={resetFilters}>
                   Limpar
@@ -773,39 +758,73 @@ function ExpenseList({ regarding = null , showRegardingName=true, showDeleteIcon
           }
         />
         <span className="font-bold text-lg">
-        {search ? `Resultados de "${search}"` : ""}
-      </span>
-      <div className="flex flew-row justify-between items-center">
-        <span className="text-sm">
-          Mostrando {sliceRange.end != 0 ? sliceRange.start+1 : 0} a {sliceRange.end} de {filteredExpenses.length} despesas
+          {search ? `Resultados de "${search}"` : ""}
         </span>
-        {edit ? (
-          <div className="flex">
-            <Button onClick={() => {setEdit(false);setDeleteIds([])}} size="small">Cancelar</Button>
-            <Button onClick={() => setOpenConfirmationModal(true)} size="small">Remover</Button>
-          </div>
-        ) : ( filteredExpenses.length > 0 && showDeleteIcon &&
-          <IconButton onClick={() => setEdit(true)}>
-            <DeleteIcon sx={{ color: "red" }} />
-          </IconButton>
-        )}
+        <div className="flex flew-row justify-between items-center">
+          <span className="text-sm">
+            Mostrando {sliceRange.end != 0 ? sliceRange.start + 1 : 0} a{" "}
+            {sliceRange.end} de {filteredExpenses.length} despesas
+          </span>
+          {edit ? (
+            <div className="flex">
+              <Button
+                onClick={() => {
+                  setEdit(false);
+                  setDeleteIds([]);
+                }}
+                size="small"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={() => setOpenConfirmationModal(true)}
+                size="small"
+              >
+                Remover
+              </Button>
+            </div>
+          ) : (
+            filteredExpenses.length > 0 &&
+            showDeleteIcon && (
+              <IconButton onClick={() => setEdit(true)}>
+                <DeleteIcon sx={{ color: "red" }} />
+              </IconButton>
+            )
+          )}
+        </div>
       </div>
+      {filteredExpenses.length > 50 ? (
+        <Pagination
+          count={Math.ceil(filteredExpenses.length / 50)}
+          page={page}
+          onChange={handlePagination}
+        />
+      ) : (
+        <></>
+      )}
+      <div className="overflow-y-scroll max-h-[calc(100vh-230px)]">
+        <List>
+          {filteredExpenses.length > 0 ? (
+            filteredExpenses
+              .slice(sliceRange.start, sliceRange.end)
+              .map((item) => {
+                return (
+                  <ExpenseItem
+                    key={item.id}
+                    expense={item}
+                    edit={edit}
+                    onCheck={() => handleCheckbox(item.id)}
+                    isChecked={deleteIds.includes(item.id)}
+                    showRegardingName={showRegardingName}
+                  />
+                );
+              })
+          ) : (
+            <NoData message="Nenhuma despesa encontrada" />
+          )}
+        </List>
       </div>
-      {filteredExpenses.length > 50 ? 
-      <Pagination count={Math.ceil(filteredExpenses.length / 50)} page={page} onChange={handlePagination} />
-      : <></>}
-      <div className='overflow-y-scroll max-h-[calc(100vh-230px)]' >
-      <List>
-        {filteredExpenses.length > 0 ? (
-          filteredExpenses.slice(sliceRange.start, sliceRange.end).map((item) => {
-            return <ExpenseItem key={item.id} expense={item} edit={edit} onCheck={() => handleCheckbox(item.id)} isChecked={deleteIds.includes(item.id)} showRegardingName={showRegardingName}/>;
-          })
-        ) : (
-          <NoData message="Nenhuma despesa encontrada" />
-        )}
-      </List>
-      </div>
-      
+
       <CustomModal
         open={openConfirmationModal}
         onClose={() => setOpenConfirmationModal(false)}

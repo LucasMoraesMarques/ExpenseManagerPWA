@@ -1,33 +1,24 @@
 import React, { useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState } from "react";
-import MenuItem from "@mui/material/MenuItem";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
-import AttachmentIcon from "@mui/icons-material/Attachment";
-import InputAdornment from "@mui/material/InputAdornment";
-import FormControl from "@mui/material/FormControl";
-import List from "@mui/material/List";
-import Item from "../components/Item";
-import { Link, useNavigate, Location } from "react-router-dom";
-import AddIcon from "@mui/icons-material/Add";
+import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
 import BackButton from "../components/BackButton";
 import { useSelector, useDispatch } from "react-redux";
 import { editUser } from "../services/user";
 import { setCurrentUser } from "../redux/slices/userSlice";
 import { addMessage } from "../redux/slices/messageSlice";
-import { phoneMask, validateEmail, validatePhone, validateTextField } from "../services/utils";
+import {
+  phoneMask,
+  validateEmail,
+  validatePhone,
+  validateTextField,
+} from "../services/utils";
 
 function ProfileEdit() {
-  const [anchorEl, setAnchorEl] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
   const userState = useSelector((state) => state.user);
@@ -46,8 +37,7 @@ function ProfileEdit() {
     last_name: false,
     email: false,
     phone: false,
-  })
-
+  });
 
   const handleChangeFirstName = (e) => {
     setInputStates({ ...inputStates, first_name: e.target.value });
@@ -66,66 +56,66 @@ function ProfileEdit() {
   };
 
   const handleSaveUser = () => {
-    console.log(inputStates)
-    editUser(userState.currentUser.api_token, userState.currentUser.id, inputStates).then(({ flag, data }) => {
-      console.log(flag, data);
+    editUser(
+      userState.currentUser.api_token,
+      userState.currentUser.id,
+      inputStates
+    ).then(({ flag, data }) => {
       if (flag) {
         let newUser = {
           ...data,
-          api_token:userState.currentUser.api_token
+          api_token: userState.currentUser.api_token,
         };
-        dispatch(
-          setCurrentUser(newUser)
-        );
+        dispatch(setCurrentUser(newUser));
 
-        dispatch(addMessage({
-          severity: "success",
-          title: "Sucesso!",
-          body: "Dados pessoais atualizados com sucesso!",
-        }))
+        dispatch(
+          addMessage({
+            severity: "success",
+            title: "Sucesso!",
+            body: "Dados pessoais atualizados com sucesso!",
+          })
+        );
         setOpenModal(false);
       } else {
-        dispatch(addMessage({
-          severity: "error",
-          title: "Erro!",
-          body: "Tivemos problemas ao atualizar seus dados. Tente novamente!",
-        }))
+        dispatch(
+          addMessage({
+            severity: "error",
+            title: "Erro!",
+            body: "Tivemos problemas ao atualizar seus dados. Tente novamente!",
+          })
+        );
         setOpenModal(false);
       }
     });
-  }
+  };
 
   useEffect(() => {
-    let user = userState.currentUser
-    console.log(user)
+    let user = userState.currentUser;
     let newFieldsValidation = {
       first_name: validateTextField(inputStates.first_name),
       last_name: validateTextField(inputStates.last_name),
       email: validateEmail(inputStates.email),
       phone: validatePhone(phoneMask(inputStates.phone)),
-    }
-    setFieldsValidation(newFieldsValidation)
-    setFieldsValid(
-      Object.values(newFieldsValidation).every((item) => item)
-    );
-  }, [inputStates])
+    };
+    setFieldsValidation(newFieldsValidation);
+    setFieldsValid(Object.values(newFieldsValidation).every((item) => item));
+  }, [inputStates]);
 
   useEffect(() => {
-    let user = userState.currentUser
-    console.log(user)
+    let user = userState.currentUser;
     setInputStates({
       first_name: user.first_name,
       last_name: user.last_name,
       email: user.email,
-      phone: user.phone
-    })
-  }, [])
+      phone: user.phone,
+    });
+  }, []);
 
   return (
     <div>
       <AppBar position="sticky">
         <Toolbar>
-        <BackButton/>
+          <BackButton />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Seus dados
           </Typography>
@@ -143,7 +133,6 @@ function ProfileEdit() {
               >
                 Salvar
               </Button>
-              
             </div>
           )}
         </Toolbar>
@@ -155,7 +144,9 @@ function ProfileEdit() {
           value={inputStates.first_name}
           onChange={handleChangeFirstName}
           error={fieldsValidation.first_name ? false : true}
-          helperText={fieldsValidation.first_name ? "" : "Não pode ficar em branco"}
+          helperText={
+            fieldsValidation.first_name ? "" : "Não pode ficar em branco"
+          }
           variant="outlined"
           size="medium"
           fullWidth
@@ -167,7 +158,9 @@ function ProfileEdit() {
           value={inputStates.last_name}
           onChange={handleChangeLastName}
           error={fieldsValidation.last_name ? false : true}
-          helperText={fieldsValidation.last_name ? "" : "Não pode ficar em branco"}
+          helperText={
+            fieldsValidation.last_name ? "" : "Não pode ficar em branco"
+          }
           variant="outlined"
           size="medium"
           fullWidth
@@ -175,7 +168,11 @@ function ProfileEdit() {
         />
         <TextField
           id="outlined-basic"
-          label={userState.currentUser.google_id ? 'Email (Registrado com o email do google)': 'Email'}
+          label={
+            userState.currentUser.google_id
+              ? "Email (Registrado com o email do google)"
+              : "Email"
+          }
           variant="outlined"
           value={inputStates.email}
           onChange={handleChangeEmail}
@@ -188,7 +185,7 @@ function ProfileEdit() {
           disabled={userState.currentUser.google_id}
           sx={{ margin: "10px 0px" }}
         />
-        
+
         <TextField
           id="outlined-basic"
           label="Telefone"
@@ -202,7 +199,6 @@ function ProfileEdit() {
           fullWidth
           sx={{ margin: "10px 0px" }}
         />
-       
       </div>
     </div>
   );

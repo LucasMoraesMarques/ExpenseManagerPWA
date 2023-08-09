@@ -18,15 +18,10 @@ import BackButton from "../components/BackButton";
 import { useSelector, useDispatch } from "react-redux";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
-import { loadExpenses, editExpense } from "../services/expenses";
-import { loadRegardings } from "../services/regardings";
-import { setExpenses } from "../redux/slices/expenseSlice";
-import { setRegardings } from "../redux/slices/regardingSlice";
+import { editExpense } from "../services/expenses";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import PaymentItem from "../components/PaymentItem";
-import { loadActions } from "../services/actions";
-import { setActions } from "../redux/slices/actionSlice";
 import {
   validateTextField,
   validateCurrency,
@@ -35,13 +30,10 @@ import {
 } from "../services/utils";
 import NoData from "../components/NoData";
 import { addMessage } from "../redux/slices/messageSlice";
-import { loadValidations } from '../services/validations';
-import { setValidations } from '../redux/slices/validationSlice';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
 import { useOutletContext } from "react-router-dom";
 import { setReload } from "../redux/slices/configSlice";
-
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -78,7 +70,7 @@ function ExpenseEdit() {
     items: [],
     payments: [],
     validators: [],
-    revalidate: false
+    revalidate: false,
   });
   const [inputValidation, setInputValidation] = useState({
     name: "",
@@ -112,7 +104,7 @@ function ExpenseEdit() {
   const dispatch = useDispatch();
   const [value, setValue] = useState(0);
   const [saving, setSaving] = useState(false);
-  const {user} = useOutletContext()
+  const { user } = useOutletContext();
 
   const handleChangeName = (e) => {
     setInputStates({ ...inputStates, name: e.target.value });
@@ -123,7 +115,6 @@ function ExpenseEdit() {
   };
 
   const handleChangeDate = (value) => {
-    console.log(value);
     setInputStates({ ...inputStates, date: dayjs(value.$d) });
   };
 
@@ -136,8 +127,8 @@ function ExpenseEdit() {
   };
 
   const handleRevalidate = (e) => {
-    setInputStates({...inputStates, revalidate:e.target.checked})
-  }
+    setInputStates({ ...inputStates, revalidate: e.target.checked });
+  };
 
   const handleChangeRegarding = (e, value) => {
     if (Object.keys(value).length > 0) {
@@ -145,15 +136,12 @@ function ExpenseEdit() {
       let selectedRegarding = regardingState.userRegardings.find(
         (item) => item.id == regardingID
       );
-      console.log(selectedRegarding);
       if (selectedRegarding && Object.keys(selectedRegarding).length > 0) {
         let groupId = selectedRegarding.expense_group;
-        console.log(selectedRegarding);
         let selectedGroup = groupState.userGroups.find(
           (item) => item.id == groupId
         );
         if (selectedGroup && Object.keys(selectedGroup).length > 0) {
-          console.log(selectedGroup);
           let options = selectedGroup.members.map((item) => ({
             id: item.id,
             name: item.first_name + " " + item.last_name,
@@ -168,7 +156,6 @@ function ExpenseEdit() {
   };
 
   const handleChangeValidators = (e, value) => {
-    console.log(value);
     let newValidators = [];
     if (value.length > 0) {
       if (value.some((item) => item.id == 0)) {
@@ -178,7 +165,6 @@ function ExpenseEdit() {
       }
     }
     let options = [...userOptions, { id: 0, name: "Todos" }];
-    console.log(options);
     setInputStates({ ...inputStates, validators: newValidators });
     setValidatorOptions(
       options.filter((item) => !newValidators.includes(item))
@@ -214,8 +200,6 @@ function ExpenseEdit() {
       }
     }
     let payer = userState.users.find((item) => item.id == payment.payer.id);
-    console.log(payment);
-    console.log(paymentMethodOptions);
     let newPayment = {
       id: lastId,
       ...payment,
@@ -226,10 +210,9 @@ function ExpenseEdit() {
       payer: payer,
       payer_name: payer.full_name,
     };
-    if(['DEBIT', 'CASH'].includes(newPayment.payment_method.type)){
-      newPayment.payment_status = 'PAID'
-    } 
-    console.log("new payment", newPayment);
+    if (["DEBIT", "CASH"].includes(newPayment.payment_method.type)) {
+      newPayment.payment_status = "PAID";
+    }
     setInputStates({
       ...inputStates,
       payments: [...inputStates.payments, newPayment],
@@ -250,7 +233,6 @@ function ExpenseEdit() {
   };
 
   const handleChangeConsumers = (e, value) => {
-    console.log(value);
     let newConsumers = [];
     if (value.some((item) => item.id == 0)) {
       newConsumers = [...userOptions];
@@ -274,10 +256,8 @@ function ExpenseEdit() {
   };
 
   const handleChangePayer = (e, value) => {
-    console.log(value);
     if (value) {
       let payer = userState.users.find((item) => item.id == value.id);
-      console.log(payer);
       setPayment({
         payer: value,
         payment_method: "",
@@ -309,11 +289,9 @@ function ExpenseEdit() {
         .toString()
         .padStart(2, 0)}-${inputStates.date.$D.toString().padStart(2, 0)}`,
       regarding: inputStates.regarding.id,
-      validators: []
+      validators: [],
     };
-    console.log(data);
     editExpense(user.api_token, id, data).then(({ flag, data }) => {
-      console.log(flag, data);
       if (flag) {
         let newExpense = {
           ...data,
@@ -331,7 +309,7 @@ function ExpenseEdit() {
           })
         );
         navigate(`/inicio/`);
-        dispatch(setReload(true))
+        dispatch(setReload(true));
       } else {
         dispatch(
           addMessage({
@@ -347,10 +325,8 @@ function ExpenseEdit() {
 
   useEffect(() => {
     let index = expenseState.userExpenses.findIndex((item) => item.id == id);
-    console.log(id, index, expenseState.userExpenses);
     if (index != -1) {
       let data = expenseState.userExpenses[index];
-      console.log(data);
       let regarding = regardingState.userRegardings.find(
         (item) => item.id == data.regarding
       );
@@ -362,7 +338,7 @@ function ExpenseEdit() {
             body: "A referência dessa despesa está finalizada. Para editar, mude o status da referência!",
           })
         );
-        navigate("/inicio/")
+        navigate("/inicio/");
       }
       setExpense({ ...data });
       setInputStates({
@@ -378,8 +354,11 @@ function ExpenseEdit() {
         regarding: { id: regarding.id, label: regarding.name },
         items: data.items,
         payments: data.payments,
-        validators: data.validations.map(({validator}) => ({id:validator.id, name:validator.full_name})),
-        revalidate: false
+        validators: data.validations.map(({ validator }) => ({
+          id: validator.id,
+          name: validator.full_name,
+        })),
+        revalidate: false,
       });
       let groupId = regarding.expense_group;
       let selectedGroup = groupState.userGroups.find(
@@ -398,7 +377,6 @@ function ExpenseEdit() {
   }, []);
 
   useEffect(() => {
-    console.log(inputStates);
     let expenseCost = parseFloat(
       inputStates.cost.replace(".", "").replace(",", ".")
     );
@@ -421,13 +399,9 @@ function ExpenseEdit() {
       validators: true,
     };
     setInputValidation(validations);
-    console.log(validations);
     setFieldsValid(Object.values(validations).every((item) => item));
   }, [inputStates]);
 
-  useEffect(() => {
-    console.log(payment);
-  }, [payment]);
   return (
     <div id="expenseEdit" className="grow">
       <AppBar position="sticky">
@@ -527,9 +501,17 @@ function ExpenseEdit() {
             sx={{ margin: "10px 0px" }}
             required
             />*/}
-            <FormControlLabel required control={<Checkbox checked={inputStates.revalidate || false}
-  onChange={handleRevalidate}
-  inputProps={{ 'aria-label': 'controlled' }}/>} label="Revalidar despesa após alterações" />
+          <FormControlLabel
+            required
+            control={
+              <Checkbox
+                checked={inputStates.revalidate || false}
+                onChange={handleRevalidate}
+                inputProps={{ "aria-label": "controlled" }}
+              />
+            }
+            label="Revalidar despesa após alterações"
+          />
 
           {/*<Autocomplete
             multiple

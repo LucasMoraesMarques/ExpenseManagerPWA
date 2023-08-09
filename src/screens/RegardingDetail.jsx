@@ -5,20 +5,11 @@ import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState, useEffect } from "react";
 import MenuItem from "@mui/material/MenuItem";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
-import AttachmentIcon from "@mui/icons-material/Attachment";
-import InputAdornment from "@mui/material/InputAdornment";
-import FormControl from "@mui/material/FormControl";
 import List from "@mui/material/List";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import AddIcon from "@mui/icons-material/Add";
-import Button from "@mui/material/Button";
+import { useNavigate, useParams } from "react-router-dom";
 import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Grid from "@mui/material/Grid";
@@ -28,18 +19,14 @@ import PieChart from "../components/PieChart";
 import ExpenseList from "./ExpenseList";
 import { useSelector, useDispatch } from "react-redux";
 import BackButton from "../components/BackButton";
-import { deleteRegarding, loadRegardings } from "../services/regardings";
-import { setRegardings } from "../redux/slices/regardingSlice";
+import { deleteRegarding } from "../services/regardings";
 import ConfirmationModal from "../components/ConfirmationModal";
 import CustomModal from "../components/CustomModal";
-import { loadActions } from '../services/actions';
-import { setActions } from '../redux/slices/actionSlice';
 import DebtItem from "../components/DebtItem";
 import { addMessage } from "../redux/slices/messageSlice";
 import { useOutletContext } from "react-router-dom";
 import NoData from "../components/NoData";
 import { setReload } from "../redux/slices/configSlice";
-
 
 function TabPanel(props) {
   const { children, value, index, padding, ...other } = props;
@@ -67,8 +54,7 @@ function RegardingDetail() {
   const [value, setValue] = useState(0);
   const regardingState = useSelector((state) => state.regarding);
   const [regarding, setRegarding] = useState({});
-  const {user} = useOutletContext()
-
+  const { user } = useOutletContext();
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -85,41 +71,42 @@ function RegardingDetail() {
 
   const handleRemove = async () => {
     deleteRegarding(user.api_token, regarding.id).then((flag) => {
-      if(flag){
-        dispatch(addMessage({
-          severity: "success",
-          title: "Sucesso!",
-          body: "Referência removida com sucesso!",
-        }))
-        navigate('/inicio')
-        dispatch(setReload(true))
+      if (flag) {
+        dispatch(
+          addMessage({
+            severity: "success",
+            title: "Sucesso!",
+            body: "Referência removida com sucesso!",
+          })
+        );
+        navigate("/inicio");
+        dispatch(setReload(true));
+      } else {
+        dispatch(
+          addMessage({
+            severity: "error",
+            title: "Erro!",
+            body: "Tivemos problemas ao deletar a referência. Tente novamente!",
+          })
+        );
       }
-      else{
-        dispatch(addMessage({
-          severity: "error",
-          title: "Erro!",
-          body: "Tivemos problemas ao deletar a referência. Tente novamente!",
-        }))
-      }
-      setOpenConfirmationModal(false)
-    })
-  }
+      setOpenConfirmationModal(false);
+    });
+  };
 
   useEffect(() => {
     let index = regardingState.userRegardings.findIndex(
       (item) => item.id == id
     );
-    console.log(id, index);
     if (index != -1) {
       setRegarding({ ...regardingState.userRegardings[index] });
-      console.log(regardingState.userRegardings[index]);
     }
   }, []);
   return (
     <div>
       <AppBar position="sticky">
         <Toolbar>
-          <BackButton/>
+          <BackButton />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Detalhes da Referência
           </Typography>
@@ -151,7 +138,9 @@ function RegardingDetail() {
                 onClose={() => setAnchorEl(null)}
               >
                 <MenuItem onClick={editRegarding}>Editar</MenuItem>
-                <MenuItem onClick={() => setOpenConfirmationModal(true)}>Deletar</MenuItem>
+                <MenuItem onClick={() => setOpenConfirmationModal(true)}>
+                  Deletar
+                </MenuItem>
               </Menu>
             </div>
           )}
@@ -202,14 +191,18 @@ function RegardingDetail() {
                   <DashItem
                     title="Total Compartilhado Completo"
                     value={"R$ " + regarding.personal_total.shared}
-                    helpText={"Soma dos itens em que todos os membros são consumidores"}
+                    helpText={
+                      "Soma dos itens em que todos os membros são consumidores"
+                    }
                   />
                 </Grid>
                 <Grid item xs={6}>
                   <DashItem
                     title="Total Compartilhado Parcial"
                     value={"R$ " + regarding.personal_total.partial_shared}
-                    helpText={"Soma dos itens em que alguém dividiu algo com você"}
+                    helpText={
+                      "Soma dos itens em que alguém dividiu algo com você"
+                    }
                   />
                 </Grid>
                 <Grid item xs={6}>
@@ -223,26 +216,39 @@ function RegardingDetail() {
                   <DashItem
                     title="Saldo Compartilhado"
                     value={"R$ " + regarding.personal_total.balance}
-                    helpText={"Saldo relativo ao total pago do valor compartilhado em relação à parcela esperada devido ao peso do membro"}
+                    helpText={
+                      "Saldo relativo ao total pago do valor compartilhado em relação à parcela esperada devido ao peso do membro"
+                    }
                   />
                 </Grid>
               </Grid>
             )}
-            
+
             <h5 className="font-bold mt-2">Débitos individuais</h5>
             <List>
-            {regarding.has_expenses && Object.keys(regarding.total_member_vs_member).length > 0 ?
-            Object.keys(regarding.total_member_vs_member).map((member1) => {
-              let data = regarding.total_member_vs_member[member1]
-              return Object.keys(data).map((member2) => {
-                let value = data[member2]
-                return  <DebtItem key={member1 + member2} payer={member2} receiver={member1} debt={value}/>
-              })
-            }) : <NoData message="Nenhum débito encontrado" />
-            }
+              {regarding.has_expenses &&
+              Object.keys(regarding.total_member_vs_member).length > 0 ? (
+                Object.keys(regarding.total_member_vs_member).map((member1) => {
+                  let data = regarding.total_member_vs_member[member1];
+                  return Object.keys(data).map((member2) => {
+                    let value = data[member2];
+                    return (
+                      <DebtItem
+                        key={member1 + member2}
+                        payer={member2}
+                        receiver={member1}
+                        debt={value}
+                      />
+                    );
+                  });
+                })
+              ) : (
+                <NoData message="Nenhum débito encontrado" />
+              )}
             </List>
             <h5 className="font-bold">Detalhes de Pagamento</h5>
-            {regarding.has_expenses && Object.keys(regarding.general_total).length > 0 ?(
+            {regarding.has_expenses &&
+            Object.keys(regarding.general_total).length > 0 ? (
               <>
                 <Box className="w-[95%] mx-auto my-3">
                   <Box className="w-[75%] mx-auto my-3">
@@ -317,10 +323,16 @@ function RegardingDetail() {
                   </Box>
                 </Box>
               </>
-            ) : <NoData message="Nenhum pagamento encontrado" />}
+            ) : (
+              <NoData message="Nenhum pagamento encontrado" />
+            )}
           </TabPanel>
           <TabPanel value={value} index={1} padding={1}>
-            <ExpenseList regarding={regarding.id} showRegardingName={false} showDeleteIcon={!regarding.is_closed}/>
+            <ExpenseList
+              regarding={regarding.id}
+              showRegardingName={false}
+              showDeleteIcon={!regarding.is_closed}
+            />
           </TabPanel>
         </AppBar>
       </div>

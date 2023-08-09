@@ -11,7 +11,6 @@ import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import EditIcon from "@mui/icons-material/Edit";
 import IconButton from "@mui/material/IconButton";
 
-
 const membershipLevels = {
   Administrador: {
     icon: <ManageAccountsIcon sx={{ fontSize: 30 }} />,
@@ -21,13 +20,7 @@ const membershipLevels = {
   Leitor: { icon: <AccountBoxIcon sx={{ fontSize: 30 }} />, tooltip: "Leitor" },
 };
 
-
-function Member({
-  key,
-  member,
-  variant = "rounded",
-}) {
-
+function Member({ key, member, variant = "rounded" }) {
   if (member) {
     let fullName = member.first_name + " " + member.last_name;
     return variant == "rounded" ? (

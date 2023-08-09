@@ -11,7 +11,7 @@ import TextField from "@mui/material/TextField";
 import CustomModal from "../components/CustomModal";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import { Link, useNavigate, Location } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import NoteAltOutlinedIcon from "@mui/icons-material/NoteAltOutlined";
 import { stringAvatar } from "../services/utils";
 import Avatar from "@mui/material/Avatar";
@@ -32,7 +32,6 @@ function ValidationItem({
   });
 
   const handleChangeNote = (e) => {
-    console.log(inputStates);
     setInputStates({ ...inputStates, note: e.target.value });
   };
 

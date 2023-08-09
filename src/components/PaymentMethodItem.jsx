@@ -2,18 +2,12 @@ import React from "react";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
-import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import DisabledByDefaultIcon from "@mui/icons-material/DisabledByDefault";
 import IconButton from "@mui/material/IconButton";
 import { useState } from "react";
-import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
 import CustomModal from "../components/CustomModal";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
 import ConfirmationModal from "../components/ConfirmationModal";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
-
 
 const METHODS = {
   DEBIT: "CARTÃO DE DÉBITO",
@@ -31,15 +25,12 @@ function PaymentMethodItem({ key, method, onDelete = () => {} }) {
       secondaryAction={
         <div>
           <IconButton onClick={() => setOpenModal(true)}>
-            {method.has_payments ?
-            <HelpOutlineOutlinedIcon
-            sx={{ color: "orange" }}
-          /> :
-          <DisabledByDefaultIcon sx={{ color: "red" }} />
-
-            }
+            {method.has_payments ? (
+              <HelpOutlineOutlinedIcon sx={{ color: "orange" }} />
+            ) : (
+              <DisabledByDefaultIcon sx={{ color: "red" }} />
+            )}
           </IconButton>
-         
         </div>
       }
     >
@@ -58,20 +49,20 @@ function PaymentMethodItem({ key, method, onDelete = () => {} }) {
         onClose={() => setOpenModal(false)}
         children={
           <>
-          {method.has_payments ?
-          <ConfirmationModal
-          title="Alerta"
-          message={`Esse método tem ${method.number_of_payments} pagamentos associados. Para deletá-lo, remova os pagamentos primeiro.`}
-          onCancel={() => setOpenModal(false)}
-          confirmButtonText="OK"
-        />:
-            <ConfirmationModal
-              message={`Você realmente deseja deletar o método de pagamento ${method.description}?`}
-              onCancel={() => setOpenModal(false)}
-              onConfirm={() => onDelete(method.id)}
-
-            />
-          }
+            {method.has_payments ? (
+              <ConfirmationModal
+                title="Alerta"
+                message={`Esse método tem ${method.number_of_payments} pagamentos associados. Para deletá-lo, remova os pagamentos primeiro.`}
+                onCancel={() => setOpenModal(false)}
+                confirmButtonText="OK"
+              />
+            ) : (
+              <ConfirmationModal
+                message={`Você realmente deseja deletar o método de pagamento ${method.description}?`}
+                onCancel={() => setOpenModal(false)}
+                onConfirm={() => onDelete(method.id)}
+              />
+            )}
           </>
         }
       />

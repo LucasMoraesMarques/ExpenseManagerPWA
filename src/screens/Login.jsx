@@ -2,70 +2,68 @@ import React, { useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState } from "react";
-import MenuItem from "@mui/material/MenuItem";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
-import AttachmentIcon from "@mui/icons-material/Attachment";
 import InputAdornment from "@mui/material/InputAdornment";
-import FormControl from "@mui/material/FormControl";
-import List from "@mui/material/List";
-import { Link, useNavigate, Location } from "react-router-dom";
-import AddIcon from "@mui/icons-material/Add";
+import { Link, useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
-import CustomModal from "../components/CustomModal";
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import {ReactComponent as LoginSVG} from '../assets/img/login.svg';
-import { signInWithGoogle } from '../services/firebase';
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { ReactComponent as LoginSVG } from "../assets/img/login.svg";
+import { signInWithGoogle } from "../services/firebase";
 import { useSelector, useDispatch } from "react-redux";
 import { setCurrentUser } from "../redux/slices/userSlice";
 import { addMessage } from "../redux/slices/messageSlice";
-import CircularProgress from '@mui/material/CircularProgress';
+import CircularProgress from "@mui/material/CircularProgress";
 import { persistor } from "../redux/store";
 
 function Login() {
   const [showPassword, setShowPassword] = React.useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [formFilled, setFormFilled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loginWithGoogle, setLoginWithGoogle] = useState(false);
   const navigate = useNavigate();
-  const dispatch = useDispatch()
-  const user = useSelector(state => state.user)
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
 
-  const login = async userInfo => {
+  const login = async (userInfo) => {
     setLoading(true);
-    let idToken = '';
+    let idToken = "";
     if (Object.keys(userInfo).length != 0) {
       idToken = userInfo.id;
     }
     try {
-      const response = await fetch(process.env.REACT_APP_API_ROOT_URL + 'login/', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: idToken ? userInfo.email : email,
-          password: password,
-          accountId: idToken ? userInfo.id : '',
-        }),
-      });
+      const response = await fetch(
+        process.env.REACT_APP_API_ROOT_URL + "login/",
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: idToken ? userInfo.email : email,
+            password: password,
+            accountId: idToken ? userInfo.id : "",
+          }),
+        }
+      );
       const json = await response.json();
       if (response.status == 200) {
         try {
-          console.log(json)
-          dispatch(setCurrentUser({...json.user, api_token: json.api_token}));
-          dispatch(addMessage({title: 'Alerta', body:'Login realizado com sucesso!', severity:'success'}))
-          setTimeout(() => navigate('/'), 3000);
+          dispatch(setCurrentUser({ ...json.user, api_token: json.api_token }));
+          dispatch(
+            addMessage({
+              title: "Alerta",
+              body: "Login realizado com sucesso!",
+              severity: "success",
+            })
+          );
+          setTimeout(() => navigate("/"), 3000);
         } catch (error) {
           setLoading(false);
           setLoginWithGoogle(false);
@@ -74,7 +72,13 @@ function Login() {
       } else {
         setLoading(false);
         setLoginWithGoogle(false);
-        dispatch(addMessage({title: 'Alerta', body:json.detail, severity:'warning'}))
+        dispatch(
+          addMessage({
+            title: "Alerta",
+            body: json.detail,
+            severity: "warning",
+          })
+        );
       }
     } catch (error) {
       setLoading(false);
@@ -93,39 +97,27 @@ function Login() {
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
-  
-
 
   const handleSignInWithGoogle = async () => {
     try {
-      setLoading(true)
-      setLoginWithGoogle(true)
-      const result = await signInWithGoogle()
-      console.log(result)
-      const userInfo = result.additionalUserInfo.profile
+      setLoading(true);
+      setLoginWithGoogle(true);
+      const result = await signInWithGoogle();
+      const userInfo = result.additionalUserInfo.profile;
       let data = {
         email: userInfo.email,
-        password: '',
+        password: "",
         picture: userInfo.picture,
-        google_id: userInfo.id
-
-      }
+        google_id: userInfo.id,
+      };
       await login(userInfo);
-    } catch(error) {
-      console.log(error)
-
+    } catch (error) {
     }
-  }
-
-  useEffect(()=> {
-    console.log("effect", user)
-  }, [user])
+  };
 
   useEffect(() => {
-    persistor.persist()
-
-  }, [])
-
+    persistor.persist();
+  }, []);
 
   return (
     <div>
@@ -144,11 +136,10 @@ function Login() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Login
           </Typography>
-        
         </Toolbar>
       </AppBar>
       <div className="w-[90vw] mx-auto my-3 flex flex-col justify-start items-center">
-        <LoginSVG className="w-[180px] h-[180px] my-4"/>
+        <LoginSVG className="w-[180px] h-[180px] my-4" />
         <TextField
           label="Email"
           variant="outlined"
@@ -167,9 +158,9 @@ function Login() {
           onChange={(e) => setPassword(e.target.value)}
           fullWidth
           sx={{ margin: "10px 0px" }}
-          type={showPassword ? 'text' : 'password'}
+          type={showPassword ? "text" : "password"}
           InputProps={{
-            endAdornment:
+            endAdornment: (
               <InputAdornment position="end">
                 <IconButton
                   aria-label="toggle password visibility"
@@ -180,24 +171,44 @@ function Login() {
                   {showPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>
-            }}
+            ),
+          }}
         />
-        <Button variant="contained" className="w-full" disabled={!formFilled} onClick={() => login({})}>
-        {loading && !loginWithGoogle ? <span><CircularProgress size={20} sx={{color: 'white'}}/> Entrando ...</span> : <span>Entrar</span>}
+        <Button
+          variant="contained"
+          className="w-full"
+          disabled={!formFilled}
+          onClick={() => login({})}
+        >
+          {loading && !loginWithGoogle ? (
+            <span>
+              <CircularProgress size={20} sx={{ color: "white" }} /> Entrando
+              ...
+            </span>
+          ) : (
+            <span>Entrar</span>
+          )}
         </Button>
         <span className="my-3">Ou</span>
-        <Button variant="contained" className="w-full" color="success" onClick={handleSignInWithGoogle}>
-        {loading && loginWithGoogle ? (
-                <CircularProgress size={20} sx={{color: 'white'}}/>
-              ) : (
-                <></>
-              )}
-        {loading && loginWithGoogle
-                  ? 'Entrando ...'
-                  : 'Entrar com o Google'}
-        </Button>  
-        <span className="my-3">Ainda não tem uma conta? <Link to='/registrar' className="text-blue-600">Registre-se aqui</Link> </span>
-       
+        <Button
+          variant="contained"
+          className="w-full"
+          color="success"
+          onClick={handleSignInWithGoogle}
+        >
+          {loading && loginWithGoogle ? (
+            <CircularProgress size={20} sx={{ color: "white" }} />
+          ) : (
+            <></>
+          )}
+          {loading && loginWithGoogle ? "Entrando ..." : "Entrar com o Google"}
+        </Button>
+        <span className="my-3">
+          Ainda não tem uma conta?{" "}
+          <Link to="/registrar" className="text-blue-600">
+            Registre-se aqui
+          </Link>{" "}
+        </span>
       </div>
     </div>
   );

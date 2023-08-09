@@ -5,38 +5,25 @@ import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState, useEffect } from "react";
 import MenuItem from "@mui/material/MenuItem";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
-import AttachmentIcon from "@mui/icons-material/Attachment";
 import InputAdornment from "@mui/material/InputAdornment";
-import FormControl from "@mui/material/FormControl";
 import List from "@mui/material/List";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import AddIcon from "@mui/icons-material/Add";
-import Button from "@mui/material/Button";
+import { useNavigate, useParams } from "react-router-dom";
 import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import PaymentItem from "../components/PaymentItem";
 import Item from "../components/Item";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import SearchIcon from "@mui/icons-material/Search";
 import { useSelector, useDispatch } from "react-redux";
 import BackButton from "../components/BackButton";
 import ValidationItem from "../components/ValidationItem";
-import AlertToast from "../components/AlertToast";
 import ConfirmationModal from "../components/ConfirmationModal";
 import CustomModal from "../components/CustomModal";
 import { deleteExpense } from "../services/expenses";
 import { setExpenses } from "../redux/slices/expenseSlice";
-import { loadRegardings } from "../services/regardings";
-import { setRegardings } from "../redux/slices/regardingSlice";
-import { loadActions } from '../services/actions';
-import { setActions } from '../redux/slices/actionSlice';
 import { addMessage } from "../redux/slices/messageSlice";
 import Popover from "@mui/material/Popover";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
@@ -69,13 +56,12 @@ function ExpenseDetail() {
   const expenseState = useSelector((state) => state.expense);
   const regardingState = useSelector((state) => state.regarding);
   const [expense, setExpense] = useState({});
-  const [regarding, setRegarding] = useState({})
+  const [regarding, setRegarding] = useState({});
   const [filteredItems, setFilteredItems] = useState([]);
   const [search, setSearch] = useState("");
   const dispatch = useDispatch();
   const open = Boolean(anchorEl);
-  const {user} = useOutletContext()
-
+  const { user } = useOutletContext();
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -109,47 +95,51 @@ function ExpenseDetail() {
 
   const handleRemove = async () => {
     deleteExpense(user.api_token, expense.id).then((flag) => {
-      if(flag){
-        let newExpenses = expenseState.userExpenses.filter((item) => item.id != expense.id)
-        dispatch(setExpenses([...newExpenses]))
-        dispatch(addMessage({
-          severity: "success",
-          title: "Sucesso!",
-          body: "Despesa removida com sucesso!",
-        }));
-        navigate('/inicio')
-        dispatch(setReload(true))
+      if (flag) {
+        let newExpenses = expenseState.userExpenses.filter(
+          (item) => item.id != expense.id
+        );
+        dispatch(setExpenses([...newExpenses]));
+        dispatch(
+          addMessage({
+            severity: "success",
+            title: "Sucesso!",
+            body: "Despesa removida com sucesso!",
+          })
+        );
+        navigate("/inicio");
+        dispatch(setReload(true));
+      } else {
+        dispatch(
+          addMessage({
+            severity: "error",
+            title: "Erro!",
+            body: "Tivemos problemas ao deletar a despesa. Tente novamente!",
+          })
+        );
       }
-      else{
-        dispatch(addMessage({
-          severity: "error",
-          title: "Erro!",
-          body: "Tivemos problemas ao deletar a despesa. Tente novamente!",
-        }));
-      }
-      setOpenConfirmationModal(false)
-
-    })
-  }
+      setOpenConfirmationModal(false);
+    });
+  };
 
   useEffect(() => {
     let index = expenseState.userExpenses.findIndex((item) => item.id == id);
-    console.log(id, index);
     if (index != -1) {
-      let filteredExpense = { ...expenseState.userExpenses[index] }
+      let filteredExpense = { ...expenseState.userExpenses[index] };
       setExpense(filteredExpense);
       setFilteredItems([...expenseState.userExpenses[index].items]);
-      console.log(expenseState.userExpenses[index]);
-      setRegarding(regardingState.userRegardings.find(
-        (item) => item.id == filteredExpense.regarding
-      ))
+      setRegarding(
+        regardingState.userRegardings.find(
+          (item) => item.id == filteredExpense.regarding
+        )
+      );
     }
   }, []);
   return (
     <div>
       <AppBar position="sticky">
         <Toolbar>
-          <BackButton/>
+          <BackButton />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Detalhes da Despesa
           </Typography>
@@ -181,25 +171,32 @@ function ExpenseDetail() {
                 onClose={() => setAnchorEl(null)}
               >
                 <MenuItem onClick={editExpense}>Editar</MenuItem>
-                <MenuItem onClick={() => setOpenConfirmationModal(true)}>Deletar</MenuItem>
+                <MenuItem onClick={() => setOpenConfirmationModal(true)}>
+                  Deletar
+                </MenuItem>
               </Menu>
             </div>
-          ) :
-          <IconButton className="text-white" size="large"><HelpOutlineOutlinedIcon
-          onClick={handleMenu}
-          className="text-white"
-        />
-        <Popover
-        open={open}
-        anchorEl={anchorEl}
-        onClose={()=>setAnchorEl(false)}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-      >
-        <p className="text-center">Para editar essa despesa a referência deve estar em andamento.</p>
-      </Popover></IconButton>}
+          ) : (
+            <IconButton className="text-white" size="large">
+              <HelpOutlineOutlinedIcon
+                onClick={handleMenu}
+                className="text-white"
+              />
+              <Popover
+                open={open}
+                anchorEl={anchorEl}
+                onClose={() => setAnchorEl(false)}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+              >
+                <p className="text-center">
+                  Para editar essa despesa a referência deve estar em andamento.
+                </p>
+              </Popover>
+            </IconButton>
+          )}
         </Toolbar>
       </AppBar>
       <div className="">
@@ -252,7 +249,13 @@ function ExpenseDetail() {
             <List>
               {"validations" in expense &&
                 expense.validations.map((item) => {
-                  return <ValidationItem key={item.id} validation={item} detail={true}/>;
+                  return (
+                    <ValidationItem
+                      key={item.id}
+                      validation={item}
+                      detail={true}
+                    />
+                  );
                 })}
             </List>
           </TabPanel>
@@ -277,21 +280,21 @@ function ExpenseDetail() {
                 }}
               />
               <span className="font-bold text-lg">
-        {search ? `Resultados de "${search}"` : ""}
-      </span>
-      <div className="flex flew-row justify-between items-center">
-        <span className="text-sm">
-          Mostrando {filteredItems.length} items
-        </span>
-      </div>
+                {search ? `Resultados de "${search}"` : ""}
+              </span>
+              <div className="flex flew-row justify-between items-center">
+                <span className="text-sm">
+                  Mostrando {filteredItems.length} items
+                </span>
+              </div>
             </div>
-            <div className='overflow-y-scroll max-h-[calc(100vh-220px)]' >
-            <List>
-              {filteredItems.length > 0 &&
-                filteredItems.map((item) => {
-                  return <Item key={item.id} item={item} />;
-                })}
-            </List>
+            <div className="overflow-y-scroll max-h-[calc(100vh-220px)]">
+              <List>
+                {filteredItems.length > 0 &&
+                  filteredItems.map((item) => {
+                    return <Item key={item.id} item={item} />;
+                  })}
+              </List>
             </div>
           </TabPanel>
         </AppBar>

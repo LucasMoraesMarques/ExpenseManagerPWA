@@ -6,16 +6,16 @@ import expenseReducer from "./slices/expenseSlice";
 import notificationReducer from "./slices/notificationSlice";
 import validationReducer from "./slices/validationSlice";
 import actionReducer from "./slices/actionSlice";
-import messageReducer from "./slices/messageSlice"
-import configReducer from "./slices/configSlice"
-import storage from 'redux-persist/lib/storage';
-import { persistReducer, persistStore } from 'redux-persist';
-import thunk from 'redux-thunk';
+import messageReducer from "./slices/messageSlice";
+import configReducer from "./slices/configSlice";
+import storage from "redux-persist/lib/storage";
+import { persistReducer, persistStore } from "redux-persist";
+import thunk from "redux-thunk";
 
 const persistConfig = {
-  key: 'root',
+  key: "root",
   storage,
-}
+};
 
 const rootReducer = combineReducers({
   user: userReducer,
@@ -26,15 +26,15 @@ const rootReducer = combineReducers({
   validation: validationReducer,
   action: actionReducer,
   message: messageReducer,
-  config: configReducer
-})
+  config: configReducer,
+});
 
-const persistedReducer = persistReducer(persistConfig, rootReducer)
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
   reducer: persistedReducer,
   devTools: process.env.REACT_APP_DEBUG,
-  middleware: [thunk]
-})
+  middleware: [thunk],
+});
 
-export const persistor = persistStore(store)
+export const persistor = persistStore(store);

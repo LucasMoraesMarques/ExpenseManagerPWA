@@ -1,13 +1,11 @@
 import React from "react";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import Avatar from "@mui/material/Avatar";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
-import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
+import DisabledByDefaultIcon from "@mui/icons-material/DisabledByDefault";
 import IconButton from "@mui/material/IconButton";
 
-function Item({ key, item, edit = false, onDelete=()=>{} }) {
+function Item({ key, item, edit = false, onDelete = () => {} }) {
   return (
     <ListItem
       key={key}

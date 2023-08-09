@@ -18,15 +18,10 @@ import BackButton from "../components/BackButton";
 import { useSelector, useDispatch } from "react-redux";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
-import { createExpense, loadExpenses } from "../services/expenses";
-import { loadRegardings } from "../services/regardings";
-import { setExpenses } from "../redux/slices/expenseSlice";
-import { setRegardings } from "../redux/slices/regardingSlice";
+import { createExpense } from "../services/expenses";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import PaymentItem from "../components/PaymentItem";
-import { loadActions } from "../services/actions";
-import { setActions } from "../redux/slices/actionSlice";
 import {
   validateTextField,
   validateCurrency,
@@ -35,11 +30,8 @@ import {
 } from "../services/utils";
 import NoData from "../components/NoData";
 import { addMessage } from "../redux/slices/messageSlice";
-import { loadValidations } from '../services/validations';
-import { setValidations } from '../redux/slices/validationSlice';
 import { useOutletContext } from "react-router-dom";
 import { setReload } from "../redux/slices/configSlice";
-
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -107,7 +99,7 @@ function ExpenseCreate() {
   const dispatch = useDispatch();
   const [value, setValue] = useState(0);
   const [saving, setSaving] = useState(false);
-  const {user} = useOutletContext()
+  const { user } = useOutletContext();
 
   const handleChangeName = (e) => {
     setInputStates({ ...inputStates, name: e.target.value });
@@ -118,7 +110,6 @@ function ExpenseCreate() {
   };
 
   const handleChangeDate = (value) => {
-    console.log(value);
     setInputStates({ ...inputStates, date: dayjs(value.$d) });
   };
 
@@ -136,15 +127,12 @@ function ExpenseCreate() {
       let selectedRegarding = regardingState.userRegardings.find(
         (item) => item.id == regardingID
       );
-      console.log(selectedRegarding);
       if (selectedRegarding && Object.keys(selectedRegarding).length > 0) {
         let groupId = selectedRegarding.expense_group;
-        console.log(selectedRegarding);
         let selectedGroup = groupState.userGroups.find(
           (item) => item.id == groupId
         );
         if (selectedGroup && Object.keys(selectedGroup).length > 0) {
-          console.log(selectedGroup);
           let options = selectedGroup.members.map((item) => ({
             id: item.id,
             name: item.first_name + " " + item.last_name,
@@ -159,7 +147,6 @@ function ExpenseCreate() {
   };
 
   const handleChangeValidators = (e, value) => {
-    console.log(value);
     let newValidators = [];
     if (value.length > 0) {
       if (value.some((item) => item.id == 0)) {
@@ -169,7 +156,6 @@ function ExpenseCreate() {
       }
     }
     let options = [...userOptions, { id: 0, name: "Todos" }];
-    console.log(options);
     setInputStates({ ...inputStates, validators: newValidators });
     setValidatorOptions(
       options.filter((item) => !newValidators.includes(item))
@@ -205,8 +191,6 @@ function ExpenseCreate() {
       }
     }
     let payer = userState.users.find((item) => item.id == payment.payer.id);
-    console.log(payment);
-    console.log(paymentMethodOptions);
     let newPayment = {
       id: lastId,
       ...payment,
@@ -217,10 +201,9 @@ function ExpenseCreate() {
       payer: payer,
       payer_name: payer.full_name,
     };
-    if(['DEBIT', 'CASH'].includes(newPayment.payment_method.type)){
-      newPayment.payment_status = 'PAID'
-    } 
-    console.log("new payment", newPayment);
+    if (["DEBIT", "CASH"].includes(newPayment.payment_method.type)) {
+      newPayment.payment_status = "PAID";
+    }
     setInputStates({
       ...inputStates,
       payments: [...inputStates.payments, newPayment],
@@ -241,7 +224,6 @@ function ExpenseCreate() {
   };
 
   const handleChangeConsumers = (e, value) => {
-    console.log(value);
     let newConsumers = [];
     if (value.some((item) => item.id == 0)) {
       newConsumers = [...userOptions];
@@ -265,10 +247,8 @@ function ExpenseCreate() {
   };
 
   const handleChangePayer = (e, value) => {
-    console.log(value);
     if (value) {
       let payer = userState.users.find((item) => item.id == value.id);
-      console.log(payer);
       setPayment({
         payer: value,
         payment_method: "",
@@ -301,7 +281,6 @@ function ExpenseCreate() {
         .padStart(2, 0)}-${inputStates.date.$D.toString().padStart(2, 0)}`,
       regarding: inputStates.regarding.id,
     };
-    console.log(data);
     createExpense(user.api_token, data).then(({ flag, data }) => {
       if (flag) {
         setExpense({ ...data, ...inputStates });
@@ -313,7 +292,7 @@ function ExpenseCreate() {
           })
         );
         navigate("/inicio");
-        dispatch(setReload(true))
+        dispatch(setReload(true));
       } else {
         dispatch(
           addMessage({
@@ -330,7 +309,6 @@ function ExpenseCreate() {
   useEffect(() => {}, []);
 
   useEffect(() => {
-    console.log(inputStates);
     let expenseCost = parseFloat(
       inputStates.cost.replace(".", "").replace(",", ".")
     );
@@ -353,13 +331,9 @@ function ExpenseCreate() {
       validators: true,
     };
     setInputValidation(validations);
-    console.log(validations);
     setFieldsValid(Object.values(validations).every((item) => item));
   }, [inputStates]);
 
-  useEffect(() => {
-    console.log(payment);
-  }, [payment]);
   return (
     <div id="expenseEdit" className="grow">
       <AppBar position="sticky">

@@ -44,55 +44,54 @@ export const validateCurrency = (value) => {
 };
 
 export const moneyMask = (value) => {
-  value = value.replace('.', '').replace(',', '').replace(/\D/g, '')
+  value = value.replace(".", "").replace(",", "").replace(/\D/g, "");
 
-  const options = { minimumFractionDigits: 2 }
-  const result = new Intl.NumberFormat('pt-BR', options).format(
+  const options = { minimumFractionDigits: 2 };
+  const result = new Intl.NumberFormat("pt-BR", options).format(
     parseFloat(value) / 100
-  )
+  );
 
-  console.log(result)
+  console.log(result);
 
-  return result
-}
+  return result;
+};
 
 export const calculateTotalValueOfArray = (array) => {
-  let sum = 0
-  for(let value of array){
-    value = parseFloat(value.replace(".", "").replace(",", "."))
-    sum += value
+  let sum = 0;
+  for (let value of array) {
+    value = parseFloat(value.replace(".", "").replace(",", "."));
+    sum += value;
   }
-  return sum
-}
+  return sum;
+};
 
 export const validateEmail = (email) => {
   let emailRegex =
-      /^([0-9a-zA-Z]+([_.-]?[0-9a-zA-Z]+)*@[0-9a-zA-Z]+[0-9,a-z,A-Z,.,-]*(.){1}[a-zA-Z]{2,4})+$/;
-  return emailRegex.test(email)
-}
+    /^([0-9a-zA-Z]+([_.-]?[0-9a-zA-Z]+)*@[0-9a-zA-Z]+[0-9,a-z,A-Z,.,-]*(.){1}[a-zA-Z]{2,4})+$/;
+  return emailRegex.test(email);
+};
 
+export const dateInRange = (date, start = new Date(), end = new Date()) => {
+  return date >= start && date <= end;
+};
 
-export const dateInRange = (date, start=new Date(), end=new Date()) =>{
-  return (date >= start) && (date <= end)
-}
-
-export const priceInRange = (price, start=0, end=0) =>{
-  return (price >= start) && (price <= end)
-}
+export const priceInRange = (price, start = 0, end = 0) => {
+  return price >= start && price <= end;
+};
 
 export const phoneMask = (phone) => {
-  if(phone){
-    return phone.replace(/\D/g, '')
-    .replace(/^(\d)/, '($1')
-    .replace(/^(\(\d{2})(\d)/, '$1) $2')
-    .replace(/(\d{5})(\d{1,4})/, '$1-$2')
-    .replace(/(-\d{4})\d+?$/, '$1');
+  if (phone) {
+    return phone
+      .replace(/\D/g, "")
+      .replace(/^(\d)/, "($1")
+      .replace(/^(\(\d{2})(\d)/, "$1) $2")
+      .replace(/(\d{5})(\d{1,4})/, "$1-$2")
+      .replace(/(-\d{4})\d+?$/, "$1");
   }
-  return phone
-  
-}
+  return phone;
+};
 
 export const validatePhone = (phone) => {
-  let phoneRegex = /^\(\d{2}\) \d{5}-\d{4}$/
-  return phoneRegex.test(phone)
-}
+  let phoneRegex = /^\(\d{2}\) \d{5}-\d{4}$/;
+  return phoneRegex.test(phone);
+};

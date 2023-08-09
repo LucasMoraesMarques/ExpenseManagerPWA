@@ -1,16 +1,10 @@
 import React, { useEffect, useState } from "react";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import Avatar from "@mui/material/Avatar";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
-import Person2Icon from "@mui/icons-material/Person2";
-import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Chip from "@mui/material/Chip";
-import { Link, useNavigate, Location } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Checkbox from "@mui/material/Checkbox";
-import CheckBox from "@mui/icons-material/CheckBox";
 import Typography from "@mui/material/Typography";
 
 function ExpenseItem({
@@ -46,7 +40,15 @@ function ExpenseItem({
       disableGutters
       onClick={edit ? null : () => navigate(`/despesa/${expense.id}`)}
     >
-      {edit ? (expense.regarding_is_closed ? <LockOutlinedIcon sx={{ color: 'red' }} size="small"/> : <Checkbox onClick={onCheck} checked={isChecked} size="small" />) : ""}
+      {edit ? (
+        expense.regarding_is_closed ? (
+          <LockOutlinedIcon sx={{ color: "red" }} size="small" />
+        ) : (
+          <Checkbox onClick={onCheck} checked={isChecked} size="small" />
+        )
+      ) : (
+        ""
+      )}
       <ListItemButton className="flex flex-row justify-center items-start">
         <ListItemText
           primary={

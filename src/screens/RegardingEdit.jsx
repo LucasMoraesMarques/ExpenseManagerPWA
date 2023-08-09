@@ -1,38 +1,17 @@
 import React from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState, useEffect } from "react";
-import MenuItem from "@mui/material/MenuItem";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
-import AttachmentIcon from "@mui/icons-material/Attachment";
-import InputAdornment from "@mui/material/InputAdornment";
-import FormControl from "@mui/material/FormControl";
-import List from "@mui/material/List";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import AddIcon from "@mui/icons-material/Add";
+import { useNavigate, useParams } from "react-router-dom";
 import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
-import NoData from "../components/NoData";
 import BackButton from "../components/BackButton";
 import { useSelector, useDispatch } from "react-redux";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs, { Dayjs } from "dayjs";
-import {
-  createRegarding,
-  editRegarding,
-  loadRegardings,
-} from "../services/regardings";
-import { setRegardings } from "../redux/slices/regardingSlice";
-import AlertToast from "../components/AlertToast";
-import { loadActions } from "../services/actions";
-import { setActions } from "../redux/slices/actionSlice";
+import dayjs from "dayjs";
+import { createRegarding, editRegarding } from "../services/regardings";
 import { addMessage } from "../redux/slices/messageSlice";
 import { validateTextField } from "../services/utils";
 import { useOutletContext } from "react-router-dom";
@@ -61,13 +40,10 @@ function RegardingEdit() {
     name: "",
     description: "",
   });
-  const [users, setUsers] = useState([]);
-  const [memberSearch, setMemberSearch] = useState("");
   const [fieldsValid, setFieldsValid] = useState(false);
   const [saving, setSaving] = useState(false);
   const dispatch = useDispatch();
-  const {user} = useOutletContext()
-
+  const { user } = useOutletContext();
 
   const handleChangeName = (e) => {
     setInputStates({ ...inputStates, name: e.target.value });
@@ -78,7 +54,6 @@ function RegardingEdit() {
   };
 
   const handleChangeDate = (value, type) => {
-    console.log(value, type);
     if (type == "start") {
       setInputStates({ ...inputStates, start_date: dayjs(value.$d) });
     } else if (type == "end") {
@@ -111,7 +86,6 @@ function RegardingEdit() {
         .padStart(2, 0)}-${inputStates.end_date.$D.toString().padStart(2, 0)}`,
       expense_group: inputStates.expense_group.id,
     };
-    console.log(data);
     if (id) {
       editRegarding(user.api_token, id, data).then(({ flag, data }) => {
         if (flag) {
@@ -128,8 +102,6 @@ function RegardingEdit() {
             )}-${data.end_date.slice(0, 4)}`,
           };
           setRegarding(newRegarding);
-          console.log(data);
-          console.log(regardingState.userRegardings);
           let index = regardingState.userRegardings.findIndex(
             (item) => item.id == id
           );
@@ -140,8 +112,8 @@ function RegardingEdit() {
               body: "Referência editada com sucesso!",
             })
           );
-          navigate(`/inicio`)
-          dispatch(setReload(true))
+          navigate(`/inicio`);
+          dispatch(setReload(true));
         } else {
           dispatch(
             addMessage({
@@ -163,8 +135,8 @@ function RegardingEdit() {
               body: "Referência adicionada com sucesso!",
             })
           );
-          navigate('/inicio')
-          dispatch(setReload(true))
+          navigate("/inicio");
+          dispatch(setReload(true));
         } else {
           dispatch(
             addMessage({
@@ -182,7 +154,6 @@ function RegardingEdit() {
     let index = regardingState.userRegardings.findIndex(
       (item) => item.id == id
     );
-    console.log(id, index, regardingState.userRegardings);
     if (index != -1) {
       let data = regardingState.userRegardings[index];
       setRegarding({ ...data });

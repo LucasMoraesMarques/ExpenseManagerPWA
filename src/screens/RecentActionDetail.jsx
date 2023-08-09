@@ -1,22 +1,10 @@
 import React from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState, useEffect } from "react";
-import MenuItem from "@mui/material/MenuItem";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
-import AttachmentIcon from "@mui/icons-material/Attachment";
-import InputAdornment from "@mui/material/InputAdornment";
-import FormControl from "@mui/material/FormControl";
-import List from "@mui/material/List";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import Box from "@mui/material/Box";
-import { useSelector, useDispatch } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import BackButton from "../components/BackButton";
 
 const iconsByAction = {
@@ -35,7 +23,6 @@ function RecentActionDetail() {
     let index = actionState.groupsActions.findIndex((item) => item.id == id);
     if (index != -1) {
       setAction({ ...actionState.groupsActions[index] });
-      console.log(actionState.groupsActions[index]);
     }
   }, []);
 
@@ -70,14 +57,20 @@ function RecentActionDetail() {
             <dl className="ml-[10px]">
               {action.changes_json &&
                 Object.keys(action.changes_json).map((key) => {
-                  return (<>
-                  <dt className="font-bold capitalize">{action.changes_json[key] ? key : ''}</dt>
-                    {action.changes_json[key].split("\n").map((change) => {
-                      return change ? <dd className="ml-[20px]">&#8594;{change}</dd> : ""
-                    })}
-                  </>
-                    
-                  )
+                  return (
+                    <>
+                      <dt className="font-bold capitalize">
+                        {action.changes_json[key] ? key : ""}
+                      </dt>
+                      {action.changes_json[key].split("\n").map((change) => {
+                        return change ? (
+                          <dd className="ml-[20px]">&#8594;{change}</dd>
+                        ) : (
+                          ""
+                        );
+                      })}
+                    </>
+                  );
                 })}
             </dl>
           </>

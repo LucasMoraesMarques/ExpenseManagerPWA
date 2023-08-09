@@ -1,31 +1,18 @@
 import React from "react";
 import IconButton from "@mui/material/IconButton";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState, useEffect } from "react";
-import MenuItem from "@mui/material/MenuItem";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
-import AttachmentIcon from "@mui/icons-material/Attachment";
 import InputAdornment from "@mui/material/InputAdornment";
-import FormControl from "@mui/material/FormControl";
 import List from "@mui/material/List";
-import { Link, useNavigate, Location } from "react-router-dom";
-import AddIcon from "@mui/icons-material/Add";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
 import SearchIcon from "@mui/icons-material/Search";
-import RegardingItem from "../components/RegardingItem";
-import Snackbar from "@mui/material/Snackbar";
-import MuiAlert from "@mui/material/Alert";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import CloseIcon from "@mui/icons-material/Close";
 import CustomModal from "../components/CustomModal";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import NoData from "../components/NoData";
 import RecentAction from "../components/RecentAction";
 import AppBar from "@mui/material/AppBar";
@@ -33,7 +20,7 @@ import Toolbar from "@mui/material/Toolbar";
 import BackButton from "../components/BackButton";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
-import Pagination from '@mui/material/Pagination';
+import Pagination from "@mui/material/Pagination";
 
 const groups = [
   { label: "Group 1", id: 1 },
@@ -46,8 +33,11 @@ function RecentActionList() {
   const [filteredActions, setFilteredActions] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedChip, setSelectedChip] = useState("Todas");
-  const [actionPage, setActionPage] = useState(1)
-  const [actionSliceRange, setActionSliceRange] = useState({start:0, end:50})
+  const [actionPage, setActionPage] = useState(1);
+  const [actionSliceRange, setActionSliceRange] = useState({
+    start: 0,
+    end: 50,
+  });
 
   const filterActions = () => {
     let upperValue = search ? search.toUpperCase() : "";
@@ -84,26 +74,25 @@ function RecentActionList() {
   }, [actionState.groupsActions]);
 
   useEffect(() => {
-    filterActions()
+    filterActions();
   }, [selectedChip, search]);
 
   const handleActionPagination = (e, value) => {
-    setActionPage(value)
-    let start = 50 * (value - 1)
-    let end = 50 * (value)
-    if( end > filteredActions.length){
-      end = filteredActions.length
+    setActionPage(value);
+    let start = 50 * (value - 1);
+    let end = 50 * value;
+    if (end > filteredActions.length) {
+      end = filteredActions.length;
     }
     setActionSliceRange({
       start: start,
-      end: end
-    })
-
-  }
+      end: end,
+    });
+  };
 
   useEffect(() => {
-    handleActionPagination(null, 1)
-  }, [filteredActions])
+    handleActionPagination(null, 1);
+  }, [filteredActions]);
 
   return (
     <div>
@@ -238,32 +227,38 @@ function RecentActionList() {
           />
         </Stack>
         <div className="flex flex-col py-2">
-        <span className="font-bold text-lg">
-          {search ? `Resultados de "${search}"` : ""}
-        </span>
-        <span className="text-sm">
-          Mostrando {actionSliceRange.end != 0 ? actionSliceRange.start+1 : 0} a {actionSliceRange.end} de {filteredActions.length} ações
-        </span>
-        {filteredActions.length > 50 ?
-        <Pagination count={Math.ceil(filteredActions.length / 50)} page={actionPage} onChange={handleActionPagination} />
-        : <></>}
-        </div>
-        
-
-        
-
-        <div className='overflow-y-scroll max-h-[calc(100vh-240px)]' >
-        <List>
-          {filteredActions.length > 0 ? (
-            filteredActions.slice(actionSliceRange.start, actionSliceRange.end).map((item) => {
-              return <RecentAction key={item.id} action={item} />;
-            })
+          <span className="font-bold text-lg">
+            {search ? `Resultados de "${search}"` : ""}
+          </span>
+          <span className="text-sm">
+            Mostrando{" "}
+            {actionSliceRange.end != 0 ? actionSliceRange.start + 1 : 0} a{" "}
+            {actionSliceRange.end} de {filteredActions.length} ações
+          </span>
+          {filteredActions.length > 50 ? (
+            <Pagination
+              count={Math.ceil(filteredActions.length / 50)}
+              page={actionPage}
+              onChange={handleActionPagination}
+            />
           ) : (
-            <NoData message="Nenhuma ação encontrada" />
+            <></>
           )}
-        </List>
         </div>
-      
+
+        <div className="overflow-y-scroll max-h-[calc(100vh-240px)]">
+          <List>
+            {filteredActions.length > 0 ? (
+              filteredActions
+                .slice(actionSliceRange.start, actionSliceRange.end)
+                .map((item) => {
+                  return <RecentAction key={item.id} action={item} />;
+                })
+            ) : (
+              <NoData message="Nenhuma ação encontrada" />
+            )}
+          </List>
+        </div>
       </div>
     </div>
   );

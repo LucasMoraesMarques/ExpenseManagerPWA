@@ -1,11 +1,8 @@
 import React, { useEffect } from "react";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
-import ListItemButton from "@mui/material/ListItemButton";
 import ListItem from "@mui/material/ListItem";
-import Person2Icon from "@mui/icons-material/Person2";
 import ListItemText from "@mui/material/ListItemText";
-import AddIcon from "@mui/icons-material/Add";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import TextField from "@mui/material/TextField";
@@ -15,15 +12,11 @@ import { useState } from "react";
 import Typography from "@mui/material/Typography";
 import CustomModal from "../components/CustomModal";
 import Box from "@mui/material/Box";
-import Chip from "@mui/material/Chip";
 import { stringAvatar } from "../services/utils";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import EditIcon from "@mui/icons-material/Edit";
-import ListItemIcon from "@mui/material/ListItemIcon";
 import Tooltip from "@mui/material/Tooltip";
-import Checkbox from "@mui/material/Checkbox";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 const membershipLevels = {
   Administrador: {
@@ -52,50 +45,56 @@ function Membership({
   onEdit = () => {},
   onDelete = () => {},
   onCheck = () => {},
-  groupCreator = false
+  groupCreator = false,
 }) {
   const [openModal, setOpenModal] = useState(false);
   const [inputStates, setInputStates] = useState({
-    level : membershipLevelsOptions.find((item)=> item.name == membership.level)
-  })
-  const [levelOptions, setLevelOptions] = useState([...membershipLevelsOptions])
+    level: membershipLevelsOptions.find(
+      (item) => item.name == membership.level
+    ),
+  });
+  const [levelOptions, setLevelOptions] = useState([
+    ...membershipLevelsOptions,
+  ]);
 
   const handleChangeMembershipLevel = (e, value) => {
-    console.log(value);
     if (value) {
-      setInputStates({level: value})
-      setLevelOptions(membershipLevelsOptions.filter((item) => item.id != value.id));
-      onEdit({...membership, level: value.name, updated: true})
+      setInputStates({ level: value });
+      setLevelOptions(
+        membershipLevelsOptions.filter((item) => item.id != value.id)
+      );
+      onEdit({ ...membership, level: value.name, updated: true });
     }
   };
 
   const handleConfirmRemoveMember = () => {
-    setOpenModal(false)
-    onDelete()
-  }
+    setOpenModal(false);
+    onDelete();
+  };
 
   useEffect(() => {
-    if(groupCreator){
-      setInputStates({level: { id: 1, name: "Administrador" }})
+    if (groupCreator) {
+      setInputStates({ level: { id: 1, name: "Administrador" } });
     }
-  }, [])
-  console.log(membership);
+  }, []);
   if (membership) {
-    let member = membership.user
+    let member = membership.user;
     let fullName = member.first_name + " " + member.last_name;
 
     return (
       <ListItem key={key} disableGutters disablePadding className="w-full">
-        
-          <div className="flex justify-between items-center w-full p-2">
-
+        <div className="flex justify-between items-center w-full p-2">
           <ListItemAvatar>
             <Avatar {...stringAvatar(fullName)} />
-          </ListItemAvatar> 
-          {!edit ? <ListItemText
-            primary={fullName}
-            secondary={"Desde " + membership.joined_at}
-          />: ""}
+          </ListItemAvatar>
+          {!edit ? (
+            <ListItemText
+              primary={fullName}
+              secondary={"Desde " + membership.joined_at}
+            />
+          ) : (
+            ""
+          )}
           {edit ? (
             <Autocomplete
               id="tags-standard"
@@ -121,9 +120,11 @@ function Membership({
               <IconButton>{membershipLevels[membership.level].icon}</IconButton>
             </Tooltip>
           )}
-          </div>
-          {deleteMode ? (
-           <IconButton onClick={()=> setOpenModal(true)}><DisabledByDefaultIcon sx={{ color: "red" }}/></IconButton>
+        </div>
+        {deleteMode ? (
+          <IconButton onClick={() => setOpenModal(true)}>
+            <DisabledByDefaultIcon sx={{ color: "red" }} />
+          </IconButton>
         ) : (
           ""
         )}
@@ -142,14 +143,19 @@ function Membership({
                 Confirmação de ação
               </Typography>
 
-              <div className="text-justify">Você realmente deseja remover esse usuário do grupo? O membro removido continuará com acesso aos dados até o momento da remoção.</div>
-
+              <div className="text-justify">
+                Você realmente deseja remover esse usuário do grupo? O membro
+                removido continuará com acesso aos dados até o momento da
+                remoção.
+              </div>
 
               <Box className="flex flex-row justify-between mt-[10px]">
                 <Button variant="outlined" onClick={() => setOpenModal(false)}>
                   Cancelar
                 </Button>
-                <Button variant="contained" onClick={handleConfirmRemoveMember}>Confirmar</Button>
+                <Button variant="contained" onClick={handleConfirmRemoveMember}>
+                  Confirmar
+                </Button>
               </Box>
             </>
           }

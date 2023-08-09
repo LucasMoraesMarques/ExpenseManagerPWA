@@ -5,17 +5,10 @@ import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState, useEffect } from "react";
 import MenuItem from "@mui/material/MenuItem";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
-import AttachmentIcon from "@mui/icons-material/Attachment";
-import InputAdornment from "@mui/material/InputAdornment";
-import FormControl from "@mui/material/FormControl";
 import List from "@mui/material/List";
-import { Link, useNavigate, Location } from "react-router-dom";
-import AddIcon from "@mui/icons-material/Add";
+import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Tabs from "@mui/material/Tabs";
@@ -34,7 +27,7 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import NoData from "../components/NoData";
 import { useOutletContext } from "react-router-dom";
-import Pagination from '@mui/material/Pagination';
+import Pagination from "@mui/material/Pagination";
 import { setReload } from "../redux/slices/configSlice";
 
 function TabPanel(props) {
@@ -65,11 +58,17 @@ function Notifications() {
   const [notificationDetail, setNotificationDetail] = useState({});
   const [selectedChip, setSelectedChip] = useState("Abertas");
   const [filteredValidations, setFilteredValidations] = useState([]);
-  const {user} = useOutletContext()
-  const [validationPage, setValidationPage] = useState(1)
-  const [validationSliceRange, setValidationSliceRange] = useState({start:0, end:50})
-  const [notificationPage, setNotificationPage] = useState(1)
-  const [notificationSliceRange, setNotificationSliceRange] = useState({start:0, end:50})
+  const { user } = useOutletContext();
+  const [validationPage, setValidationPage] = useState(1);
+  const [validationSliceRange, setValidationSliceRange] = useState({
+    start: 0,
+    end: 50,
+  });
+  const [notificationPage, setNotificationPage] = useState(1);
+  const [notificationSliceRange, setNotificationSliceRange] = useState({
+    start: 0,
+    end: 50,
+  });
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -82,20 +81,19 @@ function Notifications() {
   const deactivateNotification = (notification) => {
     setOpenModal(true);
     setNotificationDetail(notification);
-    editNotifications(user.api_token, notification.id, { is_active: false }).then(
-      ({ flag, data }) => {
-        console.log(data, flag);
-        if (flag) {
-          let index = notificationState.userNotifications.findIndex(
-            (item) => item.id == notification.id
-          );
-          let newNotifications = [...notificationState.userNotifications];
-          newNotifications[index] = { ...data };
-          dispatch(setNotifications(newNotifications));
-        } else {
-        }
+    editNotifications(user.api_token, notification.id, {
+      is_active: false,
+    }).then(({ flag, data }) => {
+      if (flag) {
+        let index = notificationState.userNotifications.findIndex(
+          (item) => item.id == notification.id
+        );
+        let newNotifications = [...notificationState.userNotifications];
+        newNotifications[index] = { ...data };
+        dispatch(setNotifications(newNotifications));
+      } else {
       }
-    );
+    });
   };
 
   const deactivateValidation = (validation, rejected = false) => {
@@ -110,43 +108,38 @@ function Notifications() {
         .toLocaleDateString("zh-Hans-CN")
         .replaceAll("/", "-");
     }
-    console.log(newValidation);
-    editValidation(user.api_token, validation.id, newValidation).then(({ flag, data }) => {
-      console.log(data, flag);
-      if (flag) {
-        let index = validationState.userValidations.findIndex(
-          (item) => item.id == validation.id
-        );
-        let newValidations = [...validationState.userValidations];
-        newValidations[index] = {
-          ...validation,
-          is_active: data.is_active,
-          validated_at: data.validated_at ? `${data.validated_at.slice(
-            0,
-            4
-          )}/${data.validated_at.slice(5, 7)}/${data.validated_at.slice(
-            8,
-            10
-          )}` : "",
-        };
-        dispatch(setValidations(newValidations));
-        dispatch(setReload(true))
-      } else {
+    editValidation(user.api_token, validation.id, newValidation).then(
+      ({ flag, data }) => {
+        if (flag) {
+          let index = validationState.userValidations.findIndex(
+            (item) => item.id == validation.id
+          );
+          let newValidations = [...validationState.userValidations];
+          newValidations[index] = {
+            ...validation,
+            is_active: data.is_active,
+            validated_at: data.validated_at
+              ? `${data.validated_at.slice(0, 4)}/${data.validated_at.slice(
+                  5,
+                  7
+                )}/${data.validated_at.slice(8, 10)}`
+              : "",
+          };
+          dispatch(setValidations(newValidations));
+          dispatch(setReload(true));
+        } else {
+        }
       }
-    });
+    );
   };
 
   const handleSelectChip = (label) => {
-    console.log(label)
     setSelectedChip(label);
     setFilteredValidations([
       ...validationState.userValidations.filter((item) => {
-
-        console.log(item)
-        if(label == "Abertas"){
+        if (label == "Abertas") {
           return item.is_active;
-        }
-        else if (label == "Validadas") {
+        } else if (label == "Validadas") {
           return item.validated_at;
         } else if (label == "Rejeitadas") {
           return !item.validated_at && !item.is_active;
@@ -158,50 +151,48 @@ function Notifications() {
   };
 
   const handleValidationPagination = (e, value) => {
-    setValidationPage(value)
-    let start = 50 * (value - 1)
-    let end = 50 * (value)
-    if( end > filteredValidations.length){
-      end = filteredValidations.length
+    setValidationPage(value);
+    let start = 50 * (value - 1);
+    let end = 50 * value;
+    if (end > filteredValidations.length) {
+      end = filteredValidations.length;
     }
     setValidationSliceRange({
       start: start,
-      end: end
-    })
-
-  }
+      end: end,
+    });
+  };
 
   const handleNotificationPagination = (e, value) => {
-    setNotificationPage(value)
-    let start = 50 * (value - 1)
-    let end = 50 * (value)
-    if( end > notificationState.userNotifications.length){
-      end = notificationState.userNotifications.length
+    setNotificationPage(value);
+    let start = 50 * (value - 1);
+    let end = 50 * value;
+    if (end > notificationState.userNotifications.length) {
+      end = notificationState.userNotifications.length;
     }
     setNotificationSliceRange({
       start: start,
-      end: end
-    })
-
-  }
+      end: end,
+    });
+  };
 
   useEffect(() => {
     setFilteredValidations([...validationState.userValidations]);
-    handleSelectChip(selectedChip)
+    handleSelectChip(selectedChip);
   }, [validationState]);
 
   useEffect(() => {
-    handleValidationPagination(null, 1)
-  }, [filteredValidations])
+    handleValidationPagination(null, 1);
+  }, [filteredValidations]);
 
   useEffect(() => {
-    handleNotificationPagination(null, 1)
-  }, [notificationState.userNotifications])
+    handleNotificationPagination(null, 1);
+  }, [notificationState.userNotifications]);
 
   useEffect(() => {
-    handleValidationPagination(null, 1)
-    handleNotificationPagination(null, 1)
-  }, [])
+    handleValidationPagination(null, 1);
+    handleNotificationPagination(null, 1);
+  }, []);
 
   return (
     <div className="h-screen">
@@ -251,26 +242,27 @@ function Notifications() {
           )}
         </Toolbar>
       </AppBar>
-      <div id="notifications" >
+      <div id="notifications">
         <div>
-        <Badge
-              badgeContent={validationState.userValidations.filter(
+          <Badge
+            badgeContent={
+              validationState.userValidations.filter((item) => item.is_active)
+                .length
+            }
+            color="error"
+            className="absolute top-[80px] left-[calc(100vw-30px)]"
+            sx={{ position: "absolute" }}
+          />
+          <Badge
+            badgeContent={
+              notificationState.userNotifications.filter(
                 (item) => item.is_active
-              ).length}
-              color="error"
-              className="absolute top-[80px] left-[calc(100vw-30px)]"
-              sx={{position:'absolute'}}
-            />
-            <Badge
-              badgeContent={
-                notificationState.userNotifications.filter(
-                  (item) => item.is_active
-                ).length
-              }
-              color="error"
-              className="absolute top-[80px] left-[calc((100vw/2)-40px)]"
-              sx={{position:'absolute'}}
-            />
+              ).length
+            }
+            color="error"
+            className="absolute top-[80px] left-[calc((100vw/2)-40px)]"
+            sx={{ position: "absolute" }}
+          />
         </div>
         <AppBar position="static">
           <Tabs
@@ -286,34 +278,46 @@ function Notifications() {
             <Tab label="Validações" />
           </Tabs>
           <TabPanel value={value} index={0} className="text-black">
-          <span className="text-sm">
-          Mostrando {notificationSliceRange.end != 0 ? notificationSliceRange.start+1 : 0} a {notificationSliceRange.end} de {notificationState.userNotifications.length} notificações
-        </span>
-        {notificationState.userNotifications.length > 50 ? 
-        <Pagination count={Math.ceil(notificationState.userNotifications.length / 50)} page={notificationPage} onChange={handleNotificationPagination} />
-        : <></>}
-            <div className='overflow-y-scroll max-h-[calc(100vh-240px)]' >
-        
-        {notificationState.userNotifications.length > 0 ?
-            <List>
-                {notificationState.userNotifications.map((item) => {
-                  return (
-                    <NotificationItem
-                      key={item.id}
-                      notification={item}
-                      onClick={deactivateNotification}
-                    />
-                  );
-                })} 
-            </List>
-            : <NoData message="Nenhuma notificação encontrada" />}
-        </div>
-           
+            <span className="text-sm">
+              Mostrando{" "}
+              {notificationSliceRange.end != 0
+                ? notificationSliceRange.start + 1
+                : 0}{" "}
+              a {notificationSliceRange.end} de{" "}
+              {notificationState.userNotifications.length} notificações
+            </span>
+            {notificationState.userNotifications.length > 50 ? (
+              <Pagination
+                count={Math.ceil(
+                  notificationState.userNotifications.length / 50
+                )}
+                page={notificationPage}
+                onChange={handleNotificationPagination}
+              />
+            ) : (
+              <></>
+            )}
+            <div className="overflow-y-scroll max-h-[calc(100vh-240px)]">
+              {notificationState.userNotifications.length > 0 ? (
+                <List>
+                  {notificationState.userNotifications.map((item) => {
+                    return (
+                      <NotificationItem
+                        key={item.id}
+                        notification={item}
+                        onClick={deactivateNotification}
+                      />
+                    );
+                  })}
+                </List>
+              ) : (
+                <NoData message="Nenhuma notificação encontrada" />
+              )}
+            </div>
           </TabPanel>
 
           <TabPanel value={value} index={1}>
-            
-            <Stack direction="row" spacing={1} sx={{marginTop: '10px'}}>
+            <Stack direction="row" spacing={1} sx={{ marginTop: "10px" }}>
               <Chip
                 label="Todas"
                 color="primary"
@@ -323,11 +327,8 @@ function Notifications() {
               <Chip
                 label="Abertas"
                 color="primary"
-                variant={
-                  selectedChip == "Abertas" ? "contained" : "outlined"
-                }
+                variant={selectedChip == "Abertas" ? "contained" : "outlined"}
                 onClick={() => handleSelectChip("Abertas")}
-
               />
 
               <Chip
@@ -343,29 +344,44 @@ function Notifications() {
                   selectedChip == "Rejeitadas" ? "contained" : "outlined"
                 }
                 onClick={() => handleSelectChip("Rejeitadas")}
-
               />
             </Stack>
             <span className="text-sm">
-          Mostrando {validationSliceRange.end != 0 ? validationSliceRange.start+1 : 0} a {validationSliceRange.end} de {filteredValidations.length} validações
-        </span>
-        {filteredValidations.length > 50 ?
-        <Pagination count={Math.ceil(filteredValidations.length / 50)} page={validationPage} onChange={handleValidationPagination} />
-        : <></>}
+              Mostrando{" "}
+              {validationSliceRange.end != 0
+                ? validationSliceRange.start + 1
+                : 0}{" "}
+              a {validationSliceRange.end} de {filteredValidations.length}{" "}
+              validações
+            </span>
+            {filteredValidations.length > 50 ? (
+              <Pagination
+                count={Math.ceil(filteredValidations.length / 50)}
+                page={validationPage}
+                onChange={handleValidationPagination}
+              />
+            ) : (
+              <></>
+            )}
 
-            <div className='overflow-y-scroll max-h-[calc(100vh-150px)]' >
-            <List>
-              {filteredValidations.length > 0 ?
-                filteredValidations.slice(validationSliceRange.start, validationSliceRange.end).map((item) => {
-                  return (
-                    <ValidationItem
-                      key={item.id}
-                      validation={item}
-                      onClick={deactivateValidation}
-                    />
-                  );
-                }) : <NoData message="Nenhuma validação encontrada"/>}
-            </List>
+            <div className="overflow-y-scroll max-h-[calc(100vh-150px)]">
+              <List>
+                {filteredValidations.length > 0 ? (
+                  filteredValidations
+                    .slice(validationSliceRange.start, validationSliceRange.end)
+                    .map((item) => {
+                      return (
+                        <ValidationItem
+                          key={item.id}
+                          validation={item}
+                          onClick={deactivateValidation}
+                        />
+                      );
+                    })
+                ) : (
+                  <NoData message="Nenhuma validação encontrada" />
+                )}
+              </List>
             </div>
           </TabPanel>
         </AppBar>

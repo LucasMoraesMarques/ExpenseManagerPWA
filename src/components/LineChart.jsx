@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Line} from "react-chartjs-2";
+import React from "react";
+import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,9 +9,8 @@ import {
   Title,
   Tooltip,
   Legend,
-  ArcElement
-} from 'chart.js';
-
+  ArcElement,
+} from "chart.js";
 
 ChartJS.register(
   ArcElement,
@@ -21,12 +20,11 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend,
+  Legend
 );
 
-
 const chartConfig = {
-  data:{},
+  data: {},
   options: {
     responsive: true,
     //maintainAspectRatio: false,
@@ -36,8 +34,8 @@ const chartConfig = {
         time: {
           unit: "minute",
           displayFormats: {
-            minute: "HH:mm"
-          }
+            minute: "HH:mm",
+          },
         },
         ticks: { source: "auto" },
         offset: false,
@@ -45,18 +43,18 @@ const chartConfig = {
           //display: false,
           drawBorder: true,
           drawOnChartArea: false,
-          drawTicks: true
+          drawTicks: true,
         },
         font: {
-          size: 8
-        }
+          size: 8,
+        },
       },
       xAxis2: {
         type: "time",
         time: {
-          unit: "day"
-        }
-      }
+          unit: "day",
+        },
+      },
       // y: {
       //   ticks: {
       //     fontSize: 8,
@@ -69,28 +67,26 @@ const chartConfig = {
       zoom: {
         zoom: {
           wheel: {
-            enabled: true
+            enabled: true,
           },
           // drag:{
           //   enabled:true
           // },
           mode: "x",
-          speed: 100
+          speed: 100,
         },
         pan: {
           enabled: true,
           mode: "x",
-          speed: 0.5
-        }
-      }
-    }
-  }
+          speed: 0.5,
+        },
+      },
+    },
+  },
 };
 
-const LineChart = ({data}) => {
-  return (
-    <Line data={data} options={chartConfig}/>
-  );
+const LineChart = ({ data }) => {
+  return <Line data={data} options={chartConfig} />;
 };
 
 export default LineChart;

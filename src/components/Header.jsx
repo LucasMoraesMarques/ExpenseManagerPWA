@@ -11,7 +11,7 @@ function Header() {
   const notificationState = useSelector((state) => state.notification);
   const validationState = useSelector((state) => state.validation);
   const [count, setCount] = useState(0);
-  const {user} = useOutletContext()
+  const { user } = useOutletContext();
 
   useEffect(() => {
     let activeNotifications = notificationState.userNotifications.filter(
@@ -39,11 +39,11 @@ function Header() {
             </IconButton>
           </Link>
 
-          <p>Olá, {user ? user.full_name : 'user'}!</p>
+          <p>Olá, {user ? user.full_name : "user"}!</p>
         </div>
         <Link to="/notificacoes">
-          <IconButton  sx={{ color: "white" }} aria-label="menu">
-            <Badge badgeContent={count} color="error" sx={{top:'0px'}}>
+          <IconButton sx={{ color: "white" }} aria-label="menu">
+            <Badge badgeContent={count} color="error" sx={{ top: "0px" }}>
               <NotificationsNoneIcon sx={{ height: "30px", width: "30px" }} />
             </Badge>
           </IconButton>

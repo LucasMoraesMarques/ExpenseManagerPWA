@@ -1,36 +1,25 @@
 import React from "react";
 import IconButton from "@mui/material/IconButton";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState, useEffect } from "react";
-import MenuItem from "@mui/material/MenuItem";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
-import AttachmentIcon from "@mui/icons-material/Attachment";
 import InputAdornment from "@mui/material/InputAdornment";
-import FormControl from "@mui/material/FormControl";
 import List from "@mui/material/List";
-import { Link, useNavigate, Location } from "react-router-dom";
-import AddIcon from "@mui/icons-material/Add";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
 import SearchIcon from "@mui/icons-material/Search";
 import RegardingItem from "../components/RegardingItem";
-import Snackbar from "@mui/material/Snackbar";
-import MuiAlert from "@mui/material/Alert";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import CloseIcon from "@mui/icons-material/Close";
 import CustomModal from "../components/CustomModal";
 import { useDispatch, useSelector } from "react-redux";
 import NoData from "../components/NoData";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { dateInRange } from "../services/utils";
-import { Badge, Checkbox, FormControlLabel } from "@mui/material";
-import Pagination from '@mui/material/Pagination';
+import { Badge } from "@mui/material";
+import Pagination from "@mui/material/Pagination";
 
 const allStatus = [
   { name: "Em andamento", id: 1 },
@@ -55,15 +44,14 @@ function RegardingList() {
   const [groupStatusOptions, setGroupStatusOptions] = useState([]);
   const [filtersValid, setFiltersValid] = useState(false);
   const [filtersFilled, setFiltersFilled] = useState(false);
-  const [page, setPage] = useState(1)
-  const [sliceRange, setSliceRange] = useState({start:0, end:50})
+  const [page, setPage] = useState(1);
+  const [sliceRange, setSliceRange] = useState({ start: 0, end: 50 });
 
   const handleChangeSearch = (value) => {
     setSearch(value);
   };
 
   const handleChangeGroups = (e, value) => {
-    console.log(value);
     let newGroups = [];
     let allUserGroups = groupState.userGroups.map((item) => ({
       id: item.id,
@@ -80,13 +68,11 @@ function RegardingList() {
     if (!(newGroups.length == allUserGroups.length)) {
       options.push({ id: 0, name: "Todos" });
     }
-    console.log(options);
     setFilterStates({ ...filterStates, groups: newGroups });
     setGroupOptions(options.filter((item) => !newGroups.includes(item)));
   };
 
   const handleChangeDate = (value, type) => {
-    console.log(value, type);
     if (type == "start") {
       setFilterStates({ ...filterStates, startDate: dayjs(value.$d) });
     } else if (type == "end") {
@@ -95,10 +81,8 @@ function RegardingList() {
   };
 
   const handleChangeGroupStatus = (e, value) => {
-    console.log(value);
     if (value) {
       let options = [...allStatus, { id: 3, name: "Todos" }];
-      console.log(options);
       setFilterStates({ ...filterStates, status: value });
       setGroupStatusOptions(options.filter((item) => item.id != value.id));
     }
@@ -141,7 +125,6 @@ function RegardingList() {
   };
 
   const applyFilters = (flag = true) => {
-    console.log(filteredRegardings);
     let newRegardings = [...regardingState.userRegardings];
     if (flag) {
       if (filterStates.status && filterStates.status.name != "Todos") {
@@ -165,7 +148,6 @@ function RegardingList() {
     newRegardings = filterBySearch(search, newRegardings);
     setFilteredRegardings([...newRegardings]);
   };
-
 
   const resetOptions = () => {
     let groups = groupState.userGroups.map((item) => ({
@@ -197,27 +179,24 @@ function RegardingList() {
   };
 
   const handlePagination = (e, value) => {
-    setPage(value)
-    let start = 50 * (value - 1)
-    let end = 50 * (value)
-    if( end > filteredRegardings.length){
-      end = filteredRegardings.length
+    setPage(value);
+    let start = 50 * (value - 1);
+    let end = 50 * value;
+    if (end > filteredRegardings.length) {
+      end = filteredRegardings.length;
     }
     setSliceRange({
       start: start,
-      end: end
-    })
-
-  }
+      end: end,
+    });
+  };
 
   useEffect(() => {
     setFilteredRegardings([...regardingState.userRegardings]);
-    console.log(regardingState.userRegardings);
     resetOptions();
   }, []);
 
   useEffect(() => {
-    console.log(filterStates);
     setFiltersValid(
       (filterStates.startDate && filterStates.endDate) ||
         (!filterStates.startDate && !filterStates.endDate)
@@ -229,8 +208,8 @@ function RegardingList() {
   }, [search]);
 
   useEffect(() => {
-    handlePagination(null, 1)
-  }, [filteredRegardings])
+    handlePagination(null, 1);
+  }, [filteredRegardings]);
 
   return (
     <div className="w-[95vw] mx-auto grow">
@@ -390,14 +369,20 @@ function RegardingList() {
           {search ? `Resultados de "${search}"` : ""}
         </span>
         <div className="flex flew-row justify-between items-center">
-        <span className="text-sm">
-          Mostrando {sliceRange.end != 0 ? sliceRange.start+1 : 0} a {sliceRange.end} de {filteredRegardings.length} referências
-        </span>
-        
+          <span className="text-sm">
+            Mostrando {sliceRange.end != 0 ? sliceRange.start + 1 : 0} a{" "}
+            {sliceRange.end} de {filteredRegardings.length} referências
+          </span>
         </div>
-        {filteredRegardings.length > 50 ? 
-      <Pagination count={Math.ceil(filteredRegardings.length / 50)} page={page} onChange={handlePagination} />
-      : <></>}
+        {filteredRegardings.length > 50 ? (
+          <Pagination
+            count={Math.ceil(filteredRegardings.length / 50)}
+            page={page}
+            onChange={handlePagination}
+          />
+        ) : (
+          <></>
+        )}
       </div>
       <div className="overflow-y-scroll max-h-[calc(100vh-220px)]">
         <List>

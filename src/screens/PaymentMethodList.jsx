@@ -2,33 +2,22 @@ import React from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState } from "react";
-import MenuItem from "@mui/material/MenuItem";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import Menu from "@mui/material/Menu";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
-import AttachmentIcon from "@mui/icons-material/Attachment";
 import InputAdornment from "@mui/material/InputAdornment";
-import FormControl from "@mui/material/FormControl";
 import List from "@mui/material/List";
-import Item from "../components/Item";
-import { Link, useNavigate, Location } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import CustomModal from "../components/CustomModal";
 import PaymentMethodItem from "../components/PaymentMethodItem";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import BackButton from "../components/BackButton";
-import dayjs, { Dayjs } from "dayjs";
 import { createPaymentMethod, deletePaymentMethod } from "../services/payments";
-import { useSelector, useDispatch } from "react-redux";
-import AlertToast from "../components/AlertToast";
+import { useDispatch } from "react-redux";
 import { setCurrentUser } from "../redux/slices/userSlice";
-import ConfirmationModal from "../components/ConfirmationModal";
 import { addMessage } from "../redux/slices/messageSlice";
 import { useOutletContext } from "react-router-dom";
 import NoData from "../components/NoData";
@@ -40,14 +29,11 @@ const PAYMENT_METHOD_TYPES = [
   { id: "CASH", label: "Dinheiro" },
 ];
 
-function PaymentMethodList() { /*TODO update users with currentUser wallet*/
-  const [anchorEl, setAnchorEl] = useState(null);
+function PaymentMethodList() {
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
-  const userState = useSelector((state) => state.user);
   const dispatch = useDispatch();
-  const {user} = useOutletContext()
-
+  const { user } = useOutletContext();
 
   const [inputStates, setInputStates] = useState({
     type: "",
@@ -74,7 +60,6 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
   };
 
   const handleAddPaymentMethod = () => {
-    console.log(inputStates);
     let paymentMethod = {
       type: inputStates.type.id,
       description: inputStates.description,
@@ -85,60 +70,68 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
       paymentMethod.limit = inputStates.limit;
     }
 
-    console.log(paymentMethod);
-    createPaymentMethod(user.api_token, paymentMethod).then(({ flag, data }) => {
-      console.log(flag, data);
-      if (flag) {
-      
-        let newPaymentsMethods = [
-          ...user.wallet.payment_methods, data
-        ];
-        let newWallet = {id:user.wallet.id, payment_methods:newPaymentsMethods}
-      dispatch(setCurrentUser({...user, wallet:newWallet}));
+    createPaymentMethod(user.api_token, paymentMethod).then(
+      ({ flag, data }) => {
+        if (flag) {
+          let newPaymentsMethods = [...user.wallet.payment_methods, data];
+          let newWallet = {
+            id: user.wallet.id,
+            payment_methods: newPaymentsMethods,
+          };
+          dispatch(setCurrentUser({ ...user, wallet: newWallet }));
 
-        dispatch(addMessage({
-          severity: "success",
-          title: "Sucesso!",
-          body: "Método de pagamento adicionado com sucesso!",
-        }))
-        dispatch(setReload(true))
-        setOpenModal(false);
-      } else {
-        dispatch(addMessage({
-          severity: "error",
-          title: "Erro!",
-          body: "Tivemos problemas ao criar o método. Tente novamente!",
-        }))
-        setOpenModal(false);
+          dispatch(
+            addMessage({
+              severity: "success",
+              title: "Sucesso!",
+              body: "Método de pagamento adicionado com sucesso!",
+            })
+          );
+          dispatch(setReload(true));
+          setOpenModal(false);
+        } else {
+          dispatch(
+            addMessage({
+              severity: "error",
+              title: "Erro!",
+              body: "Tivemos problemas ao criar o método. Tente novamente!",
+            })
+          );
+          setOpenModal(false);
+        }
       }
-    });
+    );
   };
   const handleDeletePaymentMethod = (id) => {
-    let index = user.wallet.payment_methods.findIndex(
-      (item) => item.id == id
-    );
+    let index = user.wallet.payment_methods.findIndex((item) => item.id == id);
     if (index != -1) {
       deletePaymentMethod(user.api_token, id).then((flag) => {
-        console.log(flag);
         if (flag) {
           let newPaymentsMethods = [
             ...user.wallet.payment_methods.filter((item) => item.id != id),
           ];
-          let newWallet = {id:user.wallet.id, payment_methods:newPaymentsMethods}
-        dispatch(setCurrentUser({...user, wallet:newWallet}));
-          dispatch(addMessage({
-            severity: "success",
-            title: "Sucesso!",
-            body: "Método de pagamento deletado com sucesso!",
-          }))
-          dispatch(setReload(true))
+          let newWallet = {
+            id: user.wallet.id,
+            payment_methods: newPaymentsMethods,
+          };
+          dispatch(setCurrentUser({ ...user, wallet: newWallet }));
+          dispatch(
+            addMessage({
+              severity: "success",
+              title: "Sucesso!",
+              body: "Método de pagamento deletado com sucesso!",
+            })
+          );
+          dispatch(setReload(true));
           setOpenModal(false);
         } else {
-          dispatch(addMessage({
-            severity: "error",
-            title: "Erro!",
-            body: "Tivemos problemas ao deletar o método. Tente novamente!",
-          }))
+          dispatch(
+            addMessage({
+              severity: "error",
+              title: "Erro!",
+              body: "Tivemos problemas ao deletar o método. Tente novamente!",
+            })
+          );
           setOpenModal(false);
         }
       });
@@ -248,17 +241,19 @@ function PaymentMethodList() { /*TODO update users with currentUser wallet*/
             </>
           }
         />
-  {user.wallet && user.wallet.payment_methods.length > 0 ?
-        <List>
-          {user.wallet.payment_methods.map((method) => (
-            <PaymentMethodItem
-              key={method.id}
-              method={method}
-              onDelete={handleDeletePaymentMethod}
-            />
-          ))}
-        </List>
-        : <NoData message="Nenhum método de pagamento encontrado"/>}
+        {user.wallet && user.wallet.payment_methods.length > 0 ? (
+          <List>
+            {user.wallet.payment_methods.map((method) => (
+              <PaymentMethodItem
+                key={method.id}
+                method={method}
+                onDelete={handleDeletePaymentMethod}
+              />
+            ))}
+          </List>
+        ) : (
+          <NoData message="Nenhum método de pagamento encontrado" />
+        )}
       </div>
     </div>
   );
