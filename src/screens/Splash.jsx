@@ -29,6 +29,9 @@ function Splash() {
   const loadResources = async () => {
     loadGroups(apiToken)
       .then((json) => {
+        if("detail" in json && json.detail == "Invalid token."){
+          throw Error("Token inválido")
+        }
         setLoadingText("Carregando grupos ...");
         dispatch(setGroups(json));
       })
@@ -86,14 +89,25 @@ function Splash() {
         );
       })
       .catch((e) => {
-        dispatch(
-          addMessage({
-            title: "Erro",
-            body: "Erro ao carregar os dados. Tente novamente!",
-            severity: "error",
-          })
-        );
-        setTimeout(() => navigate("/boas-vindas"), 1000);
+        if(e.message == "Token inválido") {
+          dispatch(
+            addMessage({
+              title: "Alerta",
+              body: "Sua sessão expirou. Faça login novamente!",
+              severity: "warning",
+            })
+          );
+          setTimeout(() => navigate("/boas-vindas"), 1000);
+        } else {
+          dispatch(
+            addMessage({
+              title: "Erro",
+              body: "Erro ao carregar os dados. Tente novamente!",
+              severity: "error",
+            })
+          );
+          setTimeout(() => navigate("/boas-vindas"), 1000);
+        }
       });
   };
 

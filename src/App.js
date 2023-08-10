@@ -61,6 +61,9 @@ function App() {
     }
     loadGroups(apiToken)
       .then((json) => {
+        if("detail" in json && json.detail == "Invalid token."){
+          throw Error("Token inválido")
+        }
         dispatch(setGroups(json));
       })
       .then(async () => {
@@ -101,13 +104,25 @@ function App() {
         setOpen(false);
       })
       .catch((e) => {
-        dispatch(
-          addMessage({
-            title: "Erro",
-            body: "Erro ao carregar os dados. Tente novamente!",
-            severity: "error",
-          })
-        );
+        if(e.message == "Token inválido") {
+          dispatch(
+            addMessage({
+              title: "Alerta",
+              body: "Sua sessão expirou. Faça login novamente!",
+              severity: "warning",
+            })
+          );
+          setTimeout(() => {window.location.url = "/boas-vindas"}, 1000);
+        } else {
+          dispatch(
+            addMessage({
+              title: "Erro",
+              body: "Erro ao carregar os dados. Tente novamente!",
+              severity: "error",
+            })
+          );
+          setTimeout(() => {window.location.url = "/boas-vindas"}, 1000);
+        }
       })
       .finally(() => {
         dispatch(setReload(false));

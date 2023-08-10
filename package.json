@@ -2,7 +2,7 @@
   "name": "expense-manager",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://192.168.0.107:8000",
+  "proxy": "http://127.0.0.1:8000/api/v1/",
   "dependencies": {
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",

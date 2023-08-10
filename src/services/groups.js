@@ -12,6 +12,9 @@ export const loadGroups = async (apiToken) => {
       }
     );
     const json = await response.json();
+    if (response.status == 403){
+      return json
+    }
     if (response.status != 200) {
       return [];
     }
