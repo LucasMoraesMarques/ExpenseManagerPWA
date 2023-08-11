@@ -4,18 +4,18 @@
   "icons": [
     {
       "src": "001-expenses.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
+      "sizes": "64x64",
       "type": "image/x-icon"
     },
     {
-      "src": "001-expenses.png",
+      "src": "logo192.png",
       "type": "image/png",
-      "sizes": "64x64"
+      "sizes": "192x192"
     },
     {
-      "src": "001-expenses.png",
+      "src": "logo512.png",
       "type": "image/png",
-      "sizes": "64x64"
+      "sizes": "512x512"
     }
   ],
   "start_url": ".",
