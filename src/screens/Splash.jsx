@@ -18,6 +18,7 @@ import { setUsers, setCurrentUser } from "../redux/slices/userSlice";
 import { loadActions } from "../services/actions";
 import { setActions } from "../redux/slices/actionSlice";
 import { addMessage } from "../redux/slices/messageSlice";
+import { setReload } from "../redux/slices/configSlice";
 
 function Splash() {
   const navigate = useNavigate();
@@ -108,6 +109,9 @@ function Splash() {
           );
           setTimeout(() => navigate("/boas-vindas"), 1000);
         }
+      }).finally(() => {
+        console.log("set reload")
+        dispatch(setReload(false));
       });
   };
 
@@ -121,9 +125,10 @@ function Splash() {
     };
   }, []);
   return (
-    <div className="flex flex-col justify-center items-center h-screen bg-cyan-700">
-      <span className="text-white text-2xl my-3">Expense Manager</span>
-      <CircularProgress sx={{ color: "white" }} />
+    <div className="flex flex-col justify-center items-center h-screen bg-[#1976d2]">
+      <img src={require("../assets/img/001-expenses.png")} width={80} height={80}/>
+      <span className="text-white text-2xl my-3 text-bold">Expense Manager</span>
+      <CircularProgress sx={{ color: "white" }}/>
       <span className="text-white text-sm my-3">{loadingText}</span>
     </div>
   );

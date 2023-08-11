@@ -125,20 +125,24 @@ function App() {
         }
       })
       .finally(() => {
+        setOpen(false);
         dispatch(setReload(false));
       });
   };
 
   useEffect(() => {
     dispatch(setReload(true));
+    return () => dispatch(setReload(false));
   }, []);
 
   useEffect(() => {
-    if (configState.reload) {
+    let currentPath = window.location.href.replace(process.env.REACT_APP_BASE_DOMAIN, "")
+    console.log(process.env.REACT_APP_BASE_DOMAIN, currentPath)
+    if (configState.reload && currentPath != '/') {
       setOpen(true);
       loadResources();
     }
-  }, [configState.reload]);
+  }, [configState]);
 
   return (
     <>
