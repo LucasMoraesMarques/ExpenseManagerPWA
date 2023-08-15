@@ -19,6 +19,7 @@ import { addMessage } from "../redux/slices/messageSlice";
 import CircularProgress from "@mui/material/CircularProgress";
 import { validateEmail } from "../services/utils";
 import { persistor } from "../redux/store";
+import * as Sentry from "@sentry/react";
 
 function Register() {
   const [firstName, setFirstName] = useState("");
@@ -70,10 +71,10 @@ function Register() {
             })
           );
           setTimeout(() => navigate("/"), 2000);
-        } catch (error) {
+        } catch (e) {
           setLoading(false);
           setRegisterWithGoogle(false);
-          //Sentry.captureException(error);
+          Sentry.captureException(e);
         }
       } else {
         setLoading(false);
@@ -82,10 +83,10 @@ function Register() {
           addMessage({ title: "Alerta", body: json.detail, severity: "error" })
         );
       }
-    } catch (error) {
+    } catch (e) {
       setLoading(false);
       setRegisterWithGoogle(false);
-      //Sentry.captureException(error);
+      Sentry.captureException(e);
     } finally {
     }
   };
@@ -116,7 +117,8 @@ function Register() {
         googleId: userInfo.id,
       };
       await register(data);
-    } catch (error) {
+    } catch (e) {
+      Sentry.captureException(e);
     }
   };
 

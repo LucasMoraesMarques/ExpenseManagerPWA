@@ -42,6 +42,7 @@ import { loadActions } from "./services/actions";
 import { setActions } from "./redux/slices/actionSlice";
 import { addMessage } from "./redux/slices/messageSlice";
 import { setReload } from "./redux/slices/configSlice";
+import * as Sentry from "@sentry/react";
 
 function App() {
   const userState = useSelector((state) => state.user);
@@ -87,15 +88,6 @@ function App() {
         });
       })
       .then(async () => {
-        return loadUsers(apiToken).then((json) => {
-          dispatch(setUsers(json));
-          let newCurrentUser = json.filter(
-            (user) => user.id == currentUser.id
-          )[0];
-          dispatch(setCurrentUser({ ...newCurrentUser, api_token: apiToken }));
-        });
-      })
-      .then(async () => {
         return loadActions(apiToken).then((json) => {
           dispatch(setActions(json));
         });
@@ -104,6 +96,7 @@ function App() {
         setOpen(false);
       })
       .catch((e) => {
+        Sentry.captureException(e)
         if(e.message == "Token inválido") {
           dispatch(
             addMessage({

@@ -19,6 +19,7 @@ import { loadActions } from "../services/actions";
 import { setActions } from "../redux/slices/actionSlice";
 import { addMessage } from "../redux/slices/messageSlice";
 import { setReload } from "../redux/slices/configSlice";
+import * as Sentry from "@sentry/react";
 
 function Splash() {
   const navigate = useNavigate();
@@ -90,6 +91,7 @@ function Splash() {
         );
       })
       .catch((e) => {
+        Sentry.captureException(e);
         if(e.message == "Token inválido") {
           dispatch(
             addMessage({

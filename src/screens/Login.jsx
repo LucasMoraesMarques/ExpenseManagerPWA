@@ -18,6 +18,7 @@ import { setCurrentUser } from "../redux/slices/userSlice";
 import { addMessage } from "../redux/slices/messageSlice";
 import CircularProgress from "@mui/material/CircularProgress";
 import { persistor } from "../redux/store";
+import * as Sentry from "@sentry/react";
 
 function Login() {
   const [showPassword, setShowPassword] = React.useState(false);
@@ -64,10 +65,10 @@ function Login() {
             })
           );
           setTimeout(() => navigate("/"), 3000);
-        } catch (error) {
+        } catch (e) {
+          Sentry.captureException(e)
           setLoading(false);
           setLoginWithGoogle(false);
-          //Sentry.captureException(error);
         }
       } else {
         setLoading(false);
@@ -80,10 +81,10 @@ function Login() {
           })
         );
       }
-    } catch (error) {
+    } catch (e) {
+      Sentry.captureException(e)
       setLoading(false);
       setLoginWithGoogle(false);
-      //Sentry.captureException(error);
     } finally {
     }
   };
@@ -111,7 +112,8 @@ function Login() {
         google_id: userInfo.id,
       };
       await login(userInfo);
-    } catch (error) {
+    } catch (e) {
+      Sentry.captureException(e)
     }
   };
 

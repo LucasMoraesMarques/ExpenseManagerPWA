@@ -11,6 +11,8 @@
     "@mui/material": "^5.11.12",
     "@mui/x-date-pickers": "^6.0.0",
     "@reduxjs/toolkit": "^1.9.3",
+    "@sentry/cli": "^2.20.5",
+    "@sentry/react": "^7.64.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -36,9 +38,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && npm run sentry:sourcemaps",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org saas-organismo --project expense-manager-pwa build/static && sentry-cli sourcemaps upload --org saas-organismo --project expense-manager-pwa build/static"
   },
   "eslintConfig": {
     "extends": [
