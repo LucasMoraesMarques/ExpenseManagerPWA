@@ -10,7 +10,7 @@ function BackButton() {
       color="inherit"
       aria-label="menu"
       sx={{ mr: 2 }}
-      onClick={() => window.navigation.back()}
+      onClick={() => window.history.back()}
     >
       <ArrowBackIcon />
     </IconButton>
