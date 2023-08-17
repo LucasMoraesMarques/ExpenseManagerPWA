@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
@@ -17,11 +17,16 @@ import PaymentMethodItem from "../components/PaymentMethodItem";
 import BackButton from "../components/BackButton";
 import { createPaymentMethod, deletePaymentMethod } from "../services/payments";
 import { useDispatch } from "react-redux";
-import { setCurrentUser } from "../redux/slices/userSlice";
+import { setCurrentUser, setUsers } from "../redux/slices/userSlice";
 import { addMessage } from "../redux/slices/messageSlice";
 import { useOutletContext } from "react-router-dom";
 import NoData from "../components/NoData";
-import { setReload } from "../redux/slices/configSlice";
+import { loadUsers } from "../services/user";
+import {
+  moneyMask,
+  validateCurrency,
+  validateTextField,
+} from "../services/utils";
 
 const PAYMENT_METHOD_TYPES = [
   { id: "DEBIT", label: "Cartão de Débito" },
@@ -39,8 +44,15 @@ function PaymentMethodList() {
     type: "",
     description: "",
     wallet: "",
-    limit: "",
+    limit: "0,00",
     compensation_day: "",
+  });
+  const [fieldsValid, setFieldsValid] = useState(false);
+  const [fieldsValidation, setFieldsValidation] = useState({
+    description: false,
+    type: false,
+    limit: false,
+    compensation_day: false,
   });
 
   const handleChangeType = (e, value) => {
@@ -56,10 +68,11 @@ function PaymentMethodList() {
   };
 
   const handleChangeLimit = (e) => {
-    setInputStates({ ...inputStates, limit: e.target.value });
+    setInputStates({ ...inputStates, limit: moneyMask(e.target.value) });
   };
 
   const handleAddPaymentMethod = () => {
+    setOpenModal(false);
     let paymentMethod = {
       type: inputStates.type.id,
       description: inputStates.description,
@@ -67,9 +80,10 @@ function PaymentMethodList() {
     };
     if (paymentMethod.type == "CREDIT") {
       paymentMethod.compensation_day = inputStates.compensation_day;
-      paymentMethod.limit = inputStates.limit;
+      paymentMethod.limit = inputStates.limit
+        .replace(".", "")
+        .replace(",", ".");
     }
-
     createPaymentMethod(user.api_token, paymentMethod).then(
       ({ flag, data }) => {
         if (flag) {
@@ -79,7 +93,6 @@ function PaymentMethodList() {
             payment_methods: newPaymentsMethods,
           };
           dispatch(setCurrentUser({ ...user, wallet: newWallet }));
-
           dispatch(
             addMessage({
               severity: "success",
@@ -87,8 +100,16 @@ function PaymentMethodList() {
               body: "Método de pagamento adicionado com sucesso!",
             })
           );
-          dispatch(setReload(true));
-          setOpenModal(false);
+          loadUsers(user.api_token).then((json) => {
+            dispatch(setUsers(json));
+          });
+          setInputStates({
+            type: "",
+            description: "",
+            wallet: "",
+            limit: "0,00",
+            compensation_day: "",
+          });
         } else {
           dispatch(
             addMessage({
@@ -97,12 +118,12 @@ function PaymentMethodList() {
               body: "Tivemos problemas ao criar o método. Tente novamente!",
             })
           );
-          setOpenModal(false);
         }
       }
     );
   };
   const handleDeletePaymentMethod = (id) => {
+    setOpenModal(false);
     let index = user.wallet.payment_methods.findIndex((item) => item.id == id);
     if (index != -1) {
       deletePaymentMethod(user.api_token, id).then((flag) => {
@@ -122,8 +143,9 @@ function PaymentMethodList() {
               body: "Método de pagamento deletado com sucesso!",
             })
           );
-          dispatch(setReload(true));
-          setOpenModal(false);
+          loadUsers(user.api_token).then((json) => {
+            dispatch(setUsers(json));
+          });
         } else {
           dispatch(
             addMessage({
@@ -132,11 +154,29 @@ function PaymentMethodList() {
               body: "Tivemos problemas ao deletar o método. Tente novamente!",
             })
           );
-          setOpenModal(false);
         }
       });
     }
   };
+
+  useEffect(() => {
+    let newFieldsValidation = {
+      description: validateTextField(inputStates.description, true),
+      type: inputStates.type,
+      limit: true,
+      compensation_day: true,
+    };
+    if (inputStates.type) {
+      if (inputStates.type.id == "CREDIT") {
+        let day = parseInt(inputStates.compensation_day);
+        newFieldsValidation.limit = validateCurrency(inputStates.limit);
+        newFieldsValidation.compensation_day = 1 <= day && day <= 31;
+      }
+    }
+    console.log(newFieldsValidation);
+    setFieldsValidation(newFieldsValidation);
+    setFieldsValid(Object.values(newFieldsValidation).every((item) => item));
+  }, [inputStates]);
 
   return (
     <div>
@@ -180,11 +220,12 @@ function PaymentMethodList() {
                 onChange={handleChangeDescription}
                 fullWidth
                 sx={{ margin: "10px 0px" }}
+                required
               />
               <Autocomplete
                 id="tags-standard"
+                disablePortal
                 options={PAYMENT_METHOD_TYPES}
-                filterSelectedOptions
                 value={inputStates.type}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 size="medium"
@@ -193,12 +234,13 @@ function PaymentMethodList() {
                   <TextField
                     {...params}
                     label="Tipo"
-                    placeholder="Favorites"
+                    placeholder="Método de Pagamento"
+                    required
                     variant="outlined"
                   />
                 )}
               />
-              {inputStates.type.id == "CREDIT" && (
+              {inputStates.type && inputStates.type.id == "CREDIT" && (
                 <>
                   <TextField
                     id="outlined-basic"
@@ -215,6 +257,7 @@ function PaymentMethodList() {
                         <InputAdornment position="start">R$</InputAdornment>
                       ),
                     }}
+                    required
                   />
                   <TextField
                     id="outlined-basic"
@@ -223,9 +266,20 @@ function PaymentMethodList() {
                     variant="outlined"
                     value={inputStates.compensation_day}
                     onChange={handleChangeCompensationDay}
+                    error={
+                      inputStates.compensation_day &&
+                      !fieldsValidation.compensation_day
+                    }
+                    helperText={
+                      inputStates.compensation_day &&
+                      !fieldsValidation.compensation_day &&
+                      "Deve ser um valor entre 1 e 31"
+                    }
                     size="medium"
                     fullWidth
                     sx={{ margin: "10px 0px" }}
+                    type="number"
+                    required
                   />
                 </>
               )}
@@ -234,7 +288,11 @@ function PaymentMethodList() {
                 <Button variant="outlined" onClick={() => setOpenModal(false)}>
                   Cancelar
                 </Button>
-                <Button variant="contained" onClick={handleAddPaymentMethod}>
+                <Button
+                  variant="contained"
+                  onClick={handleAddPaymentMethod}
+                  disabled={!fieldsValid}
+                >
                   Adicionar
                 </Button>
               </Box>

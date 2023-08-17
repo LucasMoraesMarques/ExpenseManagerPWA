@@ -52,7 +52,7 @@ function ProfileEdit() {
   };
 
   const handleChangePhone = (e) => {
-    setInputStates({ ...inputStates, phone: e.target.value });
+    setInputStates({ ...inputStates, phone: phoneMask(e.target.value) });
   };
 
   const handleSaveUser = () => {
@@ -90,12 +90,13 @@ function ProfileEdit() {
   };
 
   useEffect(() => {
+    console.log(inputStates.phone);
     let user = userState.currentUser;
     let newFieldsValidation = {
       first_name: validateTextField(inputStates.first_name),
       last_name: validateTextField(inputStates.last_name),
       email: validateEmail(inputStates.email),
-      phone: validatePhone(phoneMask(inputStates.phone)),
+      phone: validatePhone(inputStates.phone),
     };
     setFieldsValidation(newFieldsValidation);
     setFieldsValid(Object.values(newFieldsValidation).every((item) => item));
@@ -190,7 +191,7 @@ function ProfileEdit() {
           id="outlined-basic"
           label="Telefone"
           variant="outlined"
-          value={phoneMask(inputStates.phone)}
+          value={inputStates.phone}
           onChange={handleChangePhone}
           error={fieldsValidation.phone ? false : true}
           helperText={fieldsValidation.phone ? "" : "Telefone inválido"}

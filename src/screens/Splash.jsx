@@ -31,8 +31,8 @@ function Splash() {
   const loadResources = async () => {
     loadGroups(apiToken)
       .then((json) => {
-        if("detail" in json && json.detail == "Invalid token."){
-          throw Error("Token inválido")
+        if ("detail" in json && json.detail == "Invalid token.") {
+          throw Error("Token inválido");
         }
         setLoadingText("Carregando grupos ...");
         dispatch(setGroups(json));
@@ -92,7 +92,7 @@ function Splash() {
       })
       .catch((e) => {
         Sentry.captureException(e);
-        if(e.message == "Token inválido") {
+        if (e.message == "Token inválido") {
           dispatch(
             addMessage({
               title: "Alerta",
@@ -111,8 +111,9 @@ function Splash() {
           );
           setTimeout(() => navigate("/boas-vindas"), 1000);
         }
-      }).finally(() => {
-        console.log("set reload")
+      })
+      .finally(() => {
+        console.log("set reload");
         dispatch(setReload(false));
       });
   };
@@ -128,9 +129,15 @@ function Splash() {
   }, []);
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-[#1976d2]">
-      <img src={require("../assets/img/001-expenses.png")} width={80} height={80}/>
-      <span className="text-white text-2xl my-3 text-bold">Expense Manager</span>
-      <CircularProgress sx={{ color: "white" }}/>
+      <img
+        src={require("../assets/img/001-expenses.png")}
+        width={80}
+        height={80}
+      />
+      <span className="text-white text-2xl my-3 text-bold">
+        Expense Manager
+      </span>
+      <CircularProgress sx={{ color: "white" }} />
       <span className="text-white text-sm my-3">{loadingText}</span>
     </div>
   );
