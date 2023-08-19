@@ -246,7 +246,7 @@ function RecentActionList() {
           )}
         </div>
 
-        <div className="overflow-y-scroll max-h-[calc(100vh-240px)]">
+        <div className="overflow-y-scroll max-h-[calc(100vh-200px)]">
           <List>
             {filteredActions.length > 0 ? (
               filteredActions

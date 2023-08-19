@@ -23,6 +23,7 @@ function RecentAction({ key, action }) {
     <ListItem
       key={key}
       disableGutters
+      disablePadding
       onClick={() => navigate(`/acao/${action.id}`)}
     >
       <ListItemButton className="flex flex-row justify-center items-start">

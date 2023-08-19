@@ -13,6 +13,7 @@ function RegardingItem({ key, regarding }) {
     <ListItem
       key={key}
       disableGutters
+      disablePadding
       onClick={() => navigate(`/referencia/${regarding.id}`)}
     >
       <ListItemButton className="flex flex-row justify-center items-start">

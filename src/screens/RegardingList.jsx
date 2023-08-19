@@ -384,7 +384,7 @@ function RegardingList() {
           <></>
         )}
       </div>
-      <div className="overflow-y-scroll max-h-[calc(100vh-220px)]">
+      <div className="overflow-y-scroll max-h-[calc(100vh-200px)]">
         <List>
           {filteredRegardings.length > 0 ? (
             filteredRegardings.map((item) => {

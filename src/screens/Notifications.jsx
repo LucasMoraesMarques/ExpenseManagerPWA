@@ -202,7 +202,7 @@ function Notifications() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Notificações
           </Typography>
-          {true && (
+          {false && (
             <div>
               <IconButton
                 size="large"

@@ -9,6 +9,7 @@ function NotificationItem({ key, notification, onClick = () => {} }) {
     <ListItem
       key={key}
       disableGutters
+      disablePadding
       className={classNames({
         "bg-slate-200": notification.is_active,
         "": notification.is_active,

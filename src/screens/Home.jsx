@@ -32,7 +32,7 @@ function Home() {
 
   return (
     <div>
-      <div className="mt-3">
+      <div className="my-3">
         <Grid
           container
           rowSpacing={1}
@@ -58,7 +58,9 @@ function Home() {
             <DashItem title="Items" value={numberOfItems} />
           </Grid>
         </Grid>
-        <div className="flex flex-row justify-between w-full items-center">
+        
+      </div>
+      <div className="flex flex-row justify-between w-full items-center">
           <span className="font-bold text-xl">Grupos</span>
           <span className="align-middle">
             <Link to="/grupos">
@@ -75,8 +77,6 @@ function Home() {
         ) : (
           <NoData message="Nenhum grupo encontrado" />
         )}
-      </div>
-      <div></div>
       <div>
         <div className="flex flex-row justify-between w-full items-center">
           <span className="font-bold text-xl">Atividades Recentes</span>
@@ -89,7 +89,7 @@ function Home() {
 
         <List>
           {actionState.groupsActions.length > 0 ? (
-            actionState.groupsActions.slice(0, 5).map((item) => {
+            actionState.groupsActions.slice(0, 10).map((item) => {
               return (
                 <RecentAction variant="rounded" key={item.id} action={item} />
               );

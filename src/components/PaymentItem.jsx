@@ -21,7 +21,7 @@ function PaymentItem({ key, payment, edit = false, onDelete = () => {} }) {
     <ListItem
       key={key}
       disableGutters
-      className="w-full p-0"
+      className="w-full"
       disablePadding
       secondaryAction={
         edit ? (

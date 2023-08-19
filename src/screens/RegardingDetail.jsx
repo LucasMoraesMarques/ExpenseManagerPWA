@@ -160,7 +160,7 @@ function RegardingDetail() {
             <Tab label="Geral" />
             <Tab label="Despesas" />
           </Tabs>
-          <TabPanel value={value} index={0} padding={3} className="text-black">
+          <TabPanel value={value} index={0} padding={2} className="text-black">
             <h5 className="font-bold">Nome </h5>
             <span className="ml-[10px] text-sm">{regarding.name}</span>
             <h5 className="font-bold mt-2">Descrição</h5>

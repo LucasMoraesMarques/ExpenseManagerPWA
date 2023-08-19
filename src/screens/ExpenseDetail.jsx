@@ -29,6 +29,7 @@ import Popover from "@mui/material/Popover";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import { useOutletContext } from "react-router-dom";
 import { setReload } from "../redux/slices/configSlice";
+import NoData from "../components/NoData";
 
 function TabPanel(props) {
   const { children, value, index, padding, ...other } = props;
@@ -213,7 +214,7 @@ function ExpenseDetail() {
             <Tab label="Geral" />
             <Tab label="Items" />
           </Tabs>
-          <TabPanel value={value} index={0} className="text-black" padding={3}>
+          <TabPanel value={value} index={0} className="text-black" padding={2}>
             <h5 className="font-bold">Nome</h5>
             <span className="ml-[10px] text-sm">{expense.name}</span>
             <h5 className="font-bold">Descrição</h5>
@@ -248,7 +249,7 @@ function ExpenseDetail() {
             <h5 className="font-bold">Validações</h5>
             <List>
               {"validations" in expense &&
-                expense.validations.map((item) => {
+                expense.validations.length > 0 ? (expense.validations.map((item) => {
                   return (
                     <ValidationItem
                       key={item.id}
@@ -256,7 +257,9 @@ function ExpenseDetail() {
                       detail={true}
                     />
                   );
-                })}
+                })) : (
+                  <NoData message="Nenhuma validação encontrada" />
+                )}
             </List>
           </TabPanel>
           <TabPanel value={value} index={1} padding={1}>

@@ -10,6 +10,7 @@ function Item({ key, item, edit = false, onDelete = () => {} }) {
     <ListItem
       key={key}
       disableGutters
+      disablePadding
       secondaryAction={
         edit ? (
           <IconButton onClick={() => onDelete(item)}>
@@ -22,7 +23,7 @@ function Item({ key, item, edit = false, onDelete = () => {} }) {
       className="px-0 w-screen"
     >
       <ListItemButton className="flex flex-row justify-center items-start">
-        <ListItemText primary={item.name} secondary={item.consumers_names} />
+        <ListItemText primary={item.name} secondary={item.consumers_names} sx={{width:'70%'}}/>
         <p>R$ {item.price}</p>
       </ListItemButton>
     </ListItem>

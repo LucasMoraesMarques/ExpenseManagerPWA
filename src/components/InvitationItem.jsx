@@ -75,7 +75,7 @@ function InvitationItem({
 
   if (invitation) {
     return edit ? (
-      <ListItem key={key} disableGutters disablePadding className="w-full p-2">
+      <ListItem key={key} disableGutters disablePadding className="w-full p-1">
         <ListItemText
           primary="Convite"
           secondary={`${invitation.sent_by.full_name} te convidou para o grupo ${invitation.group_name}`}
@@ -104,7 +104,7 @@ function InvitationItem({
         )}
       </ListItem>
     ) : (
-      <ListItem key={key} disableGutters disablePadding className="w-full p-2">
+      <ListItem key={key} disableGutters disablePadding className="w-full p-1">
         <ListItemAvatar>
           <Avatar {...stringAvatar(invitation.invited.full_name)} />
         </ListItemAvatar>

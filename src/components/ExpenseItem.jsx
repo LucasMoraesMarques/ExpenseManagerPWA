@@ -38,6 +38,7 @@ function ExpenseItem({
     <ListItem
       key={key}
       disableGutters
+      disablePadding
       onClick={edit ? null : () => navigate(`/despesa/${expense.id}`)}
     >
       {edit ? (
@@ -54,7 +55,7 @@ function ExpenseItem({
           primary={
             <div className="flex">
               <Typography>
-                {primaryText + " - " + expense.validation_status}
+                {primaryText}
               </Typography>
             </div>
           }
@@ -69,6 +70,7 @@ function ExpenseItem({
               </span>
             </React.Fragment>
           }
+          sx={{width:"60%"}}
         />
         <div className="flex flex-col items-end">
           <span>R$ {expense.cost}</span>

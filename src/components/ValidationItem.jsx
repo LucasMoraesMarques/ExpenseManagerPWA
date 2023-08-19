@@ -40,7 +40,7 @@ function ValidationItem({
   }, []);
 
   return (
-    <ListItem key={key} disableGutters>
+    <ListItem key={key} disableGutters disablePadding>
       {detail ? (
         <ListItemButton className="flex flex-row justify-center items-start">
           {" "}
