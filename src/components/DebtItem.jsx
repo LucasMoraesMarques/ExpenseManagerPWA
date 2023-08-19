@@ -16,21 +16,21 @@ function DebtItem({ key, payer, receiver, debt }) {
         justifyContent: "space-between",
       }}
     >
-      <div className="flex flex-col justify-center items-center">
+      <div className="flex flex-col justify-center items-center flex-1">
         <Avatar {...stringAvatar(payer)} size={10} />
-        <span className="">
-          {payer.length >= 18 ? payer.slice(0, 13) + "..." : payer}
+        <span className="text-center">
+          {payer}
         </span>
       </div>
-      <div className="flex flex-col justify-center items-center">
-        <span>deve R$ {debt} a </span>
+      <div className="flex flex-col justify-center items-center flex-2">
+        <span className="text-center">deve R$ {debt} a </span>
         <ArrowRightAltIcon />
       </div>
 
-      <div className="flex flex-col justify-center items-center">
+      <div className="flex flex-col justify-center items-center flex-1">
         <Avatar {...stringAvatar(receiver)} size={10} />
-        <span className="">
-          {receiver.length >= 18 ? receiver.slice(0, 13) + "..." : receiver}
+        <span className="text-center">
+          {receiver}
         </span>
       </div>
     </ListItem>

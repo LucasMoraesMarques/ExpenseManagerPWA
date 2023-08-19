@@ -265,7 +265,6 @@ function RegardingDetail() {
                           "EM VALIDAÇÃO",
                           "AGUARDANDO",
                           "PAGO",
-                          "VENCIDO",
                         ],
                         datasets: [
                           {
@@ -274,19 +273,16 @@ function RegardingDetail() {
                               regarding.general_total.total_validation,
                               regarding.general_total.total_open,
                               regarding.general_total.total_paid,
-                              regarding.general_total.total_overdue,
                             ],
                             backgroundColor: [
                               "#fb923c",
                               "#facc15",
                               "#65a30d",
-                              "#ef4444",
                             ],
                             borderColor: [
                               "#fb923c",
                               "#facc15",
                               "#365314",
-                              "#b91c1c",
                             ],
                             borderWidth: 1,
                           },
