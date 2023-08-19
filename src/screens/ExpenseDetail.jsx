@@ -30,6 +30,7 @@ import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import { useOutletContext } from "react-router-dom";
 import { setReload } from "../redux/slices/configSlice";
 import NoData from "../components/NoData";
+import SwipeableViews from "react-swipeable-views";
 
 function TabPanel(props) {
   const { children, value, index, padding, ...other } = props;
@@ -66,6 +67,10 @@ function ExpenseDetail() {
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
+  };
+
+  const handleChangeIndex = (index) => {
+    setValue(index);
   };
 
   const handleMenu = (event) => {
@@ -214,6 +219,8 @@ function ExpenseDetail() {
             <Tab label="Geral" />
             <Tab label="Items" />
           </Tabs>
+        </AppBar>
+        <SwipeableViews index={value} onChangeIndex={handleChangeIndex}>
           <TabPanel value={value} index={0} className="text-black" padding={2}>
             <h5 className="font-bold">Nome</h5>
             <span className="ml-[10px] text-sm">{expense.name}</span>
@@ -248,8 +255,8 @@ function ExpenseDetail() {
             </List>
             <h5 className="font-bold">Validações</h5>
             <List>
-              {"validations" in expense &&
-                expense.validations.length > 0 ? (expense.validations.map((item) => {
+              {"validations" in expense && expense.validations.length > 0 ? (
+                expense.validations.map((item) => {
                   return (
                     <ValidationItem
                       key={item.id}
@@ -257,9 +264,10 @@ function ExpenseDetail() {
                       detail={true}
                     />
                   );
-                })) : (
-                  <NoData message="Nenhuma validação encontrada" />
-                )}
+                })
+              ) : (
+                <NoData message="Nenhuma validação encontrada" />
+              )}
             </List>
           </TabPanel>
           <TabPanel value={value} index={1} padding={1}>
@@ -300,7 +308,7 @@ function ExpenseDetail() {
               </List>
             </div>
           </TabPanel>
-        </AppBar>
+        </SwipeableViews>
       </div>
       <CustomModal
         open={openConfirmationModal}

@@ -27,6 +27,7 @@ import { addMessage } from "../redux/slices/messageSlice";
 import { useOutletContext } from "react-router-dom";
 import NoData from "../components/NoData";
 import { setReload } from "../redux/slices/configSlice";
+import SwipeableViews from "react-swipeable-views";
 
 function TabPanel(props) {
   const { children, value, index, padding, ...other } = props;
@@ -58,6 +59,10 @@ function RegardingDetail() {
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
+  };
+
+  const handleChangeIndex = (index) => {
+    setValue(index);
   };
 
   const handleMenu = (event) => {
@@ -160,6 +165,8 @@ function RegardingDetail() {
             <Tab label="Geral" />
             <Tab label="Despesas" />
           </Tabs>
+        </AppBar>
+        <SwipeableViews index={value} onChangeIndex={handleChangeIndex}>
           <TabPanel value={value} index={0} padding={2} className="text-black">
             <h5 className="font-bold">Nome </h5>
             <span className="ml-[10px] text-sm">{regarding.name}</span>
@@ -334,7 +341,7 @@ function RegardingDetail() {
               showDeleteIcon={!regarding.is_closed}
             />
           </TabPanel>
-        </AppBar>
+        </SwipeableViews>
       </div>
       <CustomModal
         open={openConfirmationModal}

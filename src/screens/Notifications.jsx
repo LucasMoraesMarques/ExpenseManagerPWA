@@ -29,6 +29,7 @@ import NoData from "../components/NoData";
 import { useOutletContext } from "react-router-dom";
 import Pagination from "@mui/material/Pagination";
 import { setReload } from "../redux/slices/configSlice";
+import SwipeableViews from "react-swipeable-views";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -72,6 +73,10 @@ function Notifications() {
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
+  };
+
+  const handleChangeIndex = (index) => {
+    setValue(index);
   };
 
   const handleMenu = (event) => {
@@ -277,6 +282,8 @@ function Notifications() {
             <Tab label="Geral" />
             <Tab label="Validações" />
           </Tabs>
+        </AppBar>
+        <SwipeableViews index={value} onChangeIndex={handleChangeIndex}>
           <TabPanel value={value} index={0} className="text-black">
             <span className="text-sm">
               Mostrando{" "}
@@ -384,7 +391,7 @@ function Notifications() {
               </List>
             </div>
           </TabPanel>
-        </AppBar>
+        </SwipeableViews>
       </div>
       <CustomModal
         open={openModal}
