@@ -30,6 +30,7 @@ import { useOutletContext } from "react-router-dom";
 import Pagination from "@mui/material/Pagination";
 import { setReload } from "../redux/slices/configSlice";
 import SwipeableViews from "react-swipeable-views";
+import AskNotificationPermission from "../components/AskNotificationPermission";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -285,6 +286,12 @@ function Notifications() {
         </AppBar>
         <SwipeableViews index={value} onChangeIndex={handleChangeIndex}>
           <TabPanel value={value} index={0} className="text-black">
+            {Notification.permission !== "granted" &&
+            Notification.permission !== "denied" ? (
+              <AskNotificationPermission />
+            ) : (
+              <></>
+            )}
             <span className="text-sm">
               Mostrando{" "}
               {notificationSliceRange.end != 0
@@ -310,7 +317,7 @@ function Notifications() {
                   {notificationState.userNotifications.map((item) => {
                     return (
                       <NotificationItem
-                        key={item.id}
+                        id={item.id}
                         notification={item}
                         onClick={deactivateNotification}
                       />
@@ -324,6 +331,12 @@ function Notifications() {
           </TabPanel>
 
           <TabPanel value={value} index={1}>
+            {Notification.permission !== "granted" &&
+            Notification.permission !== "denied" ? (
+              <AskNotificationPermission />
+            ) : (
+              <></>
+            )}
             <Stack direction="row" spacing={1} sx={{ marginTop: "10px" }}>
               <Chip
                 label="Todas"

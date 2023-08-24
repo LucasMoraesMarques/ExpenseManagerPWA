@@ -9,6 +9,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import * as Sentry from "@sentry/react";
+import { initializeFirebase } from "./services/firebase";
 
 Sentry.init({
   dsn: process.env.REACT_APP_SENTRY_DSN,
@@ -25,6 +26,8 @@ Sentry.init({
   replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
   replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
 });
+
+initializeFirebase();
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

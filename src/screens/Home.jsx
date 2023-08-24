@@ -10,6 +10,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { useOutletContext } from "react-router-dom";
 import NoData from "../components/NoData";
 import EastIcon from "@mui/icons-material/East";
+import {
+  askForPermissionToReceiveNotifications,
+  getMedia,
+} from "../services/permissions";
+import { getMessagingToken } from "../services/firebase";
 
 function Home() {
   const dispatch = useDispatch();
@@ -58,25 +63,24 @@ function Home() {
             <DashItem title="Items" value={numberOfItems} />
           </Grid>
         </Grid>
-        
       </div>
       <div className="flex flex-row justify-between w-full items-center">
-          <span className="font-bold text-xl">Grupos</span>
-          <span className="align-middle">
-            <Link to="/grupos">
-              <EastIcon />
-            </Link>
-          </span>
-        </div>
-        {groupState.userGroups.length > 0 ? (
-          <List component={Stack} direction="row" className="overflow-y-scroll">
-            {groupState.userGroups.map((item) => {
-              return <GroupItem variant="rounded" key={item.id} group={item} />;
-            })}
-          </List>
-        ) : (
-          <NoData message="Nenhum grupo encontrado" />
-        )}
+        <span className="font-bold text-xl">Grupos</span>
+        <span className="align-middle">
+          <Link to="/grupos">
+            <EastIcon />
+          </Link>
+        </span>
+      </div>
+      {groupState.userGroups.length > 0 ? (
+        <List component={Stack} direction="row" className="overflow-y-scroll">
+          {groupState.userGroups.map((item) => {
+            return <GroupItem variant="rounded" key={item.id} group={item} />;
+          })}
+        </List>
+      ) : (
+        <NoData message="Nenhum grupo encontrado" />
+      )}
       <div>
         <div className="flex flex-row justify-between w-full items-center">
           <span className="font-bold text-xl">Atividades Recentes</span>

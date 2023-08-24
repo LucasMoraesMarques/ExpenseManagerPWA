@@ -10,7 +10,7 @@ import { loadRegardings } from "../services/regardings";
 import { loadExpenses } from "../services/expenses";
 import { loadNotifications } from "../services/notifications";
 import { loadValidations } from "../services/validations";
-import { loadUsers } from "../services/user";
+import { editUser, loadUsers } from "../services/user";
 import { setExpenses } from "../redux/slices/expenseSlice";
 import { setValidations } from "../redux/slices/validationSlice";
 import { setNotifications } from "../redux/slices/notificationSlice";
@@ -20,6 +20,7 @@ import { setActions } from "../redux/slices/actionSlice";
 import { addMessage } from "../redux/slices/messageSlice";
 import { setReload } from "../redux/slices/configSlice";
 import * as Sentry from "@sentry/react";
+import { getMessagingToken } from "../services/firebase";
 
 function Splash() {
   const navigate = useNavigate();
@@ -68,6 +69,13 @@ function Splash() {
             (user) => user.id == userState.currentUser.id
           )[0];
           dispatch(setCurrentUser({ ...currentUser, api_token: apiToken }));
+          if (Notification.permission === "granted" && !currentUser.fcm_token) {
+            getMessagingToken().then((token) => {
+              if (token) {
+                editUser(apiToken, currentUser.id, { fcm_token: `${token}` });
+              }
+            });
+          }
         });
       })
       .then(async () => {

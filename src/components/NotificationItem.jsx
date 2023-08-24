@@ -4,10 +4,10 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import classNames from "classnames";
 
-function NotificationItem({ key, notification, onClick = () => {} }) {
+function NotificationItem({ id, notification, onClick = () => {} }) {
   return (
     <ListItem
-      key={key}
+      key={id}
       disableGutters
       disablePadding
       className={classNames({
