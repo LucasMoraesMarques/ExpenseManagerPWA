@@ -31,6 +31,7 @@ import Pagination from "@mui/material/Pagination";
 import { setReload } from "../redux/slices/configSlice";
 import SwipeableViews from "react-swipeable-views";
 import AskNotificationPermission from "../components/AskNotificationPermission";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -204,7 +205,16 @@ function Notifications() {
     <div className="h-screen">
       <AppBar position="sticky">
         <Toolbar>
-          <BackButton />
+        <IconButton
+      size="large"
+      edge="start"
+      color="inherit"
+      aria-label="menu"
+      sx={{ mr: 2 }}
+      onClick={() => navigate('inicio')}
+    >
+      <ArrowBackIcon />
+    </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Notificações
           </Typography>
