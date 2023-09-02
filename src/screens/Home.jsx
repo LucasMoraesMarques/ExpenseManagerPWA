@@ -93,7 +93,7 @@ function Home() {
 
         <List>
           {actionState.groupsActions.length > 0 ? (
-            actionState.groupsActions.slice(0, 10).map((item) => {
+            actionState.groupsActions.slice(0, 5).map((item) => {
               return (
                 <RecentAction variant="rounded" key={item.id} action={item} />
               );

@@ -802,7 +802,7 @@ function ExpenseList({
       ) : (
         <></>
       )}
-      <div className="overflow-y-scroll max-h-[calc(100vh-230px)]">
+      <div className="overflow-y-scroll max-h-[calc(100vh-240px)]">
         <List>
           {filteredExpenses.length > 0 ? (
             filteredExpenses

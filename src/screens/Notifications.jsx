@@ -321,7 +321,7 @@ function Notifications() {
             ) : (
               <></>
             )}
-            <div className="overflow-y-scroll max-h-[calc(100vh-140px)]">
+            <div className="overflow-y-scroll max-h-[calc(100vh-130px)]">
               {notificationState.userNotifications.length > 0 ? (
                 <List>
                   {notificationState.userNotifications.map((item) => {

@@ -32,6 +32,7 @@ import NoData from "../components/NoData";
 import { addMessage } from "../redux/slices/messageSlice";
 import { useOutletContext } from "react-router-dom";
 import { setReload } from "../redux/slices/configSlice";
+import SwipeableViews from "react-swipeable-views";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -119,6 +120,10 @@ function ExpenseCreate() {
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
+  };
+
+  const handleChangeIndex = (index) => {
+    setValue(index);
   };
 
   const handleChangeRegarding = (e, value) => {
@@ -252,7 +257,7 @@ function ExpenseCreate() {
       setPayment({
         payer: value,
         payment_method: "",
-        value: "",
+        value: "0,00",
         expense: "",
       });
       if (payer.wallet) {
@@ -470,253 +475,258 @@ function ExpenseCreate() {
           <Tab label="Items" />
           <Tab label="Pagamentos" />
         </Tabs>
-        <TabPanel value={value} index={0} className="text-black">
-          <div className="flex flex-row justify-between w-full items-center">
-            <span className="font-bold text-xl">Lista de Items</span>
-            <span className="rounded-[50%] bg-slate-300 align-middle">
-              <IconButton onClick={() => setOpenModal(true)}>
-                <AddIcon />
-              </IconButton>
-            </span>
-          </div>
-          <CustomModal
-            open={openModal}
-            onClose={() => setOpenModal(false)}
-            children={
-              <>
-                <Typography
-                  id="modal-modal-title"
-                  variant="h6"
-                  component="h2"
-                  sx={{ fontWeight: "bold" }}
-                >
-                  Adicionar Item
-                </Typography>
-                <span className="text-sm">
-                  Selecione a referência para ver as opções
-                </span>
+        <SwipeableViews index={value} onChangeIndex={handleChangeIndex}>
+          <TabPanel value={value} index={0} className="text-black">
+            <div className="flex flex-row justify-between w-full items-center">
+              <span className="font-bold text-xl">Lista de Items</span>
+              <span className="rounded-[50%] bg-slate-300 align-middle">
+                <IconButton onClick={() => setOpenModal(true)}>
+                  <AddIcon />
+                </IconButton>
+              </span>
+            </div>
+            <CustomModal
+              open={openModal}
+              onClose={() => setOpenModal(false)}
+              children={
+                <>
+                  <Typography
+                    id="modal-modal-title"
+                    variant="h6"
+                    component="h2"
+                    sx={{ fontWeight: "bold" }}
+                  >
+                    Adicionar Item
+                  </Typography>
+                  <span className="text-sm">
+                    Selecione a referência para ver as opções
+                  </span>
 
-                <TextField
-                  id="outlined-basic"
-                  label="Nome"
-                  variant="outlined"
-                  size="medium"
-                  value={item.name}
-                  onChange={(e) => setItem({ ...item, name: e.target.value })}
-                  fullWidth
-                  sx={{ margin: "10px 0px" }}
-                  required
-                />
-                <TextField
-                  id="outlined-basic"
-                  label="Preço"
-                  value={item.price}
-                  onChange={(e) =>
-                    setItem({ ...item, price: moneyMask(e.target.value) })
-                  }
-                  variant="outlined"
-                  size="medium"
-                  fullWidth
-                  sx={{ margin: "10px 0px" }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">R$</InputAdornment>
-                    ),
-                  }}
-                  required
-                />
-                <Autocomplete
-                  multiple
-                  id="tags-standard"
-                  options={consumerOptions}
-                  onChange={handleChangeConsumers}
-                  isOptionEqualToValue={(option, value) =>
-                    option.id === value.id
-                  }
-                  getOptionLabel={(option) => option.name}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Consumidores"
-                      placeholder="Selecione os consumidores do item"
-                      variant="outlined"
-                    />
-                  )}
-                  required
-                />
-                <Box className="flex flex-row justify-between mt-[10px]">
-                  <Button
+                  <TextField
+                    id="outlined-basic"
+                    label="Nome"
                     variant="outlined"
-                    onClick={() => setOpenModal(false)}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={handleAddItem}
-                    disabled={
-                      item.name && item.price && item.consumers.length > 0
-                        ? false
-                        : true
-                    }
-                  >
-                    Adicionar
-                  </Button>
-                </Box>
-              </>
-            }
-          />
-
-          {"items" in inputStates && inputStates.items.length > 0 ? (
-            <>
-              {inputValidation.items ? (
-                ""
-              ) : (
-                <span className="text-[red] text-sm">
-                  A soma dos itens deve ser igual ao valor da despesa
-                </span>
-              )}
-              <List>
-                {inputStates.items.map((item) => (
-                  <Item
-                    key={item.id}
-                    item={item}
-                    edit={true}
-                    onDelete={handleDeleteItem}
+                    size="medium"
+                    value={item.name}
+                    onChange={(e) => setItem({ ...item, name: e.target.value })}
+                    fullWidth
+                    sx={{ margin: "10px 0px" }}
+                    required
                   />
-                ))}
-              </List>
-            </>
-          ) : (
-            <NoData message="Nenhum item adicionado" />
-          )}
-        </TabPanel>
-        <TabPanel value={value} index={1}>
-          <div className="flex flex-row justify-between w-full items-center">
-            <span className="font-bold text-xl">Lista de Pagamentos</span>
-            <span className="rounded-[50%] bg-slate-300 align-middle">
-              <IconButton onClick={() => setOpenModal(true)}>
-                <AddIcon />
-              </IconButton>
-            </span>
-          </div>
-          <CustomModal
-            open={openModal}
-            onClose={() => setOpenModal(false)}
-            children={
-              <>
-                <Typography
-                  id="modal-modal-title"
-                  variant="h6"
-                  component="h2"
-                  sx={{ fontWeight: "bold" }}
-                >
-                  Adicionar Pagamento
-                </Typography>
-                <span className="text-sm">
-                  Selecione a referência para ver as opções
-                </span>
-                <Autocomplete
-                  id="tags-standard"
-                  options={userOptions.map((item) => ({
-                    id: item.id,
-                    label: item.name,
-                  }))}
-                  value={payment.payer}
-                  onChange={handleChangePayer}
-                  sx={{ margin: "10px 0px" }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Pagador"
-                      placeholder="Selecione o pagador dessa despesa"
-                      variant="outlined"
-                    />
-                  )}
-                />
-
-                <Autocomplete
-                  id="tags-standard"
-                  options={paymentMethodOptions.map((item) => ({
-                    id: item.id,
-                    label: item.name,
-                  }))}
-                  value={payment.payment_method}
-                  onChange={handleChangePaymentMethod}
-                  sx={{ margin: "10px 0px" }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Método de Pagamento"
-                      placeholder="Selecione o método de pagamento"
-                      variant="outlined"
-                    />
-                  )}
-                />
-                <TextField
-                  id="outlined-basic"
-                  label="Preço"
-                  value={payment.value}
-                  onChange={(e) =>
-                    setPayment({ ...payment, value: moneyMask(e.target.value) })
-                  }
-                  variant="outlined"
-                  size="medium"
-                  fullWidth
-                  sx={{ margin: "10px 0px" }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">R$</InputAdornment>
-                    ),
-                  }}
-                />
-
-                <Box className="flex flex-row justify-between mt-[10px]">
-                  <Button
+                  <TextField
+                    id="outlined-basic"
+                    label="Preço"
+                    value={item.price}
+                    onChange={(e) =>
+                      setItem({ ...item, price: moneyMask(e.target.value) })
+                    }
                     variant="outlined"
-                    onClick={() => setOpenModal(false)}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={handleAddPayment}
-                    disabled={
-                      payment.payer && payment.payment_method && payment.value
-                        ? false
-                        : true
-                    }
-                  >
-                    Adicionar
-                  </Button>
-                </Box>
-              </>
-            }
-          />
-          {"payments" in inputStates && inputStates.payments.length > 0 ? (
-            <>
-              {inputValidation.payments ? (
-                ""
-              ) : (
-                <span className="text-[red] text-sm">
-                  A soma dos pagamentos deve ser igual ao valor da despesa
-                </span>
-              )}
-              <List>
-                {inputStates.payments.map((item) => (
-                  <PaymentItem
-                    key={item.id}
-                    payment={item}
-                    edit={true}
-                    onDelete={handleDeletePayment}
+                    size="medium"
+                    fullWidth
+                    sx={{ margin: "10px 0px" }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">R$</InputAdornment>
+                      ),
+                    }}
+                    required
                   />
-                ))}
-              </List>
-            </>
-          ) : (
-            <NoData message="Nenhum item adicionado" />
-          )}
-        </TabPanel>
+                  <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={consumerOptions}
+                    onChange={handleChangeConsumers}
+                    isOptionEqualToValue={(option, value) =>
+                      option.id === value.id
+                    }
+                    getOptionLabel={(option) => option.name}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Consumidores"
+                        placeholder="Selecione os consumidores do item"
+                        variant="outlined"
+                      />
+                    )}
+                    required
+                  />
+                  <Box className="flex flex-row justify-between mt-[10px]">
+                    <Button
+                      variant="outlined"
+                      onClick={() => setOpenModal(false)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={handleAddItem}
+                      disabled={
+                        item.name && item.price && item.consumers.length > 0
+                          ? false
+                          : true
+                      }
+                    >
+                      Adicionar
+                    </Button>
+                  </Box>
+                </>
+              }
+            />
+
+            {"items" in inputStates && inputStates.items.length > 0 ? (
+              <>
+                {inputValidation.items ? (
+                  ""
+                ) : (
+                  <span className="text-[red] text-sm">
+                    A soma dos itens deve ser igual ao valor da despesa
+                  </span>
+                )}
+                <List>
+                  {inputStates.items.map((item) => (
+                    <Item
+                      key={item.id}
+                      item={item}
+                      edit={true}
+                      onDelete={handleDeleteItem}
+                    />
+                  ))}
+                </List>
+              </>
+            ) : (
+              <NoData message="Nenhum item adicionado" />
+            )}
+          </TabPanel>
+          <TabPanel value={value} index={1}>
+            <div className="flex flex-row justify-between w-full items-center">
+              <span className="font-bold text-xl">Lista de Pagamentos</span>
+              <span className="rounded-[50%] bg-slate-300 align-middle">
+                <IconButton onClick={() => setOpenModal(true)}>
+                  <AddIcon />
+                </IconButton>
+              </span>
+            </div>
+            <CustomModal
+              open={openModal}
+              onClose={() => setOpenModal(false)}
+              children={
+                <>
+                  <Typography
+                    id="modal-modal-title"
+                    variant="h6"
+                    component="h2"
+                    sx={{ fontWeight: "bold" }}
+                  >
+                    Adicionar Pagamento
+                  </Typography>
+                  <span className="text-sm">
+                    Selecione a referência para ver as opções
+                  </span>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={userOptions.map((item) => ({
+                      id: item.id,
+                      label: item.name,
+                    }))}
+                    value={payment.payer}
+                    onChange={handleChangePayer}
+                    sx={{ margin: "10px 0px" }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Pagador"
+                        placeholder="Selecione o pagador dessa despesa"
+                        variant="outlined"
+                      />
+                    )}
+                  />
+
+                  <Autocomplete
+                    id="tags-standard"
+                    options={paymentMethodOptions.map((item) => ({
+                      id: item.id,
+                      label: item.name,
+                    }))}
+                    value={payment.payment_method}
+                    onChange={handleChangePaymentMethod}
+                    sx={{ margin: "10px 0px" }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Método de Pagamento"
+                        placeholder="Selecione o método de pagamento"
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                  <TextField
+                    id="outlined-basic"
+                    label="Preço"
+                    value={payment.value}
+                    onChange={(e) =>
+                      setPayment({
+                        ...payment,
+                        value: moneyMask(e.target.value),
+                      })
+                    }
+                    variant="outlined"
+                    size="medium"
+                    fullWidth
+                    sx={{ margin: "10px 0px" }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">R$</InputAdornment>
+                      ),
+                    }}
+                  />
+
+                  <Box className="flex flex-row justify-between mt-[10px]">
+                    <Button
+                      variant="outlined"
+                      onClick={() => setOpenModal(false)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={handleAddPayment}
+                      disabled={
+                        payment.payer && payment.payment_method && payment.value
+                          ? false
+                          : true
+                      }
+                    >
+                      Adicionar
+                    </Button>
+                  </Box>
+                </>
+              }
+            />
+            {"payments" in inputStates && inputStates.payments.length > 0 ? (
+              <>
+                {inputValidation.payments ? (
+                  ""
+                ) : (
+                  <span className="text-[red] text-sm">
+                    A soma dos pagamentos deve ser igual ao valor da despesa
+                  </span>
+                )}
+                <List>
+                  {inputStates.payments.map((item) => (
+                    <PaymentItem
+                      key={item.id}
+                      payment={item}
+                      edit={true}
+                      onDelete={handleDeletePayment}
+                    />
+                  ))}
+                </List>
+              </>
+            ) : (
+              <NoData message="Nenhum item adicionado" />
+            )}
+          </TabPanel>
+        </SwipeableViews>
       </div>
     </div>
   );

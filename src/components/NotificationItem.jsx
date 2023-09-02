@@ -22,14 +22,20 @@ function NotificationItem({ id, notification, onClick = () => {} }) {
         <ListItemText
           primary={notification.title}
           secondary={
-            notification.body.length >= 40
+            <div className="flex flex-row justify-between">
+              <span>{notification.body.length >= 40
               ? notification.body.slice(0, 35) + "..."
-              : notification.body
-          }
-        />
-        <span className="absolute right-0 opacity-70">
+              : notification.body}
+              </span>
+              <span className="opacity-70">
           {notification.created_at}
         </span>
+            </div>
+
+            
+          }
+        />
+        
       </ListItemButton>
     </ListItem>
   );
