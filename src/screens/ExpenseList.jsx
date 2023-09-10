@@ -126,6 +126,9 @@ function ExpenseList({
   const handleChangeRegardings = (e, value) => {
     let newRegardings = [];
     let groupsIds = filterStates.groups.map((item) => item.id);
+    if (filterStates.groups.some((item) => item.id == 0)) {
+      groupsIds = groupState.userGroups.map((item) => item.id);
+    }
     let regardingsInGroups = regardingState.userRegardings.filter((item) => {
       return groupsIds.includes(item.expense_group);
     });
@@ -133,13 +136,11 @@ function ExpenseList({
       id: item.id,
       name: item.name,
     }));
-    if (value.length > 0) {
       if (value.some((item) => item.id == 0)) {
         newRegardings = [...regardings];
       } else {
         newRegardings = [...value];
       }
-    }
     let options = [...regardings];
     if (!(newRegardings.length == regardings.length)) {
       options.push({ id: 0, name: "Todas" });

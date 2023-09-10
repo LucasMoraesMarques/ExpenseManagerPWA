@@ -143,7 +143,7 @@ function ExpenseCreate() {
             name: item.first_name + " " + item.last_name,
           }));
           setUserOptions(options);
-          setValidatorOptions([...options, { id: 0, name: "Todos" }]);
+          setValidatorOptions([...options.filter((item) => item.id != user.id), { id: 0, name: "Todos" }]);
           setConsumerOptions([...options, { id: 0, name: "Todos" }]);
         }
       }
@@ -155,7 +155,7 @@ function ExpenseCreate() {
     let newValidators = [];
     if (value.length > 0) {
       if (value.some((item) => item.id == 0)) {
-        newValidators = [...userOptions];
+        newValidators = [...userOptions.filter((item) => item.id != user.id)];
       } else {
         newValidators = [...value];
       }
@@ -163,7 +163,7 @@ function ExpenseCreate() {
     let options = [...userOptions, { id: 0, name: "Todos" }];
     setInputStates({ ...inputStates, validators: newValidators });
     setValidatorOptions(
-      options.filter((item) => !newValidators.includes(item))
+      options.filter((item) => !newValidators.includes(item) && item.id != user.id)
     );
   };
 
@@ -215,11 +215,16 @@ function ExpenseCreate() {
     });
     setOpenModal(false);
     setPayment({
-      payer: "",
+      payer: {id:payer.id, label:payer.full_name},
       payment_method: "",
       value: "0,00",
       expense: "",
     });
+    setPaymentMethodOptions(
+      payer.wallet.payment_methods.map((item) => ({
+        name: item.type + " " + item.description,
+        ...item,
+      })))
   };
 
   const handleDeletePayment = (instance) => {
@@ -630,6 +635,7 @@ function ExpenseCreate() {
                     }))}
                     value={payment.payer}
                     onChange={handleChangePayer}
+                    disabled={inputStates.payments.length != 0}
                     sx={{ margin: "10px 0px" }}
                     renderInput={(params) => (
                       <TextField
@@ -637,6 +643,7 @@ function ExpenseCreate() {
                         label="Pagador"
                         placeholder="Selecione o pagador dessa despesa"
                         variant="outlined"
+                        helperText={inputStates.payments.length != 0 ? "Múltiplos pagamentos são restritos a um mesmo pagador": ""}
                       />
                     )}
                   />

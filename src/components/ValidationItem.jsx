@@ -16,6 +16,10 @@ import NoteAltOutlinedIcon from "@mui/icons-material/NoteAltOutlined";
 import { stringAvatar } from "../services/utils";
 import Avatar from "@mui/material/Avatar";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
+import { useOutletContext } from "react-router-dom";
+import { editValidation } from "../services/validations";
+import { setReload } from "../redux/slices/configSlice";
+import { useDispatch } from "react-redux";
 
 function ValidationItem({
   key,
@@ -25,15 +29,31 @@ function ValidationItem({
 }) {
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch()
   const [inputStates, setInputStates] = useState({
     validated_at: "",
     is_active: "",
     note: "",
   });
+  const { user } = useOutletContext();
+
 
   const handleChangeNote = (e) => {
     setInputStates({ ...inputStates, note: e.target.value });
   };
+
+  const askForRevalidation = () => {
+    setOpenModal(false)
+    editValidation(user.api_token, validation.id, {revalidate:true, validator: validation.validator.id,
+      expense: validation.expense.id,}).then(
+      ({ flag, data }) => {
+        if (flag) {
+          dispatch(setReload(true));
+        } else {
+        }
+      }
+    );
+  }
 
   useEffect(() => {
     setInputStates({ ...validation });
@@ -142,6 +162,7 @@ function ValidationItem({
                       onClick({ ...inputStates }, true);
                       setOpenModal(false);
                     }}
+                    disabled={inputStates.note == ''}
                   >
                     Rejeitar
                   </Button>
@@ -171,11 +192,11 @@ function ValidationItem({
                   multiline
                   sx={{ margin: "10px 0px" }}
                 />
-                {detail ? (
+                {user.id == validation.expense.created_by ? (
                   <Box className="flex flex-row justify-between mt-[10px]">
                     <Button
                       variant="contained"
-                      onClick={() => setOpenModal(false)}
+                      onClick={() => askForRevalidation()}
                     >
                       REVALIDAR
                     </Button>

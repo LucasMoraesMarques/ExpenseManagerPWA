@@ -86,7 +86,7 @@ function Splash() {
       })
       .then(() => {
         navigate("/inicio", { fromSplash: true });
-        setTimeout(
+        /*setTimeout(
           () =>
             dispatch(
               addMessage({
@@ -96,7 +96,7 @@ function Splash() {
               })
             ),
           2000
-        );
+        );*/
       })
       .catch((e) => {
         Sentry.captureException(e);
