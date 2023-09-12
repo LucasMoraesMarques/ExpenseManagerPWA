@@ -261,29 +261,23 @@ function RegardingDetail() {
                   <Box className="w-[75%] mx-auto my-3">
                     <PieChart
                       data={{
-                        labels: [
-                          "EM VALIDAÇÃO",
-                          "AGUARDANDO",
-                          "PAGO",
-                        ],
+                        labels: ["EM VALIDAÇÃO", "AGUARDANDO", "PAGO"],
                         datasets: [
                           {
                             label: "Valor R$",
                             data: [
-                              regarding.general_total.total_validation,
-                              regarding.general_total.total_open,
-                              regarding.general_total.total_paid,
+                              regarding.general_total.total_validation
+                                .replace(".", "")
+                                .replace(",", "."),
+                              regarding.general_total.total_open
+                                .replace(".", "")
+                                .replace(",", "."),
+                              regarding.general_total.total_paid
+                                .replace(".", "")
+                                .replace(",", "."),
                             ],
-                            backgroundColor: [
-                              "#fb923c",
-                              "#facc15",
-                              "#65a30d",
-                            ],
-                            borderColor: [
-                              "#fb923c",
-                              "#facc15",
-                              "#365314",
-                            ],
+                            backgroundColor: ["#fb923c", "#facc15", "#65a30d"],
+                            borderColor: ["#fb923c", "#facc15", "#365314"],
                             borderWidth: 1,
                           },
                         ],

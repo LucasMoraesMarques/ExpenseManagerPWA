@@ -2,7 +2,7 @@ import React from "react";
 import { IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
-function BackButton() {
+function BackButton({callback=null}) {
   return (
     <IconButton
       size="large"
@@ -10,7 +10,7 @@ function BackButton() {
       color="inherit"
       aria-label="menu"
       sx={{ mr: 2 }}
-      onClick={() => window.history.back()}
+      onClick={() => callback != null ? callback() : window.history.back()}
     >
       <ArrowBackIcon />
     </IconButton>

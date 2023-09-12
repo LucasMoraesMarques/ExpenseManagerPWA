@@ -17,9 +17,12 @@ import {
   validatePhone,
   validateTextField,
 } from "../services/utils";
+import ConfirmationModal from "../components/ConfirmationModal";
+import CustomModal from "../components/CustomModal";
 
 function ProfileEdit() {
   const [openModal, setOpenModal] = useState(false);
+  const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
   const navigate = useNavigate();
   const userState = useSelector((state) => state.user);
 
@@ -32,6 +35,7 @@ function ProfileEdit() {
 
   const dispatch = useDispatch();
   const [fieldsValid, setFieldsValid] = useState(false);
+  const [fieldsChanged, setFieldsChanged] = useState(false);
   const [fieldsValidation, setFieldsValidation] = useState({
     first_name: false,
     last_name: false,
@@ -41,18 +45,22 @@ function ProfileEdit() {
 
   const handleChangeFirstName = (e) => {
     setInputStates({ ...inputStates, first_name: e.target.value });
+    setFieldsChanged(true);
   };
 
   const handleChangeLastName = (e) => {
     setInputStates({ ...inputStates, last_name: e.target.value });
+    setFieldsChanged(true);
   };
 
   const handleChangeEmail = (e) => {
     setInputStates({ ...inputStates, email: e.target.value });
+    setFieldsChanged(true);
   };
 
   const handleChangePhone = (e) => {
     setInputStates({ ...inputStates, phone: phoneMask(e.target.value) });
+    setFieldsChanged(true);
   };
 
   const handleSaveUser = () => {
@@ -112,11 +120,19 @@ function ProfileEdit() {
     });
   }, []);
 
+  const handleLeaveForm = () => {
+    if (fieldsChanged) {
+      setOpenConfirmationModal(true);
+    } else {
+      window.history.back();
+    }
+  };
+
   return (
     <div>
       <AppBar position="sticky">
         <Toolbar>
-          <BackButton />
+          <BackButton callback={handleLeaveForm} />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Seus dados
           </Typography>
@@ -130,7 +146,7 @@ function ProfileEdit() {
                 color="inherit"
                 variant="outlined"
                 onClick={handleSaveUser}
-                disabled={!fieldsValid}
+                disabled={!fieldsValid || !fieldsChanged}
               >
                 Salvar
               </Button>
@@ -201,6 +217,18 @@ function ProfileEdit() {
           sx={{ margin: "10px 0px" }}
         />
       </div>
+      <CustomModal
+        open={openConfirmationModal}
+        onClose={() => setOpenConfirmationModal(false)}
+        children={
+          <ConfirmationModal
+            onCancel={() => setOpenConfirmationModal(false)}
+            onConfirm={() => window.history.back()}
+            title="Confirmação de ação"
+            message="Você deseja sair sem salvar as modificações?"
+          />
+        }
+      />
     </div>
   );
 }

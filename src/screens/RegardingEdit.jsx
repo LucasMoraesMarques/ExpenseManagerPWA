@@ -16,6 +16,8 @@ import { addMessage } from "../redux/slices/messageSlice";
 import { validateTextField } from "../services/utils";
 import { useOutletContext } from "react-router-dom";
 import { setReload } from "../redux/slices/configSlice";
+import ConfirmationModal from "../components/ConfirmationModal";
+import CustomModal from "../components/CustomModal";
 
 const REGARDING_STATES = [
   { label: "Em andamento", id: 0 },
@@ -25,6 +27,7 @@ const REGARDING_STATES = [
 function RegardingEdit() {
   const navigate = useNavigate();
   let { id = null } = useParams();
+  const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
   const regardingState = useSelector((state) => state.regarding);
   const groupState = useSelector((state) => state.group);
   const [regarding, setRegarding] = useState({});
@@ -41,16 +44,19 @@ function RegardingEdit() {
     description: "",
   });
   const [fieldsValid, setFieldsValid] = useState(false);
+  const [fieldsChanged, setFieldsChanged] = useState(false);
   const [saving, setSaving] = useState(false);
   const dispatch = useDispatch();
   const { user } = useOutletContext();
 
   const handleChangeName = (e) => {
     setInputStates({ ...inputStates, name: e.target.value });
+    setFieldsChanged(true);
   };
 
   const handleChangeDescription = (e) => {
     setInputStates({ ...inputStates, description: e.target.value });
+    setFieldsChanged(true);
   };
 
   const handleChangeDate = (value, type) => {
@@ -59,14 +65,17 @@ function RegardingEdit() {
     } else if (type == "end") {
       setInputStates({ ...inputStates, end_date: dayjs(value.$d) });
     }
+    setFieldsChanged(true);
   };
 
   const handleChangeIsClosed = (e, value) => {
     setInputStates({ ...inputStates, is_closed: value });
+    setFieldsChanged(true);
   };
 
   const handleChangeExpenseGroup = (e, value) => {
     setInputStates({ ...inputStates, expense_group: value });
+    setFieldsChanged(true);
   };
 
   const handleSaveRegarding = () => {
@@ -192,11 +201,20 @@ function RegardingEdit() {
     setInputValidation(validations);
     setFieldsValid(Object.values(validations).every((item) => item));
   }, [inputStates]);
+
+  const handleLeaveForm = () => {
+    if (fieldsChanged) {
+      setOpenConfirmationModal(true);
+    } else {
+      window.history.back();
+    }
+  };
+
   return (
     <div>
       <AppBar position="sticky">
         <Toolbar>
-          <BackButton />
+          <BackButton callback={handleLeaveForm} />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {id ? "Editar Referência" : "Criar Referência"}
           </Typography>
@@ -209,7 +227,7 @@ function RegardingEdit() {
                 aria-haspopup="true"
                 color="inherit"
                 variant="outlined"
-                disabled={!fieldsValid || saving}
+                disabled={!fieldsValid || saving || !fieldsChanged}
                 onClick={handleSaveRegarding}
               >
                 Salvar
@@ -291,6 +309,18 @@ function RegardingEdit() {
           />
         )}
       </div>
+      <CustomModal
+        open={openConfirmationModal}
+        onClose={() => setOpenConfirmationModal(false)}
+        children={
+          <ConfirmationModal
+            onCancel={() => setOpenConfirmationModal(false)}
+            onConfirm={() => window.history.back()}
+            title="Confirmação de ação"
+            message="Você deseja sair sem salvar as modificações?"
+          />
+        }
+      />
     </div>
   );
 }

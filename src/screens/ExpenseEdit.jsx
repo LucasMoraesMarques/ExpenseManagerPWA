@@ -35,6 +35,7 @@ import Checkbox from "@mui/material/Checkbox";
 import { useOutletContext } from "react-router-dom";
 import { setReload } from "../redux/slices/configSlice";
 import SwipeableViews from "react-swipeable-views";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -55,6 +56,7 @@ function TabPanel(props) {
 
 function ExpenseEdit() {
   const [openModal, setOpenModal] = useState(false);
+  const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
   const navigate = useNavigate();
   let { id = null } = useParams();
   const expenseState = useSelector((state) => state.expense);
@@ -88,6 +90,7 @@ function ExpenseEdit() {
   const [consumerOptions, setConsumerOptions] = useState([]);
   const [paymentMethodOptions, setPaymentMethodOptions] = useState([]);
   const [fieldsValid, setFieldsValid] = useState(false);
+  const [fieldsChanged, setFieldsChanged] = useState(false);
   const [item, setItem] = useState({
     name: "",
     price: "0,00",
@@ -109,18 +112,22 @@ function ExpenseEdit() {
 
   const handleChangeName = (e) => {
     setInputStates({ ...inputStates, name: e.target.value });
+    setFieldsChanged(true);
   };
 
   const handleChangeDescription = (e) => {
     setInputStates({ ...inputStates, description: e.target.value });
+    setFieldsChanged(true);
   };
 
   const handleChangeDate = (value) => {
     setInputStates({ ...inputStates, date: dayjs(value.$d) });
+    setFieldsChanged(true);
   };
 
   const handleChangeCost = (e) => {
     setInputStates({ ...inputStates, cost: moneyMask(e.target.value) });
+    setFieldsChanged(true);
   };
 
   const handleChange = (event, newValue) => {
@@ -133,6 +140,7 @@ function ExpenseEdit() {
 
   const handleRevalidate = (e) => {
     setInputStates({ ...inputStates, revalidate: e.target.checked });
+    setFieldsChanged(true);
   };
 
   const handleChangeRegarding = (e, value) => {
@@ -152,7 +160,10 @@ function ExpenseEdit() {
             name: item.first_name + " " + item.last_name,
           }));
           setUserOptions(options);
-          setValidatorOptions([...options.filter((item) => item.id != user.id), { id: 0, name: "Todos" }]);
+          setValidatorOptions([
+            ...options.filter((item) => item.id != user.id),
+            { id: 0, name: "Todos" },
+          ]);
           setConsumerOptions([...options, { id: 0, name: "Todos" }]);
         }
       }
@@ -172,7 +183,9 @@ function ExpenseEdit() {
     let options = [...userOptions, { id: 0, name: "Todos" }];
     setInputStates({ ...inputStates, validators: newValidators });
     setValidatorOptions(
-      options.filter((item) => !newValidators.includes(item) && item.id != user.id)
+      options.filter(
+        (item) => !newValidators.includes(item) && item.id != user.id
+      )
     );
   };
 
@@ -189,12 +202,14 @@ function ExpenseEdit() {
     });
     let options = [...userOptions, { id: 0, name: "Todos" }];
     setConsumerOptions(options);
+    setFieldsChanged(true);
   };
 
   const handleDeleteItem = (instance) => {
     let newItems = [...inputStates.items];
     newItems = newItems.filter((item) => !(instance.id == item.id));
     setInputStates({ ...inputStates, items: newItems });
+    setFieldsChanged(true);
   };
 
   const handleAddPayment = () => {
@@ -224,7 +239,7 @@ function ExpenseEdit() {
     });
     setOpenModal(false);
     setPayment({
-      payer: {id:payer.id, label:payer.full_name},
+      payer: { id: payer.id, label: payer.full_name },
       payment_method: "",
       value: "0,00",
       expense: "",
@@ -233,13 +248,16 @@ function ExpenseEdit() {
       payer.wallet.payment_methods.map((item) => ({
         name: item.type + " " + item.description,
         ...item,
-      })))
+      }))
+    );
+    setFieldsChanged(true);
   };
 
   const handleDeletePayment = (instance) => {
     let newPayments = [...inputStates.payments];
     newPayments = newPayments.filter((item) => !(instance.id == item.id));
     setInputStates({ ...inputStates, payments: newPayments });
+    setFieldsChanged(true);
   };
 
   const handleChangeConsumers = (e, value) => {
@@ -263,6 +281,7 @@ function ExpenseEdit() {
     });
     let options = [...userOptions, { id: 0, name: "Todos" }];
     setConsumerOptions(options.filter((item) => !newConsumers.includes(item)));
+    setFieldsChanged(true);
   };
 
   const handleChangePayer = (e, value) => {
@@ -285,6 +304,7 @@ function ExpenseEdit() {
         setPaymentMethodOptions([]);
       }
     }
+    setFieldsChanged(true);
   };
 
   const handleChangePaymentMethod = (e, value) => {
@@ -380,11 +400,16 @@ function ExpenseEdit() {
           name: item.first_name + " " + item.last_name,
         }));
         setUserOptions(options);
-        setValidatorOptions([...options.filter((item) => item.id != user.id), { id: 0, name: "Todos" }]);
+        setValidatorOptions([
+          ...options.filter((item) => item.id != user.id),
+          { id: 0, name: "Todos" },
+        ]);
         setConsumerOptions([...options, { id: 0, name: "Todos" }]);
-        let payer = userState.users.find((item) => item.id == data.payments[0].payer.id);
+        let payer = userState.users.find(
+          (item) => item.id == data.payments[0].payer.id
+        );
         setPayment({
-          payer: {id:payer.id, label:payer.full_name},
+          payer: { id: payer.id, label: payer.full_name },
           payment_method: "",
           value: "0,00",
           expense: "",
@@ -393,7 +418,8 @@ function ExpenseEdit() {
           payer.wallet.payment_methods.map((item) => ({
             name: item.type + " " + item.description,
             ...item,
-          })))
+          }))
+        );
       }
     }
   }, []);
@@ -424,11 +450,19 @@ function ExpenseEdit() {
     setFieldsValid(Object.values(validations).every((item) => item));
   }, [inputStates]);
 
+  const handleLeaveForm = () => {
+    if (fieldsChanged) {
+      setOpenConfirmationModal(true);
+    } else {
+      window.history.back();
+    }
+  };
+
   return (
     <div id="expenseEdit" className="grow">
       <AppBar position="sticky">
         <Toolbar>
-          <BackButton />
+          <BackButton callback={handleLeaveForm} />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Editar Despesa
           </Typography>
@@ -442,7 +476,7 @@ function ExpenseEdit() {
                 color="inherit"
                 variant="outlined"
                 onClick={handleSaveExpense}
-                disabled={!fieldsValid || saving}
+                disabled={!fieldsValid || saving || !fieldsChanged}
               >
                 Salvar
               </Button>
@@ -675,16 +709,15 @@ function ExpenseEdit() {
                 </>
               }
             />
-
+            {inputValidation.items ? (
+              ""
+            ) : (
+              <span className="text-[red] text-sm">
+                A soma dos itens deve ser igual ao valor da despesa
+              </span>
+            )}
             {"items" in inputStates && inputStates.items.length > 0 ? (
               <>
-                {inputValidation.items ? (
-                  ""
-                ) : (
-                  <span className="text-[red] text-sm">
-                    A soma dos itens deve ser igual ao valor da despesa
-                  </span>
-                )}
                 <List>
                   {inputStates.items.map((item) => (
                     <Item
@@ -741,7 +774,11 @@ function ExpenseEdit() {
                         label="Pagador"
                         placeholder="Selecione o pagador dessa despesa"
                         variant="outlined"
-                        helperText={inputStates.payments.length != 0 ? "Múltiplos pagamentos são restritos a um mesmo pagador": ""}
+                        helperText={
+                          inputStates.payments.length != 0
+                            ? "Múltiplos pagamentos são restritos a um mesmo pagador"
+                            : ""
+                        }
                       />
                     )}
                   />
@@ -807,15 +844,15 @@ function ExpenseEdit() {
                 </>
               }
             />
+            {inputValidation.payments ? (
+              ""
+            ) : (
+              <span className="text-[red] text-sm">
+                A soma dos pagamentos deve ser igual ao valor da despesa
+              </span>
+            )}
             {"payments" in inputStates && inputStates.payments.length > 0 ? (
               <>
-                {inputValidation.payments ? (
-                  ""
-                ) : (
-                  <span className="text-[red] text-sm">
-                    A soma dos pagamentos deve ser igual ao valor da despesa
-                  </span>
-                )}
                 <List>
                   {inputStates.payments.map((item) => (
                     <PaymentItem
@@ -833,6 +870,18 @@ function ExpenseEdit() {
           </TabPanel>
         </SwipeableViews>
       </div>
+      <CustomModal
+        open={openConfirmationModal}
+        onClose={() => setOpenConfirmationModal(false)}
+        children={
+          <ConfirmationModal
+            onCancel={() => setOpenConfirmationModal(false)}
+            onConfirm={() => window.history.back()}
+            title="Confirmação de ação"
+            message="Você deseja sair sem salvar as modificações?"
+          />
+        }
+      />
     </div>
   );
 }

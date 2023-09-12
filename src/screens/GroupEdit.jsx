@@ -27,9 +27,11 @@ import InvitationItem from "../components/InvitationItem";
 import NoData from "../components/NoData";
 import Membership from "../components/Membership";
 import { setReload } from "../redux/slices/configSlice";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 function GroupEdit() {
   const [openModal, setOpenModal] = useState(false);
+  const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
   const navigate = useNavigate();
   let { id = null } = useParams();
   const groupState = useSelector((state) => state.group);
@@ -45,6 +47,7 @@ function GroupEdit() {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [memberSearch, setMemberSearch] = useState("");
   const [fieldsValid, setFieldsValid] = useState(false);
+  const [fieldsChanged, setFieldsChanged] = useState(false);
   const dispatch = useDispatch();
   const { user } = useOutletContext();
   const [deleteMode, setDeleteMode] = useState(false);
@@ -52,10 +55,12 @@ function GroupEdit() {
 
   const handleChangeName = (e) => {
     setInputStates({ ...inputStates, name: e.target.value });
+    setFieldsChanged(true);
   };
 
   const handleChangeDescription = (e) => {
     setInputStates({ ...inputStates, description: e.target.value });
+    setFieldsChanged(true);
   };
 
   const handleChangeMembership = (newMembership) => {
@@ -67,6 +72,7 @@ function GroupEdit() {
       newMemberships[index] = newMembership;
       setInputStates({ ...inputStates, memberships: newMemberships });
     }
+    setFieldsChanged(true);
   };
 
   const handleInviteUser = (invitedUser) => {
@@ -104,6 +110,7 @@ function GroupEdit() {
         invitations: [...inputStates.invitations, invitation],
       });
     }
+    setFieldsChanged(true);
   };
   const handleRemoveMember = (membershipToRemove) => {
     let members = [
@@ -121,6 +128,7 @@ function GroupEdit() {
       members: [...members],
       memberships: [...memberships],
     });
+    setFieldsChanged(true);
   };
 
   const handleSaveGroup = () => {
@@ -269,11 +277,19 @@ function GroupEdit() {
     }
   }, [inputStates]);
 
+  const handleLeaveForm = () => {
+    if (fieldsChanged) {
+      setOpenConfirmationModal(true);
+    } else {
+      window.history.back();
+    }
+  };
+
   return (
     <div>
       <AppBar position="sticky">
         <Toolbar>
-          <BackButton />
+          <BackButton callback={handleLeaveForm} />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {id ? "Editar Grupo" : "Criar Grupo"}
           </Typography>
@@ -284,7 +300,7 @@ function GroupEdit() {
                 aria-label="account of current user"
                 aria-controls="menu-appbar"
                 aria-haspopup="true"
-                disabled={!fieldsValid}
+                disabled={!fieldsValid || !fieldsChanged}
                 color="inherit"
                 variant="outlined"
                 onClick={handleSaveGroup}
@@ -457,6 +473,18 @@ function GroupEdit() {
           </>
         )}
       </div>
+      <CustomModal
+        open={openConfirmationModal}
+        onClose={() => setOpenConfirmationModal(false)}
+        children={
+          <ConfirmationModal
+            onCancel={() => setOpenConfirmationModal(false)}
+            onConfirm={() => window.history.back()}
+            title="Confirmação de ação"
+            message="Você deseja sair sem salvar as modificações?"
+          />
+        }
+      />
     </div>
   );
 }
