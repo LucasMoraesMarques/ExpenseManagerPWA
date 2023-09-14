@@ -285,6 +285,23 @@ function GroupEdit() {
     }
   };
 
+  const leaveWithoutSaving = () => {
+    window.onpopstate = {};
+    window.onbeforeunload = {};
+    navigate(`/inicio`);
+  };
+
+  useEffect(() => {
+    if (fieldsChanged) {
+      window.history.pushState(null, null, window.location.href);
+      window.onpopstate = function (event) {
+        window.history.go(1);
+        setOpenConfirmationModal(true);
+      };
+      window.onbeforeunload = () => false
+    }
+  }, [fieldsChanged]);
+
   return (
     <div>
       <AppBar position="sticky">
@@ -479,7 +496,7 @@ function GroupEdit() {
         children={
           <ConfirmationModal
             onCancel={() => setOpenConfirmationModal(false)}
-            onConfirm={() => window.history.back()}
+            onConfirm={() => leaveWithoutSaving()}
             title="Confirmação de ação"
             message="Você deseja sair sem salvar as modificações?"
           />

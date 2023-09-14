@@ -47,7 +47,7 @@ function Account() {
     <div className="min-h-screen">
       <AppBar position="static">
         <Toolbar>
-          <BackButton />
+          <BackButton callback={()=> navigate('/inicio')}/>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Sua conta
           </Typography>
