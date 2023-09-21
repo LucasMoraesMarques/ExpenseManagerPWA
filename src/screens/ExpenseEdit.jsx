@@ -18,7 +18,7 @@ import BackButton from "../components/BackButton";
 import { useSelector, useDispatch } from "react-redux";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
-import { editExpense } from "../services/expenses";
+import { createExpense, editExpense } from "../services/expenses";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import PaymentItem from "../components/PaymentItem";
@@ -96,11 +96,10 @@ function ExpenseEdit() {
     price: "0,00",
     expense: "",
     consumers: [],
-    create: true,
   });
   const [payment, setPayment] = useState({
-    payer: "",
-    payment_method: "",
+    payer: null,
+    payment_method: null,
     value: "0,00",
     expense: "",
     create: true,
@@ -108,6 +107,8 @@ function ExpenseEdit() {
   const dispatch = useDispatch();
   const [value, setValue] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [itemEdition, setItemEdition] = useState(false);
+  const [paymentEdition, setPaymentEdition] = useState(false);
   const { user } = useOutletContext();
 
   const handleChangeName = (e) => {
@@ -169,6 +170,7 @@ function ExpenseEdit() {
       }
     }
     setInputStates({ ...inputStates, regarding: value });
+    setFieldsChanged(true);
   };
 
   const handleChangeValidators = (e, value) => {
@@ -180,29 +182,46 @@ function ExpenseEdit() {
         newValidators = [...value];
       }
     }
-    let options = [...userOptions, { id: 0, name: "Todos" }];
     setInputStates({ ...inputStates, validators: newValidators });
-    setValidatorOptions(
-      options.filter(
-        (item) => !newValidators.includes(item) && item.id != user.id
-      )
-    );
+    setFieldsChanged(true);
   };
 
   const handleAddItem = () => {
-    setInputStates({ ...inputStates, items: [...inputStates.items, item] });
+    let newItem = {
+      ...item,
+    };
+    let newItems = [...inputStates.items];
+    let lastId = 0;
+    console.log(newItem, item, newItems);
+    let itemIndex = inputStates.items.findIndex(
+      (item) => item.id == newItem.id
+    );
+    if (itemIndex == -1) {
+      for (let { id } of inputStates.items) {
+        if (id >= lastId) {
+          lastId = id + 1;
+        }
+      }
+      newItem.id = lastId;
+      newItem.create = true;
+      newItems.push(newItem);
+    } else {
+      newItems[itemIndex] = { ...newItem, edited: true };
+      console.log(itemIndex, inputStates.items);
+    }
+    setInputStates({ ...inputStates, items: newItems });
     setOpenModal(false);
     setItem({
       name: "",
       price: "0,00",
       expense: "",
       consumers: [],
-      create: true,
       consumer_names: "",
     });
     let options = [...userOptions, { id: 0, name: "Todos" }];
     setConsumerOptions(options);
     setFieldsChanged(true);
+    setItemEdition(false);
   };
 
   const handleDeleteItem = (instance) => {
@@ -212,45 +231,90 @@ function ExpenseEdit() {
     setFieldsChanged(true);
   };
 
-  const handleAddPayment = () => {
-    let lastId = 0;
-    for (let { id } of inputStates.payments) {
-      if (id >= lastId) {
-        lastId = id + 1;
-      }
-    }
-    let payer = userState.users.find((item) => item.id == payment.payer.id);
+  const handleClickItem = (item) => {
+    setItem(item);
+    setOpenModal(true);
+    setItemEdition(true);
+  };
+
+  const handleClickPayment = (payment) => {
     let newPayment = {
-      id: lastId,
       ...payment,
-      payment_status: "AWAITING",
+      payer: {id: payment.payer.id, name: payment.payer.name},
       payment_method: paymentMethodOptions.find(
         (item) => item.id == payment.payment_method.id
       ),
-      payer: payer,
-      payer_name: payer.full_name,
     };
-    if (["DEBIT", "CASH"].includes(newPayment.payment_method.type)) {
-      newPayment.payment_status = "PAID";
+    setPayment(newPayment);
+    setOpenModal(true);
+    setPaymentEdition(true);
+  };
+
+  const handleAddPayment = () => {
+    let payer = userState.users.find((item) => item.id == payment.payer.id);
+    let newPayments = [...inputStates.payments];
+    let lastId = 0;
+    let paymentIndex = inputStates.payments.findIndex(
+      (item) => item.id == payment.id
+    );
+    console.log(payer)
+
+    if (paymentIndex == -1) {
+      for (let { id } of inputStates.payments) {
+        if (id >= lastId) {
+          lastId = id + 1;
+        }
+      }
+      let newPayment = {
+        id: lastId,
+        ...payment,
+        payment_status: "AWAITING",
+        payment_method: payer.wallet.payment_methods.find(
+          (item) => item.id == payment.payment_method.id
+        ),
+        payer: payer,
+        payer_name: payer.full_name,
+        create: true,
+      };
+      if (["DEBIT", "CASH"].includes(newPayment.payment_method.type)) {
+        newPayment.payment_status = "PAID";
+      }
+      else {
+        newPayment.payment_status = "AWAITING";
+      }
+      newPayments.push(newPayment);
+    } else {
+      let newPayment = {
+        ...newPayments[paymentIndex],
+        payment_method: payer.wallet.payment_methods.find(
+          (item) => item.id == payment.payment_method.id
+        ),
+        value: payment.value
+      };
+      console.log(newPayment)
+      if (["DEBIT", "CASH"].includes(newPayment.payment_method.type)) {
+        newPayment.payment_status = "PAID";
+      } else {
+        newPayment.payment_status = "AWAITING";
+      }
+      newPayments[paymentIndex] = { ...newPayment, edited: true };
     }
-    setInputStates({
-      ...inputStates,
-      payments: [...inputStates.payments, newPayment],
-    });
+    setInputStates({ ...inputStates, payments: newPayments });
     setOpenModal(false);
     setPayment({
-      payer: { id: payer.id, label: payer.full_name },
-      payment_method: "",
+      payer: { id: payer.id, name: payer.full_name },
+      payment_method: null,
       value: "0,00",
       expense: "",
     });
     setPaymentMethodOptions(
       payer.wallet.payment_methods.map((item) => ({
         name: item.type + " " + item.description,
-        ...item,
+        id: item.id
       }))
     );
     setFieldsChanged(true);
+    setPaymentEdition(false);
   };
 
   const handleDeletePayment = (instance) => {
@@ -267,20 +331,11 @@ function ExpenseEdit() {
     } else {
       newConsumers = [...value];
     }
-    let lastId = 0;
-    for (let { id } of inputStates.items) {
-      if (id >= lastId) {
-        lastId = id + 1;
-      }
-    }
     setItem({
       ...item,
       consumers: newConsumers,
-      id: lastId,
       consumers_names: newConsumers.map(({ name }) => name).join(", "),
     });
-    let options = [...userOptions, { id: 0, name: "Todos" }];
-    setConsumerOptions(options.filter((item) => !newConsumers.includes(item)));
     setFieldsChanged(true);
   };
 
@@ -288,8 +343,8 @@ function ExpenseEdit() {
     if (value) {
       let payer = userState.users.find((item) => item.id == value.id);
       setPayment({
-        payer: value,
-        payment_method: "",
+        payer: { id: payer.id, name: payer.full_name },
+        payment_method: null,
         value: "0,00",
         expense: "",
       });
@@ -297,7 +352,7 @@ function ExpenseEdit() {
         setPaymentMethodOptions(
           payer.wallet.payment_methods.map((item) => ({
             name: item.type + " " + item.description,
-            ...item,
+            id: item.id
           }))
         );
       } else {
@@ -312,6 +367,8 @@ function ExpenseEdit() {
   };
 
   const handleSaveExpense = () => {
+    window.onpopstate = {};
+    window.onbeforeunload = {};
     setSaving(true);
     let data = {
       ...inputStates,
@@ -319,38 +376,55 @@ function ExpenseEdit() {
         .toString()
         .padStart(2, 0)}-${inputStates.date.$D.toString().padStart(2, 0)}`,
       regarding: inputStates.regarding.id,
-      validators: [],
     };
-    editExpense(user.api_token, id, data).then(({ flag, data }) => {
-      if (flag) {
-        let newExpense = {
-          ...data,
-          date: `${data.date.slice(8, 10)}-${data.date.slice(
-            5,
-            7
-          )}-${data.date.slice(0, 4)}`,
-        };
-        setExpense({ ...inputStates, ...newExpense });
-        dispatch(
-          addMessage({
-            severity: "success",
-            title: "Sucesso!",
-            body: "Despesa editada com sucesso!",
-          })
-        );
-        navigate(`/inicio/`);
-        dispatch(setReload(true));
-      } else {
-        dispatch(
-          addMessage({
-            severity: "error",
-            title: "Erro!",
-            body: "Tivemos problemas ao atualizar os dados. Tente novamente!",
-          })
-        );
-      }
-      setSaving(false);
-    });
+    if (id) {
+      editExpense(user.api_token, id, data).then(({ flag, data }) => {
+        if (flag) {
+          dispatch(
+            addMessage({
+              severity: "success",
+              title: "Sucesso!",
+              body: "Despesa editada com sucesso!",
+            })
+          );
+          navigate(`/inicio/`);
+          dispatch(setReload(true));
+        } else {
+          dispatch(
+            addMessage({
+              severity: "error",
+              title: "Erro!",
+              body: "Tivemos problemas ao atualizar os dados. Tente novamente!",
+            })
+          );
+        }
+        setSaving(false);
+      });
+    } else {
+      setSaving(true);
+      createExpense(user.api_token, data).then(({ flag, data }) => {
+        if (flag) {
+          dispatch(
+            addMessage({
+              severity: "success",
+              title: "Sucesso!",
+              body: "Despesa adicionada com sucesso!",
+            })
+          );
+          navigate("/inicio");
+          dispatch(setReload(true));
+        } else {
+          dispatch(
+            addMessage({
+              severity: "error",
+              title: "Erro!",
+              body: "Tivemos problemas ao criar a despesa. Tente novamente!",
+            })
+          );
+        }
+        setSaving(false);
+      });
+    }
   };
 
   useEffect(() => {
@@ -409,15 +483,15 @@ function ExpenseEdit() {
           (item) => item.id == data.payments[0].payer.id
         );
         setPayment({
-          payer: { id: payer.id, label: payer.full_name },
-          payment_method: "",
+          payer: { id: payer.id, name: payer.full_name },
+          payment_method: null,
           value: "0,00",
           expense: "",
         });
         setPaymentMethodOptions(
           payer.wallet.payment_methods.map((item) => ({
             name: item.type + " " + item.description,
-            ...item,
+            id: item.id
           }))
         );
       }
@@ -464,6 +538,28 @@ function ExpenseEdit() {
     navigate(`/inicio`);
   };
 
+  const handleDismissModal = () => {
+    setOpenModal(false);
+    setItemEdition(false);
+    setPaymentEdition(false);
+    setItem({
+      name: "",
+      price: "0,00",
+      expense: "",
+      consumers: [],
+      consumer_names: "",
+    });
+    let payer = userState.users.find(
+      (item) => item.id == inputStates.payments[0].payer.id
+    );
+    setPayment({
+      payer: { id: payer.id, name: payer.full_name },
+      payment_method: null,
+      value: "0,00",
+      expense: "",
+    });
+  };
+
   useEffect(() => {
     if (fieldsChanged) {
       window.history.pushState(null, null, window.location.href);
@@ -471,7 +567,7 @@ function ExpenseEdit() {
         window.history.go(1);
         setOpenConfirmationModal(true);
       };
-      window.onbeforeunload = () => false
+      window.onbeforeunload = () => false;
     }
   }, [fieldsChanged]);
 
@@ -481,7 +577,7 @@ function ExpenseEdit() {
         <Toolbar>
           <BackButton callback={handleLeaveForm} />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Editar Despesa
+            {id ? 'Editar Despesa' : 'Adicionar Despesa'}
           </Typography>
           {true && (
             <div>
@@ -508,8 +604,6 @@ function ExpenseEdit() {
             label="Nome"
             variant="outlined"
             size="medium"
-            error={!inputValidation.name ? true : false}
-            helperText={!inputValidation.name ? "Não pode ser vazio" : ""}
             value={inputStates.name}
             onChange={handleChangeName}
             fullWidth
@@ -522,10 +616,6 @@ function ExpenseEdit() {
             variant="outlined"
             multiline
             rows={3}
-            error={!inputValidation.description ? true : false}
-            helperText={
-              !inputValidation.description ? "Não pode ser vazio" : ""
-            }
             value={inputStates.description}
             onChange={handleChangeDescription}
             size="medium"
@@ -538,6 +628,7 @@ function ExpenseEdit() {
             value={inputStates.date}
             onChange={(value) => handleChangeDate(value)}
             required
+            sx={{ margin: "10px 0px" }}
           />
           <TextField
             id="outlined-basic"
@@ -555,53 +646,59 @@ function ExpenseEdit() {
             }}
             required
           />
-          {/*<Autocomplete
-            disablePortal
-            id="combo-box-demo"
-            options={regardingState.userRegardings
-              .filter((item) => !item.is_closed)
-              .map((item) => ({
-                id: item.id,
-                label: item.name,
-              }))}
-            renderInput={(params) => (
-              <TextField {...params} label="Referência" required />
-            )}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            size="medium"
-            value={inputStates.regarding}
-            onChange={handleChangeRegarding}
-            sx={{ margin: "10px 0px" }}
-            required
-            />*/}
-          <FormControlLabel
-            required
-            control={
-              <Checkbox
-                checked={inputStates.revalidate || false}
-                onChange={handleRevalidate}
-                inputProps={{ "aria-label": "controlled" }}
+          {id ? (
+            <FormControlLabel
+              required
+              control={
+                <Checkbox
+                  checked={inputStates.revalidate || false}
+                  onChange={handleRevalidate}
+                  inputProps={{ "aria-label": "controlled" }}
+                />
+              }
+              label="Revalidar despesa após alterações"
+            />
+          ) : (
+            <>
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                options={regardingState.userRegardings
+                  .filter((item) => !item.is_closed)
+                  .map((item) => ({
+                    id: item.id,
+                    label: item.name,
+                  }))}
+                renderInput={(params) => (
+                  <TextField {...params} label="Referência" required  sx={{ margin: "10px 0px" }}
+                  />
+                )}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                size="medium"
+                value={inputStates.regarding}
+                onChange={handleChangeRegarding}
               />
-            }
-            label="Revalidar despesa após alterações"
-          />
-
-          {/*<Autocomplete
-            multiple
-            id="tags-standard"
-            options={validatorOptions}
-            onChange={handleChangeValidators}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            getOptionLabel={(option) => option.name}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Validantes"
-                placeholder="Selecione quem deve validar"
-                variant="outlined"
+              <Autocomplete
+                multiple
+                id="tags-standard"
+                options={validatorOptions}
+                value={inputStates.validators}
+                onChange={handleChangeValidators}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                getOptionLabel={(option) => option.name}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Validantes"
+                    placeholder="Selecione quem deve validar"
+                    variant="outlined"
+                    sx={{ margin: "10px 0px" }}
+                  />
+                )}
               />
-            )}
-          />
+            </>
+          )}
+          {/*
           <IconButton
           color="primary"
           aria-label="upload picture"
@@ -650,10 +747,10 @@ function ExpenseEdit() {
                     component="h2"
                     sx={{ fontWeight: "bold" }}
                   >
-                    Adicionar Item
+                    {itemEdition ? "Editar Item" : "Adicionar Item"}
                   </Typography>
                   <span className="text-sm">
-                    Selecione a referência para ver as opções
+                    Selecione a referência para ver as opções de contribuintes
                   </span>
 
                   <TextField
@@ -694,33 +791,32 @@ function ExpenseEdit() {
                       option.id === value.id
                     }
                     getOptionLabel={(option) => option.name}
+                    value={item.consumers}
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Consumidores"
-                        placeholder="Selecione os consumidores do item"
+                        label="Contribuintes"
+                        placeholder="Selecione os contribuintes do item"
                         variant="outlined"
+                        helperText="Adicione todos que compartilham esse item"
                       />
                     )}
                     required
                   />
                   <Box className="flex flex-row justify-between mt-[10px]">
-                    <Button
-                      variant="outlined"
-                      onClick={() => setOpenModal(false)}
-                    >
+                    <Button variant="outlined" onClick={handleDismissModal}>
                       Cancelar
                     </Button>
                     <Button
                       variant="contained"
                       onClick={handleAddItem}
                       disabled={
-                        item.name && item.price && item.consumers.length > 0
+                        item.name && item.price != "0,00" && item.consumers.length > 0
                           ? false
                           : true
                       }
                     >
-                      Adicionar
+                      {itemEdition ? "Alterar" : "Adicionar"}
                     </Button>
                   </Box>
                 </>
@@ -742,6 +838,7 @@ function ExpenseEdit() {
                       item={item}
                       edit={true}
                       onDelete={handleDeleteItem}
+                      onClick={() => handleClickItem(item)}
                     />
                   ))}
                 </List>
@@ -770,17 +867,20 @@ function ExpenseEdit() {
                     component="h2"
                     sx={{ fontWeight: "bold" }}
                   >
-                    Adicionar Pagamento
+                    {paymentEdition
+                      ? "Editar Pagamento"
+                      : "Adicionar Pagamento"}
                   </Typography>
                   <span className="text-sm">
-                    Selecione a referência para ver as opções
+                    Selecione a referência para ver as opções de pagador
                   </span>
                   <Autocomplete
                     id="tags-standard"
-                    options={userOptions.map((item) => ({
-                      id: item.id,
-                      label: item.name,
-                    }))}
+                    options={userOptions}
+                    isOptionEqualToValue={(option, value) =>
+                      option.id === value.id
+                    }
+                    getOptionLabel={(option) => option.name}
                     value={payment.payer}
                     onChange={handleChangePayer}
                     disabled={inputStates.payments.length != 0}
@@ -802,10 +902,11 @@ function ExpenseEdit() {
 
                   <Autocomplete
                     id="tags-standard"
-                    options={paymentMethodOptions.map((item) => ({
-                      id: item.id,
-                      label: item.name,
-                    }))}
+                    options={paymentMethodOptions}
+                    isOptionEqualToValue={(option, value) =>
+                      option.id === value.id
+                    }
+                    getOptionLabel={(option) => option.name}
                     value={payment.payment_method}
                     onChange={handleChangePaymentMethod}
                     sx={{ margin: "10px 0px" }}
@@ -817,6 +918,7 @@ function ExpenseEdit() {
                         variant="outlined"
                       />
                     )}
+
                   />
                   <TextField
                     id="outlined-basic"
@@ -840,22 +942,19 @@ function ExpenseEdit() {
                   />
 
                   <Box className="flex flex-row justify-between mt-[10px]">
-                    <Button
-                      variant="outlined"
-                      onClick={() => setOpenModal(false)}
-                    >
+                    <Button variant="outlined" onClick={handleDismissModal}>
                       Cancelar
                     </Button>
                     <Button
                       variant="contained"
                       onClick={handleAddPayment}
                       disabled={
-                        payment.payer && payment.payment_method && payment.value
+                        payment.payer && payment.payment_method && payment.value != "0,00"
                           ? false
                           : true
                       }
                     >
-                      Adicionar
+                      {paymentEdition ? "Alterar" : "Adicionar"}
                     </Button>
                   </Box>
                 </>
@@ -877,12 +976,13 @@ function ExpenseEdit() {
                       payment={item}
                       edit={true}
                       onDelete={handleDeletePayment}
+                      onClick={() => handleClickPayment(item)}
                     />
                   ))}
                 </List>
               </>
             ) : (
-              <NoData message="Nenhum item adicionado" />
+              <NoData message="Nenhum pagamento adicionado" />
             )}
           </TabPanel>
         </SwipeableViews>

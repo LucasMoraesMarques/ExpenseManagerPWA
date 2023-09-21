@@ -729,8 +729,8 @@ function ExpenseList({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Pagantes"
-                    placeholder="Selecione os pagantes"
+                    label="Contribuintes"
+                    placeholder="Selecione os contribuintes"
                     variant="outlined"
                   />
                 )}

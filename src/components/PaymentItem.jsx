@@ -16,16 +16,16 @@ const STATUS = {
   OVERDUE: "VENCIDO",
 };
 
-function PaymentItem({ key, payment, edit = false, onDelete = () => {} }) {
+function PaymentItem({ key, payment, edit = false, onDelete = () => {}, onClick = () => {}  }) {
   return (
     <ListItem
       key={key}
-      disableGutters
       className="w-full"
       disablePadding
+      disableGutters
       secondaryAction={
         edit ? (
-          <IconButton onClick={() => onDelete(payment)} className="p-0">
+          <IconButton onClick={() => onDelete(payment)} className="p-0" disableGutters disablePadding>
             <DisabledByDefaultIcon sx={{ color: "red" }} />
           </IconButton>
         ) : (
@@ -34,7 +34,7 @@ function PaymentItem({ key, payment, edit = false, onDelete = () => {} }) {
       }
     >
       {"payment_method" in payment && (
-        <ListItemButton>
+        <ListItemButton onClick={edit ? onClick : null} disableGutters disablePadding>
           <ListItemAvatar>
             <Avatar sx={{ bgcolor: "blue" }}>
               {payment.payment_method.type == "CREDIT" ? (
@@ -45,7 +45,7 @@ function PaymentItem({ key, payment, edit = false, onDelete = () => {} }) {
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary={`${payment.payer_name} pagou`}
+            primary={payment.payer_name}
             secondary={`${payment.payment_method.description} - ${
               STATUS[payment.payment_status]
             }`}

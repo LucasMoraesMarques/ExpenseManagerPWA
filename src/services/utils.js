@@ -62,7 +62,7 @@ export const calculateTotalValueOfArray = (array) => {
     value = parseFloat(value.replace(".", "").replace(",", "."));
     sum += value;
   }
-  return sum;
+  return parseFloat(sum.toFixed(2));
 };
 
 export const validateEmail = (email) => {

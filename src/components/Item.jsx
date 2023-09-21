@@ -5,7 +5,7 @@ import ListItemText from "@mui/material/ListItemText";
 import DisabledByDefaultIcon from "@mui/icons-material/DisabledByDefault";
 import IconButton from "@mui/material/IconButton";
 
-function Item({ key, item, edit = false, onDelete = () => {} }) {
+function Item({ key, item, edit = false, onDelete = () => {}, onClick = () => {} }) {
   return (
     <ListItem
       key={key}
@@ -22,7 +22,7 @@ function Item({ key, item, edit = false, onDelete = () => {} }) {
       }
       className="px-0 w-screen"
     >
-      <ListItemButton className="flex flex-row justify-center items-start">
+      <ListItemButton className="flex flex-row justify-center items-start" onClick={edit ? onClick : null}>
         <ListItemText primary={item.name} secondary={item.consumers_names} sx={{width:'70%'}}/>
         <p>R$ {item.price}</p>
       </ListItemButton>

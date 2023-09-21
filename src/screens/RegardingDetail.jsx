@@ -199,7 +199,7 @@ function RegardingDetail() {
                     title="Total Compartilhado Completo"
                     value={"R$ " + regarding.personal_total.shared}
                     helpText={
-                      "Soma dos itens em que todos os membros são consumidores"
+                      "Soma dos itens em que todos os membros são contribuintes"
                     }
                   />
                 </Grid>
@@ -216,7 +216,7 @@ function RegardingDetail() {
                   <DashItem
                     title="Total Individual"
                     value={"R$ " + regarding.personal_total.individual}
-                    helpText={"Soma dos itens em que você é o único consumidor"}
+                    helpText={"Soma dos itens em que você é o único contribuinte"}
                   />
                 </Grid>
                 <Grid item xs={6}>
