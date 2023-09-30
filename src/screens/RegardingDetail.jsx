@@ -196,19 +196,10 @@ function RegardingDetail() {
                 </Grid>
                 <Grid item xs={6}>
                   <DashItem
-                    title="Total Compartilhado Completo"
+                    title="Total Compartilhado"
                     value={"R$ " + regarding.personal_total.shared}
                     helpText={
                       "Soma dos itens em que todos os membros são contribuintes"
-                    }
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <DashItem
-                    title="Total Compartilhado Parcial"
-                    value={"R$ " + regarding.personal_total.partial_shared}
-                    helpText={
-                      "Soma dos itens em que alguém dividiu algo com você"
                     }
                   />
                 </Grid>
@@ -221,10 +212,37 @@ function RegardingDetail() {
                 </Grid>
                 <Grid item xs={6}>
                   <DashItem
-                    title="Saldo Compartilhado"
-                    value={"R$ " + regarding.personal_total.balance}
+                    title="Total Pago"
+                    value={"R$ " + regarding.personal_total.total_paid}
                     helpText={
-                      "Saldo relativo ao total pago do valor compartilhado em relação à parcela esperada devido ao peso do membro"
+                      "Soma das despesas que você pagou"
+                    }
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <DashItem
+                    title="Total a Receber"
+                    value={"R$ " + regarding.personal_total.total_to_receive}
+                    helpText={
+                      "Soma do valor a ser recebido pelos membros do grupo devido ao seus pagamentos"
+                    }
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <DashItem
+                    title="Total a Pagar"
+                    value={"R$ " + regarding.personal_total.total_to_pay}
+                    helpText={
+                      "Soma do valor a ser pago aos membros que pagaram algo para você"
+                    }
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <DashItem
+                    title="Saldo Final"
+                    value={"R$ " + regarding.personal_total.final_balance}
+                    helpText={
+                      "Saldo final da referência que indica se você deve ou recebe. Equivale a 'Total a Receber' menos 'Total a Pagar'"
                     }
                   />
                 </Grid>

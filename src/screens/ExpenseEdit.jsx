@@ -206,7 +206,10 @@ function ExpenseEdit() {
       newItem.create = true;
       newItems.push(newItem);
     } else {
-      newItems[itemIndex] = { ...newItem, edited: true };
+      newItems[itemIndex] = {...newItem}
+      if("created_at" in newItem){
+        newItems[itemIndex].edited = true 
+      }
       console.log(itemIndex, inputStates.items);
     }
     setInputStates({ ...inputStates, items: newItems });
@@ -238,9 +241,10 @@ function ExpenseEdit() {
   };
 
   const handleClickPayment = (payment) => {
+    console.log(payment)
     let newPayment = {
       ...payment,
-      payer: {id: payment.payer.id, name: payment.payer.name},
+      payer: {id: payment.payer.id, name: payment.payer.full_name},
       payment_method: paymentMethodOptions.find(
         (item) => item.id == payment.payment_method.id
       ),
@@ -297,7 +301,10 @@ function ExpenseEdit() {
       } else {
         newPayment.payment_status = "AWAITING";
       }
-      newPayments[paymentIndex] = { ...newPayment, edited: true };
+      newPayments[paymentIndex] = { ...newPayment};
+      if("created_at" in newPayment){
+        newPayments[paymentIndex].edited = true 
+      }
     }
     setInputStates({ ...inputStates, payments: newPayments });
     setOpenModal(false);
@@ -376,6 +383,7 @@ function ExpenseEdit() {
         .toString()
         .padStart(2, 0)}-${inputStates.date.$D.toString().padStart(2, 0)}`,
       regarding: inputStates.regarding.id,
+      cost: inputStates.cost.replace(".", "").replace(",", "."),
     };
     if (id) {
       editExpense(user.api_token, id, data).then(({ flag, data }) => {
@@ -402,6 +410,7 @@ function ExpenseEdit() {
       });
     } else {
       setSaving(true);
+      data.created_by = user.id
       createExpense(user.api_token, data).then(({ flag, data }) => {
         if (flag) {
           dispatch(

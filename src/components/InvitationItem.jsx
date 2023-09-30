@@ -38,6 +38,7 @@ function InvitationItem({
   const handleInvitationAnswer = (answer) => {
     let data = {
       status: answer ? "ACCEPTED" : "REJECTED",
+      expense_group: invitation.expense_group
     };
     editInvitation(userState.currentUser.api_token, invitation.id, data).then(
       ({ flag, data }) => {

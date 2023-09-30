@@ -42,6 +42,7 @@ function GroupEdit() {
     members: [],
     memberships: [],
     invitations: [],
+    removed: []
   });
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -127,6 +128,7 @@ function GroupEdit() {
       ...inputStates,
       members: [...members],
       memberships: [...memberships],
+      removed: [...inputStates, membershipToRemove.id]
     });
     setFieldsChanged(true);
   };

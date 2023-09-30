@@ -17,7 +17,7 @@ function RecentActionDetail() {
   let { id } = useParams();
   const navigate = useNavigate();
   const actionState = useSelector((state) => state.action);
-  const [action, setAction] = useState({});
+  const [action, setAction] = useState(null);
 
   useEffect(() => {
     let index = actionState.groupsActions.findIndex((item) => item.id == id);
@@ -26,8 +26,8 @@ function RecentActionDetail() {
     }
   }, []);
 
-  return (
-    <div>
+  return action ? 
+    (<div>
       <AppBar position="sticky">
         <Toolbar>
           <BackButton />
@@ -51,26 +51,26 @@ function RecentActionDetail() {
         <span className="ml-[10px] text-sm">{action.created_at}</span>
         <h5 className="font-bold mt-2">Tipo de Ação</h5>
         <span className="ml-[10px] text-sm">{iconsByAction[action.type]}</span>
-        {action.type == "UPDATE" ? (
+        {Object.keys(action.changes_json).length > 0 ? (
           <>
             <h5 className="font-bold">Alterações </h5>
             <dl className="ml-[10px]">
               {action.changes_json &&
                 Object.keys(action.changes_json).map((key) => {
-                  return (
+                  return action.changes_json[key].length > 0 ? (
                     <>
                       <dt className="font-bold capitalize">
                         {action.changes_json[key] ? key : ""}
                       </dt>
-                      {action.changes_json[key].split("\n").map((change) => {
+                      {action.changes_json[key].map((change) => {
                         return change ? (
-                          <dd className="ml-[20px]">&#8594;{change}</dd>
+                          <dd className="ml-[20px]">&#8680; {change}</dd>
                         ) : (
                           ""
                         );
                       })}
                     </>
-                  );
+                  ) : ""
                 })}
             </dl>
           </>
@@ -79,7 +79,7 @@ function RecentActionDetail() {
         )}
       </div>
     </div>
-  );
+  ) : ""
 }
 
 export default RecentActionDetail;
