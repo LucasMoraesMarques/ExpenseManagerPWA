@@ -28,6 +28,7 @@ import { useOutletContext } from "react-router-dom";
 import NoData from "../components/NoData";
 import { setReload } from "../redux/slices/configSlice";
 import SwipeableViews from "react-swipeable-views";
+import HelpPopover from "../components/HelpPopover";
 
 function TabPanel(props) {
   const { children, value, index, padding, ...other } = props;
@@ -174,10 +175,12 @@ function RegardingDetail() {
             <span className="ml-[10px] text-sm">{regarding.description}</span>
             <h5 className="font-bold mt-2">Intervalo de duração</h5>
             <span className="ml-[10px] text-sm">
-              {" "}
               {regarding.start_date} a {regarding.end_date}
             </span>
-            <h5 className="font-bold mt-2">Status</h5>
+            <h5 className="font-bold mt-2">
+              Status
+              <HelpPopover helpText="Indica a situação da referência. Caso esteja finalizada, não aceitará novas despesas. Uma referência pode ser finalizada manualmente ou caso o intervalo de duração acabe." />
+            </h5>
             <span className="ml-[10px] text-sm">
               {regarding.is_closed ? "Finalizada" : "Em andamento"}
             </span>
@@ -207,16 +210,16 @@ function RegardingDetail() {
                   <DashItem
                     title="Total Individual"
                     value={"R$ " + regarding.personal_total.individual}
-                    helpText={"Soma dos itens em que você é o único contribuinte"}
+                    helpText={
+                      "Soma dos itens em que você é o único contribuinte"
+                    }
                   />
                 </Grid>
                 <Grid item xs={6}>
                   <DashItem
                     title="Total Pago"
                     value={"R$ " + regarding.personal_total.total_paid}
-                    helpText={
-                      "Soma das despesas que você pagou"
-                    }
+                    helpText={"Soma das despesas que você pagou"}
                   />
                 </Grid>
                 <Grid item xs={6}>
@@ -249,7 +252,10 @@ function RegardingDetail() {
               </Grid>
             )}
 
-            <h5 className="font-bold mt-2">Débitos individuais</h5>
+            <h5 className="font-bold mt-2">
+              Débitos individuais
+              <HelpPopover helpText="Aqui você pode ver os débitos finais da referência. O valor que voce recebe menos o que deve é igual ao 'Saldo Final'" />
+            </h5>
             <List>
               {regarding.has_expenses &&
               Object.keys(regarding.total_member_vs_member).length > 0 ? (
@@ -271,7 +277,10 @@ function RegardingDetail() {
                 <NoData message="Nenhum débito encontrado" />
               )}
             </List>
-            <h5 className="font-bold">Detalhes de Pagamento</h5>
+            <h5 className="font-bold">
+              Detalhes de Pagamento
+              <HelpPopover helpText="Aqui você pode ver o status dos pagamentos cadastrados. Um pagamento 'em validação' está esperando a resposta dos validantes. Quando for validado, caso seja cartão de crédito e não tenha compensado, o status passará para 'aguardando'. Por fim, se tornará pago." />
+            </h5>
             {regarding.has_expenses &&
             Object.keys(regarding.general_total).length > 0 ? (
               <>
@@ -304,7 +313,10 @@ function RegardingDetail() {
                   </Box>
                 </Box>
                 <Box className="w-[95%] mx-auto my-3">
-                  <h5 className="font-bold">Compras por dia</h5>
+                  <h5 className="font-bold">
+                    Compras por dia
+                    <HelpPopover helpText="Aqui você pode ver o valor gasto por dia ao longo da referência" />
+                  </h5>
                   <Box className="my-3">
                     <LineChart
                       data={{

@@ -137,7 +137,7 @@ function GroupList() {
             <Tab label="Convites" />
           </Tabs>
           <TabPanel value={value} index={0} className="text-black" padding={1}>
-            <div className="overflow-y-scroll mx-auto max-h-[calc(100vh-220px)]">
+            <div className="overflow-y-scroll mx-auto max-h-[calc(100vh-190px)]">
               <div className="flex flex-row justify-between">
                 <TextField
                   id="outlined-basic"
