@@ -36,6 +36,11 @@ import { useOutletContext } from "react-router-dom";
 import { setReload } from "../redux/slices/configSlice";
 import SwipeableViews from "react-swipeable-views";
 import ConfirmationModal from "../components/ConfirmationModal";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import CollectionsIcon from "@mui/icons-material/Collections";
+import Camera from "../components/Camera";
+import Gallery from "../components/Gallery";
+import { CircularProgress } from "@mui/material";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -74,6 +79,7 @@ function ExpenseEdit() {
     payments: [],
     validators: [],
     revalidate: false,
+    gallery: null,
   });
   const [inputValidation, setInputValidation] = useState({
     name: "",
@@ -109,7 +115,9 @@ function ExpenseEdit() {
   const [saving, setSaving] = useState(false);
   const [itemEdition, setItemEdition] = useState(false);
   const [paymentEdition, setPaymentEdition] = useState(false);
+  const [openCamera, setOpenCamera] = useState(false);
   const { user } = useOutletContext();
+  const [fileInput, setFiletInput] = useState(false);
 
   const handleChangeName = (e) => {
     setInputStates({ ...inputStates, name: e.target.value });
@@ -206,9 +214,9 @@ function ExpenseEdit() {
       newItem.create = true;
       newItems.push(newItem);
     } else {
-      newItems[itemIndex] = {...newItem}
-      if("created_at" in newItem){
-        newItems[itemIndex].edited = true 
+      newItems[itemIndex] = { ...newItem };
+      if ("created_at" in newItem) {
+        newItems[itemIndex].edited = true;
       }
       console.log(itemIndex, inputStates.items);
     }
@@ -241,10 +249,10 @@ function ExpenseEdit() {
   };
 
   const handleClickPayment = (payment) => {
-    console.log(payment)
+    console.log(payment);
     let newPayment = {
       ...payment,
-      payer: {id: payment.payer.id, name: payment.payer.full_name},
+      payer: { id: payment.payer.id, name: payment.payer.full_name },
       payment_method: paymentMethodOptions.find(
         (item) => item.id == payment.payment_method.id
       ),
@@ -261,7 +269,7 @@ function ExpenseEdit() {
     let paymentIndex = inputStates.payments.findIndex(
       (item) => item.id == payment.id
     );
-    console.log(payer)
+    console.log(payer);
 
     if (paymentIndex == -1) {
       for (let { id } of inputStates.payments) {
@@ -282,8 +290,7 @@ function ExpenseEdit() {
       };
       if (["DEBIT", "CASH"].includes(newPayment.payment_method.type)) {
         newPayment.payment_status = "PAID";
-      }
-      else {
+      } else {
         newPayment.payment_status = "AWAITING";
       }
       newPayments.push(newPayment);
@@ -293,17 +300,17 @@ function ExpenseEdit() {
         payment_method: payer.wallet.payment_methods.find(
           (item) => item.id == payment.payment_method.id
         ),
-        value: payment.value
+        value: payment.value,
       };
-      console.log(newPayment)
+      console.log(newPayment);
       if (["DEBIT", "CASH"].includes(newPayment.payment_method.type)) {
         newPayment.payment_status = "PAID";
       } else {
         newPayment.payment_status = "AWAITING";
       }
-      newPayments[paymentIndex] = { ...newPayment};
-      if("created_at" in newPayment){
-        newPayments[paymentIndex].edited = true 
+      newPayments[paymentIndex] = { ...newPayment };
+      if ("created_at" in newPayment) {
+        newPayments[paymentIndex].edited = true;
       }
     }
     setInputStates({ ...inputStates, payments: newPayments });
@@ -317,7 +324,7 @@ function ExpenseEdit() {
     setPaymentMethodOptions(
       payer.wallet.payment_methods.map((item) => ({
         name: item.type + " " + item.description,
-        id: item.id
+        id: item.id,
       }))
     );
     setFieldsChanged(true);
@@ -359,7 +366,7 @@ function ExpenseEdit() {
         setPaymentMethodOptions(
           payer.wallet.payment_methods.map((item) => ({
             name: item.type + " " + item.description,
-            id: item.id
+            id: item.id,
           }))
         );
       } else {
@@ -384,6 +391,7 @@ function ExpenseEdit() {
         .padStart(2, 0)}-${inputStates.date.$D.toString().padStart(2, 0)}`,
       regarding: inputStates.regarding.id,
       cost: inputStates.cost.replace(".", "").replace(",", "."),
+      gallery: inputStates.gallery,
     };
     if (id) {
       editExpense(user.api_token, id, data).then(({ flag, data }) => {
@@ -410,7 +418,7 @@ function ExpenseEdit() {
       });
     } else {
       setSaving(true);
-      data.created_by = user.id
+      data.created_by = user.id;
       createExpense(user.api_token, data).then(({ flag, data }) => {
         if (flag) {
           dispatch(
@@ -472,6 +480,7 @@ function ExpenseEdit() {
           name: validator.full_name,
         })),
         revalidate: false,
+        gallery: data.gallery,
       });
       let groupId = regarding.expense_group;
       let selectedGroup = groupState.userGroups.find(
@@ -500,7 +509,7 @@ function ExpenseEdit() {
         setPaymentMethodOptions(
           payer.wallet.payment_methods.map((item) => ({
             name: item.type + " " + item.description,
-            id: item.id
+            id: item.id,
           }))
         );
       }
@@ -580,13 +589,62 @@ function ExpenseEdit() {
     }
   }, [fieldsChanged]);
 
+  const testCamera = () => {
+    setOpenCamera(true);
+  };
+
+  const savePhotoToGallery = (photoSrc) => {
+    let lastId = 0;
+    let newGallery = { photos: [] };
+    console.log(inputStates.gallery);
+
+    if (inputStates.gallery && inputStates.gallery.photos.length > 0) {
+      for (let { id } of inputStates.gallery.photos) {
+        if (id >= lastId) {
+          lastId = id + 1;
+        }
+      }
+      newGallery = { ...inputStates.gallery };
+    }
+
+    let newPhoto = { id: lastId, src: photoSrc, create: true };
+    console.log(newGallery);
+    newGallery.photos = [...newGallery.photos, newPhoto];
+    setInputStates({ ...inputStates, gallery: newGallery });
+    setFieldsChanged(true);
+  };
+
+  const deleteGalleryPhoto = (imageId) => {
+    let newGallery = { ...inputStates.gallery };
+    console.log(imageId);
+    newGallery.photos = newGallery.photos.filter(
+      (photo) => !(photo.id == imageId)
+    );
+    setInputStates({ ...inputStates, gallery: newGallery });
+    setFieldsChanged(true);
+  };
+
+  function getBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  }
+
+  const handleChangeFileInput = async (e) => {
+    getBase64(e.target.files[0]).then((data) => savePhotoToGallery(data));
+    setFiletInput(value);
+  };
+
   return (
     <div id="expenseEdit" className="grow">
       <AppBar position="sticky">
         <Toolbar>
           <BackButton callback={handleLeaveForm} />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            {id ? 'Editar Despesa' : 'Adicionar Despesa'}
+            {id ? "Editar Despesa" : "Adicionar Despesa"}
           </Typography>
           {true && (
             <div>
@@ -600,7 +658,11 @@ function ExpenseEdit() {
                 onClick={handleSaveExpense}
                 disabled={!fieldsValid || saving || !fieldsChanged}
               >
-                Salvar
+                {saving ? (
+                  <CircularProgress sx={{ color: "white" }} size={20} />
+                ) : (
+                  "Salvar"
+                )}
               </Button>
             </div>
           )}
@@ -679,7 +741,11 @@ function ExpenseEdit() {
                     label: item.name,
                   }))}
                 renderInput={(params) => (
-                  <TextField {...params} label="Referência" required  sx={{ margin: "10px 0px" }}
+                  <TextField
+                    {...params}
+                    label="Referência"
+                    required
+                    sx={{ margin: "10px 0px" }}
                   />
                 )}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -707,20 +773,50 @@ function ExpenseEdit() {
               />
             </>
           )}
-          {/*
-          <IconButton
-          color="primary"
-          aria-label="upload picture"
-          component="label"
-          sx={{ margin: "10px 0px" }}
-          className="w-full"
-        >
-          <input hidden accept="image/*" type="file" />
-          <AttachmentIcon className="-rotate-45" />
-          <Typography variant="p" component="span">
-            Adicionar Arquivos
-          </Typography>
-        </IconButton>*/}
+          <Camera
+            opened={openCamera}
+            onClose={() => {
+              setOpenCamera(false);
+            }}
+            onCapture={savePhotoToGallery}
+          />
+          {inputStates.gallery &&
+          "photos" in inputStates.gallery &&
+          inputStates.gallery.photos.length > 0 ? (
+            <Gallery
+              gallery={inputStates.gallery.photos}
+              onDelete={deleteGalleryPhoto}
+              edit={true}
+            />
+          ) : (
+            ""
+          )}
+          <div className="flex flex-row justify-center">
+            <IconButton
+              color="primary"
+              aria-label="take picture"
+              component="label"
+              sx={{ margin: "10px 0px" }}
+              onClick={testCamera}
+            >
+              <CameraAltIcon />
+            </IconButton>
+            <IconButton
+              color="primary"
+              aria-label="upload picture"
+              component="label"
+              sx={{ margin: "10px 0px" }}
+            >
+              <input
+                id="fileInput"
+                hidden
+                accept="image/*"
+                type="file"
+                onChange={handleChangeFileInput}
+              />
+              <CollectionsIcon />
+            </IconButton>
+          </div>
         </div>
 
         <Tabs
@@ -820,7 +916,9 @@ function ExpenseEdit() {
                       variant="contained"
                       onClick={handleAddItem}
                       disabled={
-                        item.name && item.price != "0,00" && item.consumers.length > 0
+                        item.name &&
+                        item.price != "0,00" &&
+                        item.consumers.length > 0
                           ? false
                           : true
                       }
@@ -927,7 +1025,6 @@ function ExpenseEdit() {
                         variant="outlined"
                       />
                     )}
-
                   />
                   <TextField
                     id="outlined-basic"
@@ -958,7 +1055,9 @@ function ExpenseEdit() {
                       variant="contained"
                       onClick={handleAddPayment}
                       disabled={
-                        payment.payer && payment.payment_method && payment.value != "0,00"
+                        payment.payer &&
+                        payment.payment_method &&
+                        payment.value != "0,00"
                           ? false
                           : true
                       }

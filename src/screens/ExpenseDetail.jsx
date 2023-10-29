@@ -31,6 +31,7 @@ import { useOutletContext } from "react-router-dom";
 import { setReload } from "../redux/slices/configSlice";
 import NoData from "../components/NoData";
 import SwipeableViews from "react-swipeable-views";
+import Gallery from "../components/Gallery";
 
 function TabPanel(props) {
   const { children, value, index, padding, ...other } = props;
@@ -246,6 +247,14 @@ function ExpenseDetail() {
             </span>
             <h5 className="font-bold">Valor</h5>
             <span className="ml-[10px] text-sm">R$ {expense.cost}</span>
+            {expense.gallery && expense.gallery.photos.length > 0 ? (
+              <>
+                <h5 className="font-bold">Fotos</h5>
+                <Gallery gallery={expense.gallery.photos} edit={false} />
+              </>
+            ) : (
+              ""
+            )}
             <h5 className="font-bold">Pagamentos</h5>
             <List>
               {"payments" in expense &&

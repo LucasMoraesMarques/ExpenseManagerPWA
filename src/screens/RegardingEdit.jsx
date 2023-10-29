@@ -18,6 +18,7 @@ import { useOutletContext } from "react-router-dom";
 import { setReload } from "../redux/slices/configSlice";
 import ConfirmationModal from "../components/ConfirmationModal";
 import CustomModal from "../components/CustomModal";
+import { CircularProgress } from "@mui/material";
 
 const REGARDING_STATES = [
   { label: "Em andamento", id: 0 },
@@ -223,7 +224,7 @@ function RegardingEdit() {
         window.history.go(1);
         setOpenConfirmationModal(true);
       };
-      window.onbeforeunload = () => false
+      window.onbeforeunload = () => false;
     }
   }, [fieldsChanged]);
 
@@ -247,7 +248,11 @@ function RegardingEdit() {
                 disabled={!fieldsValid || saving || !fieldsChanged}
                 onClick={handleSaveRegarding}
               >
-                Salvar
+                {saving ? (
+                  <CircularProgress sx={{ color: "white" }} size={20} />
+                ) : (
+                  "Salvar"
+                )}
               </Button>
             </div>
           )}

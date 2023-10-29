@@ -28,6 +28,7 @@ import NoData from "../components/NoData";
 import Membership from "../components/Membership";
 import { setReload } from "../redux/slices/configSlice";
 import ConfirmationModal from "../components/ConfirmationModal";
+import { CircularProgress } from "@mui/material";
 
 function GroupEdit() {
   const [openModal, setOpenModal] = useState(false);
@@ -42,7 +43,7 @@ function GroupEdit() {
     members: [],
     memberships: [],
     invitations: [],
-    removed: []
+    removed: [],
   });
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -53,6 +54,7 @@ function GroupEdit() {
   const { user } = useOutletContext();
   const [deleteMode, setDeleteMode] = useState(false);
   const [deleteIds, setDeleteIds] = useState([]);
+  const [saving, setSaving] = useState(false);
 
   const handleChangeName = (e) => {
     setInputStates({ ...inputStates, name: e.target.value });
@@ -128,12 +130,13 @@ function GroupEdit() {
       ...inputStates,
       members: [...members],
       memberships: [...memberships],
-      removed: [...inputStates, membershipToRemove.id]
+      removed: [...inputStates, membershipToRemove.id],
     });
     setFieldsChanged(true);
   };
 
   const handleSaveGroup = () => {
+    setSaving(true);
     let data = {
       ...inputStates,
       members: inputStates.members.map((item) => item.id),
@@ -300,7 +303,7 @@ function GroupEdit() {
         window.history.go(1);
         setOpenConfirmationModal(true);
       };
-      window.onbeforeunload = () => false
+      window.onbeforeunload = () => false;
     }
   }, [fieldsChanged]);
 
@@ -324,7 +327,11 @@ function GroupEdit() {
                 variant="outlined"
                 onClick={handleSaveGroup}
               >
-                Salvar
+                {saving ? (
+                  <CircularProgress sx={{ color: "white" }} size={20} />
+                ) : (
+                  "Salvar"
+                )}
               </Button>
             </div>
           )}

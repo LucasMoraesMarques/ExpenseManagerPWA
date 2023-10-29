@@ -19,6 +19,7 @@ import {
 } from "../services/utils";
 import ConfirmationModal from "../components/ConfirmationModal";
 import CustomModal from "../components/CustomModal";
+import { CircularProgress } from "@mui/material";
 
 function ProfileEdit() {
   const [openModal, setOpenModal] = useState(false);
@@ -42,6 +43,7 @@ function ProfileEdit() {
     email: false,
     phone: false,
   });
+  const [saving, setSaving] = useState(false);
 
   const handleChangeFirstName = (e) => {
     setInputStates({ ...inputStates, first_name: e.target.value });
@@ -64,6 +66,7 @@ function ProfileEdit() {
   };
 
   const handleSaveUser = () => {
+    setSaving(true);
     editUser(
       userState.currentUser.api_token,
       userState.currentUser.id,
@@ -141,7 +144,7 @@ function ProfileEdit() {
         window.history.go(1);
         setOpenConfirmationModal(true);
       };
-      window.onbeforeunload = () => false
+      window.onbeforeunload = () => false;
     }
   }, [fieldsChanged]);
 
@@ -165,7 +168,11 @@ function ProfileEdit() {
                 onClick={handleSaveUser}
                 disabled={!fieldsValid || !fieldsChanged}
               >
-                Salvar
+                {saving ? (
+                  <CircularProgress sx={{ color: "white" }} size={20} />
+                ) : (
+                  "Salvar"
+                )}
               </Button>
             </div>
           )}

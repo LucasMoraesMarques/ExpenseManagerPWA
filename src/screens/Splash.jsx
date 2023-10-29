@@ -32,7 +32,7 @@ function Splash() {
   const loadResources = async () => {
     loadGroups(apiToken)
       .then((json) => {
-        if ("detail" in json && json.detail == "Invalid token.") {
+        if ("detail" in json) {
           throw Error("Token inválido");
         }
         setLoadingText("Carregando grupos ...");

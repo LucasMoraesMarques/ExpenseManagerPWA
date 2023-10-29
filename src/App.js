@@ -61,8 +61,8 @@ function App() {
     }
     loadGroups(apiToken)
       .then((json) => {
-        if("detail" in json && json.detail == "Invalid token."){
-          throw Error("Token inválido")
+        if ("detail" in json && json.detail == "Invalid token.") {
+          throw Error("Token inválido");
         }
         dispatch(setGroups(json));
       })
@@ -95,8 +95,8 @@ function App() {
         setOpen(false);
       })
       .catch((e) => {
-        Sentry.captureException(e)
-        if(e.message == "Token inválido") {
+        Sentry.captureException(e);
+        if (e.message == "Token inválido") {
           dispatch(
             addMessage({
               title: "Alerta",
@@ -104,7 +104,9 @@ function App() {
               severity: "warning",
             })
           );
-          setTimeout(() => {window.location.url = "/boas-vindas"}, 1000);
+          setTimeout(() => {
+            window.location.url = "/boas-vindas";
+          }, 1000);
         } else {
           dispatch(
             addMessage({
@@ -113,12 +115,14 @@ function App() {
               severity: "error",
             })
           );
-          setTimeout(() => {window.location.url = "/boas-vindas"}, 1000);
+          setTimeout(() => {
+            window.location.url = "/boas-vindas";
+          }, 1000);
         }
       })
       .finally(() => {
-        setOpen(false);
-        dispatch(setReload(false));
+        //setOpen(false);
+        //dispatch(setReload(false));
       });
   };
 
@@ -128,9 +132,12 @@ function App() {
   }, []);
 
   useEffect(() => {
-    let currentPath = window.location.href.replace(process.env.REACT_APP_BASE_DOMAIN, "")
-    console.log(process.env.REACT_APP_BASE_DOMAIN, currentPath)
-    if (configState.reload && currentPath != '/') {
+    let currentPath = window.location.href.replace(
+      process.env.REACT_APP_BASE_DOMAIN,
+      ""
+    );
+    console.log(process.env.REACT_APP_BASE_DOMAIN, currentPath);
+    if (configState.reload && currentPath != "/") {
       setOpen(true);
       loadResources();
     }
