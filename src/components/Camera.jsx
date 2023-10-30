@@ -14,7 +14,12 @@ function Camera({ opened, onClose = {}, onCapture = {} }) {
 
   function openCamera() {
     const constraints = {
-      video: { width: 1280, height: 720, facingMode: facingMode },
+      audio: false,
+      video: {
+        width: { min: 1920, ideal: 2560, max: 4096 },
+        height: { min: 1080, ideal: 1440, max: 2160 },
+        facingMode: facingMode,
+      },
     };
     const videoTag = document.querySelector("video");
 
@@ -47,9 +52,12 @@ function Camera({ opened, onClose = {}, onCapture = {} }) {
   function takePicture() {
     const context = canvas.getContext("2d");
     const videoTag = document.querySelector("video");
+    const rect = videoTag.getBoundingClientRect();
+    const width = rect.width > rect.height ? rect.width : rect.height;
+    const height = rect.width > rect.height ? rect.height : rect.width;
 
-    canvas.width = videoTag.offsetWidth;
-    canvas.height = videoTag.offsetHeight;
+    canvas.width = width;
+    canvas.height = height;
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     const data = canvas.toDataURL("image/png");
@@ -95,7 +103,7 @@ function Camera({ opened, onClose = {}, onCapture = {} }) {
         >
           <CloseIcon />
         </IconButton>
-        <video></video>
+        <video className="w-screen h-screen"></video>
         <div
           className="flex justify-center"
           style={{
@@ -110,7 +118,7 @@ function Camera({ opened, onClose = {}, onCapture = {} }) {
             component="label"
             onClick={changeFacingMode}
           >
-            <FlipCameraAndroidIcon fontSize="large" />
+            {/*<FlipCameraAndroidIcon fontSize="large" />*/}
           </IconButton>
           <IconButton
             color="primary"
@@ -138,7 +146,7 @@ function Camera({ opened, onClose = {}, onCapture = {} }) {
         >
           <CloseIcon />
         </IconButton>
-        <img src="" alt="" id="photo" />
+        <img src="" alt="" id="photo" className="w-screen h-screen" />
         <div
           className="flex justify-center"
           style={{
