@@ -127,7 +127,13 @@ function App() {
   };
 
   useEffect(() => {
-    dispatch(setReload(true));
+    let currentPath = window.location.href.replace(
+      process.env.REACT_APP_BASE_DOMAIN,
+      ""
+    );
+    if(!currentPath.includes("editar") && !currentPath.includes("criar")){
+      dispatch(setReload(true));
+    }
     return () => dispatch(setReload(false));
   }, []);
 

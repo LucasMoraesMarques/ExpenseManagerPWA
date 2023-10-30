@@ -773,13 +773,13 @@ function ExpenseEdit() {
               />
             </>
           )}
-          <Camera
+          {/*<Camera
             opened={openCamera}
             onClose={() => {
               setOpenCamera(false);
             }}
             onCapture={savePhotoToGallery}
-          />
+          />*/}
           {inputStates.gallery &&
           "photos" in inputStates.gallery &&
           inputStates.gallery.photos.length > 0 ? (
@@ -792,7 +792,7 @@ function ExpenseEdit() {
             ""
           )}
           <div className="flex flex-row justify-center">
-            <IconButton
+            {/*<IconButton
               color="primary"
               aria-label="take picture"
               component="label"
@@ -800,7 +800,7 @@ function ExpenseEdit() {
               onClick={testCamera}
             >
               <CameraAltIcon />
-            </IconButton>
+          </IconButton>*/}
             <IconButton
               color="primary"
               aria-label="upload picture"
