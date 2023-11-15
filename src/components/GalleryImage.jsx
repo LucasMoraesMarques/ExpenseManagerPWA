@@ -16,9 +16,9 @@ function GalleryImage({
     <ListItem
       key={photo.id}
       disableGutters
-      sx={{ position: "relative", minWidth: "140px" }}
+      sx={edit ? { maxWidth: "150px", height: "180px", minWidth: "150px" } : {}}
     >
-      <div style={{ width: "160px", position: "relative" }}>
+      <div className="mx-auto">
         {edit ? (
           <IconButton
             sx={{
@@ -37,7 +37,11 @@ function GalleryImage({
 
         <img
           src={photo.src}
-          style={{ maxHeight: "90%", width: "100%" }}
+          style={
+            edit
+              ? { height: "auto", width: "150px" }
+              : { height: "auto", width: "100%" }
+          }
           onClick={() => onClick(photo)}
         />
       </div>

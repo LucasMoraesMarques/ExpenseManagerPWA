@@ -26,7 +26,7 @@ function Gallery({ gallery, onDelete = () => {}, edit = false }) {
     <>
       <List
         spacing={2}
-        className="overflow-y-scroll h-[150px]"
+        className="overflow-x-scroll"
         direction="row"
         component={Stack}
       >
@@ -44,13 +44,16 @@ function Gallery({ gallery, onDelete = () => {}, edit = false }) {
         open={openModal}
         onClose={() => setOpenModal(false)}
         children={
-          <div
-            className="flex justify-center items-center mx-auto"
-            style={{ width: "90%" }}
-          >
+          <div className="flex justify-center items-center h-[80%]">
             <IconButton
               onClick={() => setSlidexIndex(sliderIndex - 1)}
               disabled={sliderIndex == 0}
+              sx={{
+                position: "absolute",
+                top: "45%",
+                left: "0px",
+                padding: "3px",
+              }}
             >
               <ArrowBackIosIcon />
             </IconButton>
@@ -63,6 +66,12 @@ function Gallery({ gallery, onDelete = () => {}, edit = false }) {
             <IconButton
               onClick={() => setSlidexIndex(sliderIndex + 1)}
               disabled={sliderIndex == gallery.length - 1}
+              sx={{
+                position: "absolute",
+                top: "45%",
+                right: "0px",
+                padding: "3px",
+              }}
             >
               <ArrowForwardIosIcon />
             </IconButton>
