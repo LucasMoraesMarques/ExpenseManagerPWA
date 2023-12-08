@@ -80,6 +80,7 @@ function ExpenseEdit() {
     validators: [],
     revalidate: false,
     gallery: null,
+    validation_status: "",
   });
   const [inputValidation, setInputValidation] = useState({
     name: "",
@@ -252,7 +253,7 @@ function ExpenseEdit() {
     console.log(payment);
     let newPayment = {
       ...payment,
-      payer: { id: payment.payer.id, name: payment.payer.full_name },
+      payer: { id: payment.payer.id, name: payment.payer_name },
       payment_method: paymentMethodOptions.find(
         (item) => item.id == payment.payment_method.id
       ),
@@ -269,8 +270,6 @@ function ExpenseEdit() {
     let paymentIndex = inputStates.payments.findIndex(
       (item) => item.id == payment.id
     );
-    console.log(payer);
-
     if (paymentIndex == -1) {
       for (let { id } of inputStates.payments) {
         if (id >= lastId) {
@@ -280,19 +279,14 @@ function ExpenseEdit() {
       let newPayment = {
         id: lastId,
         ...payment,
-        payment_status: "AWAITING",
+        payment_status: "VALIDATION",
         payment_method: payer.wallet.payment_methods.find(
           (item) => item.id == payment.payment_method.id
         ),
         payer: payer,
         payer_name: payer.full_name,
         create: true,
-      };
-      if (["DEBIT", "CASH"].includes(newPayment.payment_method.type)) {
-        newPayment.payment_status = "PAID";
-      } else {
-        newPayment.payment_status = "AWAITING";
-      }
+      };    
       newPayments.push(newPayment);
     } else {
       let newPayment = {
@@ -301,13 +295,8 @@ function ExpenseEdit() {
           (item) => item.id == payment.payment_method.id
         ),
         value: payment.value,
+        payment_status: "VALIDATION",
       };
-      console.log(newPayment);
-      if (["DEBIT", "CASH"].includes(newPayment.payment_method.type)) {
-        newPayment.payment_status = "PAID";
-      } else {
-        newPayment.payment_status = "AWAITING";
-      }
       newPayments[paymentIndex] = { ...newPayment };
       if ("created_at" in newPayment) {
         newPayments[paymentIndex].edited = true;
@@ -379,6 +368,25 @@ function ExpenseEdit() {
   const handleChangePaymentMethod = (e, value) => {
     setPayment({ ...payment, payment_method: value });
   };
+
+  const updatePaymentsStatus = () => {
+    let expenseAwaitingValidation = id ? (expense.validation_status != "Validada" || inputStates.revalidate) : inputStates.validators.length != 0
+    let newPayments = [...inputStates.payments]
+    for(let paymentIndex in newPayments){
+      let newPayment = {...newPayments[paymentIndex]}
+      if(expenseAwaitingValidation){
+        newPayment.payment_status = "VALIDATION"
+      }else {
+        if (["DEBIT", "CASH"].includes(newPayment.payment_method.type)) {
+          newPayment.payment_status = "PAID";
+        } else {
+          newPayment.payment_status = "AWAITING";
+        }
+      }
+      newPayments[paymentIndex] = newPayment
+    }
+    setInputStates({...inputStates, payments: newPayments})
+  }
 
   const handleSaveExpense = () => {
     window.onpopstate = {};
@@ -637,6 +645,12 @@ function ExpenseEdit() {
     getBase64(e.target.files[0]).then((data) => savePhotoToGallery(data));
     setFiletInput(value);
   };
+
+  useEffect(() => {
+    if(fieldsChanged){
+      updatePaymentsStatus()
+    }
+  }, [inputStates.validators, inputStates.revalidate, inputStates.payments])
 
   return (
     <div id="expenseEdit" className="grow">
